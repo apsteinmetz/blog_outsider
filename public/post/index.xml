@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Outsider Data Science</title>
+    <link>/post/</link>
+    <description>Recent content in Posts on Outsider Data Science</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2017. All rights reserved.</copyright>
+    <lastBuildDate>Sat, 25 Nov 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Plumbing the Depths of My Soul (in Facebook)</title>
+      <link>/post/summary-analysis-of-my-facebook-existance/</link>
+      <pubDate>Sat, 25 Nov 2017 00:00:00 +0000</pubDate>
+      
+      <guid>/post/summary-analysis-of-my-facebook-existance/</guid>
+      <description>First post! Let’s start out nice and easy. No big data machine learning or heavy stats. This post will merely explore the depths of my soul through a meta-analysis of every one of my Facebook posts. Meta-navel gazing, if you will.
+Perhaps you are not all that interested in the plumbing the depths of my soul. Still, you may be interested in seeing how you can do an analyis of your own Facebook life in the comfort of your own home.</description>
+    </item>
+    
+  </channel>
+</rss>

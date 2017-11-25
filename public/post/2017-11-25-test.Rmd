@@ -1,0 +1,12 @@
+---
+title: test
+author: Art Steinmetz
+date: '2017-11-25'
+slug: test
+categories:
+  - R
+tags:
+  - R Markdown
+  - regression
+---
+
