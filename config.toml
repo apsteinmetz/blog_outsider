@@ -1,4 +1,4 @@
-baseurl = "https://www.example.com/"
+baseurl = "https://outsiderdata.netlify.com/"
 languageCode = "en-us"
 title = "Outsider Data Science"
 theme = "blackburn"
