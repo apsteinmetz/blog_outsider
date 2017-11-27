@@ -7,6 +7,7 @@ copyright = "&copy; 2017. All rights reserved."
 canonifyurls = true
 paginate = 10
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
+logo="/img/favicon.png"
 
 [indexes]
   tag = "tags"
@@ -27,7 +28,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
   # Shown in the side menu.
   [[menu.main]]
     name = "Home"
-    pre = "<i class='fa fa-home fa-fw'></i>"
+    pre = "<i class='fa fa-home fa-fw'></i><img src='/img/logo_sm.png' alt='logo'><br>"
     weight = 1
     identifier = "home"
     url = "/"
