@@ -28,7 +28,7 @@ logo="/img/favicon.png"
   # Shown in the side menu.
   [[menu.main]]
     name = "Home"
-    pre = "<i class='fa fa-home fa-fw'></i><img src='/img/logo_sm.png' alt='logo'><br>"
+    pre = "<img src='/img/logo_sm.png' alt='logo'><br><i class='fa fa-home fa-fw'></i>"
     weight = 1
     identifier = "home"
     url = "/"
