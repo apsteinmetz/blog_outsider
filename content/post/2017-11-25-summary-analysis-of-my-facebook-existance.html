@@ -994,7 +994,7 @@ for (node in 1:length(list_nodes)){
       bind_rows(friend_table) %&gt;% 
       as_data_frame()
 }</code></pre>
-<p>How many Facebook friends do I have? Not many, by Facebook standards. This is, of course, the question that measures our entire self-worth. I’m very discriminating about who I friend <harumph>. Well, that plus I’m not a very likeable person. Only four people have become so annoying that I unfriended them (both political extremes). There are more that I unfollowed (too many cat videos) but Facebook doesn’t include them in the log for some reason.</p>
+<p>How many Facebook friends do I have? Not many, by Facebook standards. This is, of course, the question that measures our entire self-worth. I’m very discriminating about who I friend <harumph>. Well, that plus I’m not a very likeable person. Only four people have become so annoying that I unfriended them (both political extremes). There are more that I unfollowed (too many cat videos) but Facebook doesn’t include them in the log for some reason. Facebook also won’t tell me who unfriended me. But I’m sure that would never happen.</p>
 <pre class="r"><code>friend_table %&gt;% group_by(Category) %&gt;% summarize(Number=n())</code></pre>
 <pre><code>## # A tibble: 5 x 2
 ##                   Category Number

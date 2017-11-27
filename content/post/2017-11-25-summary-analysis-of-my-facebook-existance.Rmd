@@ -498,7 +498,7 @@ for (node in 1:length(list_nodes)){
 
 ```
 
-How many Facebook friends do I have?  Not many, by Facebook standards.  This is, of course, the question that measures our entire self-worth. I'm very discriminating about who I friend <harumph>.  Well, that plus I'm not a very likeable person.  Only four people have become so annoying that I unfriended them (both political extremes).  There are more that I unfollowed (too many cat videos) but Facebook doesn't include them in the log for some reason.
+How many Facebook friends do I have?  Not many, by Facebook standards.  This is, of course, the question that measures our entire self-worth. I'm very discriminating about who I friend <harumph>.  Well, that plus I'm not a very likeable person.  Only four people have become so annoying that I unfriended them (both political extremes).  There are more that I unfollowed (too many cat videos) but Facebook doesn't include them in the log for some reason.  Facebook also won't tell me who unfriended me. But I'm sure that would never happen.
 ```{r}
 friend_table %>% group_by(Category) %>% summarize(Number=n())
 ```
