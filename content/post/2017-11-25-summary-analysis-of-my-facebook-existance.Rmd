@@ -219,15 +219,17 @@ word_scores<-cleaned_post_words %>%
   inner_join(get_sentiments('afinn'),by="word") %>% 
   group_by(word,score) %>% summarise(count=n())
 
-word_scores %>% 
-        arrange((score)) %>% 
-        ungroup() %>% 
-        .[1:10,] %>% 
-        kable() %>% 
-  kable_styling(bootstrap_options = "striped", full_width = FALSE, position='left')
+# word_scores %>% 
+#         arrange((score)) %>% 
+#         ungroup() %>% 
+#         .[1:10,] %>% 
+#         kable() %>% 
+#   kable_styling(bootstrap_options = "striped", full_width = FALSE, position='left')
 
 ```
-Ohh, that is harsh. I am cringing right now.  Did I say those things?  Yes, well not often, at least.  As I mentioned above, the limitation of this analysis is that it lacks context.  For instance, did I call someone a slut?  I was briefly horrified when I saw that word.  Here is the word in context from 2014: "Less slut-shaming and more perp-jailing." 
+This is a family blog so I comment out the code that displays the worst words.  Suffice it to say, they are the usual curse words and forms thereof.  I am cringing right now.  Did I say those things?  Yes, well not often, at least, once or twice is typical for each.
+
+As I mentioned above, the limitation of this analysis is that it lacks context.  For instance, did I call someone a slut?  I was briefly horrified when I saw that word.  Here is the word in context from 2014: "Less slut-shaming and more perp-jailing." 
 
 All these negative words carry more power for me, an old-geezer, than for kids today (kids today!) who let f-bombs roll off their tongues with uncomfortable (to me) ease.  Get off my lawn!
 
@@ -433,8 +435,6 @@ pol_sentiment
 
 First off, Palin and McCain don't appear in this list beacuse I apparently didn't use any words from the "afinn" lexicon in my posts mentioning them.  Second, Romney is only mentioned in four posts so I don't think we have a valid sample size.
 
-I don't recall being so positive about Trump.  Does it have to do with the positive sentiment for "trump" we saw in the word cloud above? No.  When we examine the "afinn" lexicon used in this section "trump" doesn't appear.
-
 Taking what's left, let's view a chart.
 ```{r}
 pol_sentiment %>% filter(Politician != "Romney") %>% 
@@ -451,6 +451,31 @@ pol_sentiment %>% filter(Politician != "Romney") %>%
   coord_flip()+labs(y="Sentiment",x="")+ylim(c(-5,5))
 
 ```
+
+Let's subject this to a test of signifcance. The "null hypothesis" we want to test is that the mean sentiment score expressed for "Hillary" is not statistically different from the "Trump" score.  We duplicate some of the code run above, not for efficiency, but for clarity.
+```{r}
+trump_opinion<- cleaned_post_words %>% 
+    filter(word == 'trump') %>%
+    select(date) %>% 
+    unique() %>% 
+    inner_join(cleaned_post_words,by='date') %>%
+    select(word) %>% 
+    inner_join(get_sentiments('afinn'),by="word") %>% 
+    pull(score)
+
+hillary_opinion<- cleaned_post_words %>% 
+    filter(word == 'hillary') %>%
+    select(date) %>% 
+    unique() %>% 
+    inner_join(cleaned_post_words,by='date') %>%
+    select(word) %>% 
+    inner_join(get_sentiments('afinn'),by="word") %>% 
+    pull(score)
+
+
+t.test(trump_opinion,hillary_opinion)
+```
+Like before, we can't reject our hypothesis, I liked Donald Trump as much as I liked Hillary Clinton or, rather, you can't prove a thing!
 
 This analysis shows I didn't really express strong opinions.  It was deliberate. During the election things got pretty heated, as you may recall. I have Facebook friends on all sides of the the political divides.  Out of respect, I tried very hard not to trash anybody's candidate and instead tried to accentuate the positive.
 
