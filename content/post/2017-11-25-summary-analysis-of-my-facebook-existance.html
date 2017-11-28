@@ -938,29 +938,7 @@ pol_sentiment</code></pre>
   ggplot(aes(x=reorder(Politician,opinion),y=opinion))+geom_col()+
   coord_flip()+labs(y=&quot;Sentiment&quot;,x=&quot;&quot;)+ylim(c(-5,5))</code></pre>
 <p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
-<p>I didn’t really express strong opinions, it seems. During the election things got pretty heated as you may recall. I have Facebook friends on all sides of the the political divides. Out of respect, I tried very hard not to trash anybody’s candidate and instead tried to accentuate the positive. On that point, here’s what I said in September, 2016:</p>
-<pre class="r"><code>timeline_posts %&gt;% 
-  filter(date==as.POSIXct(&quot;2016-09-18 06:40:00&quot;)) %&gt;% select(post) %&gt;% 
-  kable() %&gt;% 
-  kable_styling(bootstrap_options = &quot;striped&quot;, full_width = FALSE, position=&#39;left&#39;)</code></pre>
-<table class="table table-striped" style="width: auto !important; ">
-<thead>
-<tr>
-<th style="text-align:left;">
-post
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-<p>I honor your choices. I would have thought that the extreme negative polls both major candidates share this year would encourage more consideration of alternatives. The effect, instead, is an extreme fear that if the other candidate wins, our republic is doomed!</p>
-<p>Half of you will be disappointed but, take heart, our nation will persevere. Doom, anarchy, dogs and cats living together have been foretold many times before. Reagan, Bush, Clinton and Obama were Satan incarnate in certain circles, yet here we are. While we rail against “gridlock,” it’s also called “checks and balances” and it works.</p>
-Good luck to your team!
-</td>
-</tr>
-</tbody>
-</table>
+<p>This analysis shows I didn’t really express strong opinions. It was deliberate. During the election things got pretty heated, as you may recall. I have Facebook friends on all sides of the the political divides. Out of respect, I tried very hard not to trash anybody’s candidate and instead tried to accentuate the positive.</p>
 </div>
 <div id="bonus-friend-analysis" class="section level1">
 <h1>Bonus Friend Analysis!</h1>
@@ -994,7 +972,7 @@ for (node in 1:length(list_nodes)){
       bind_rows(friend_table) %&gt;% 
       as_data_frame()
 }</code></pre>
-<p>How many Facebook friends do I have? Not many, by Facebook standards. This is, of course, the question that measures our entire self-worth. I’m very discriminating about who I friend <harumph>. Well, that plus I’m not a very likeable person. Only four people have become so annoying that I unfriended them (both political extremes). There are more that I unfollowed (too many cat videos) but Facebook doesn’t include them in the log for some reason. Facebook also won’t tell me who unfriended me. But I’m sure that would never happen.</p>
+<p>How many Facebook friends do I have? Not many, by Facebook standards. This is, of course, the question that measures our entire self-worth. I’m very discriminating about who I friend <harumph>. Well, that plus I’m not a very likeable person. Only four people have become so annoying that I unfriended them (both political extremes). There are more that I unfollowed (too many cat videos) but Facebook doesn’t include them in the log for some reason. Facebook also won’t tell me who unfriended me. But I’m sure that no one would do THAT.</p>
 <pre class="r"><code>friend_table %&gt;% group_by(Category) %&gt;% summarize(Number=n())</code></pre>
 <pre><code>## # A tibble: 5 x 2
 ##                   Category Number
@@ -1014,9 +992,9 @@ for (node in 1:length(list_nodes)){
 gg&lt;-friend_table2 %&gt;% ggplot(aes(x=as.Date(yearquarter),fill=Category))+ geom_bar(width=70)
 gg&lt;-gg +labs(title=&quot;Facebook Friending Activity&quot;,y=&quot;Count&quot;,x=&quot;Quarterly&quot;)
 gg</code></pre>
-<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-34-1.png" width="672" /></p>
+<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-33-1.png" width="672" /></p>
 <p>Not too surprising. There was a lot of friending happening when I first joined Facebook. Perhaps a bit more curious is the recent renewed uptick in friending. There has been an influx of renewed high school aquaintances.</p>
-<p>Sometimes it is useful too look at the balance of opposites. For example, we can see the balance of the number of friendings vs. the number of delete friend requests by assigning a negative number to deletions. There is no simple way to do this with native dplyr functions, though there should be. Base R is actually better at transforming just certain elements in a column based on some condition. Fortunately, I found a super-useful bit of code on Stack Overflow that does exactly what we need.</p>
+<p>Sometimes it is useful too look at the balance of opposites. For example, we can see the balance of the number of friendings vs. the number of delete friend requests by assigning a negative number to deletions. There is no simple way to do this with native dplyr functions, though there should be. Base R is actually better at transforming just certain elements in a column based on some condition. Fortunately, I found a super-useful bit of code on Stack Overflow, <code>mutate_cond()</code>, that does exactly what we need.</p>
 <pre class="r"><code>mutate_cond &lt;- function(.data, condition, ..., envir = parent.frame()) {
   #change elements of a column based on a condition
   #https://stackoverflow.com/questions/34096162/dplyr-mutate-replace-on-a-subset-of-rows/34096575#34096575
@@ -1043,7 +1021,7 @@ gg&lt;-friend_table3 %&gt;%
 
 gg&lt;-gg +labs(title=&quot;Facebook Friending Activity&quot;,y=&quot;Count&quot;,x=&quot;Quarterly&quot;)
 gg</code></pre>
-<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-35-1.png" width="672" /></p>
+<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-34-1.png" width="672" /></p>
 <p>It seems that adding friends is associated with deleted requests. I’l surmise that when I show up in a new friend’s network that will spark some friend requests from their network. Some, maybe most, will be from people I don’t actually know and I will reject. There are spikes in rejections because I let them stack up before I notice them.</p>
 </div>
 <div id="wrapping-up" class="section level1">
@@ -1054,22 +1032,27 @@ gg</code></pre>
 <h1>Double Bonus! Making the cool speedometer at the top of this post</h1>
 <p>Because we love cool visualizations, let’s show my mood on a silly gauge. I won’t show the low-level code I used to generate it because it’s basically a copy of what you can find here: <a href="http://www.gastonsanchez.com/" class="uri">http://www.gastonsanchez.com/</a>. Gaston is a visualization guru extrordinaire. This shows how far you can take base R graphics.</p>
 <p>What do you think your gauge would look like? If it’s in the red call the suicide prevention hotline.</p>
+<p>The animation is created using the <code>magick</code> package. I am thrilled that this recent release brings the image magick program inboard to R so we no longer have to run an external program to render animated files like GIFs (which I insist on pronouncing with a hard ‘G’, BTW.)</p>
 <pre class="r"><code># create animated mood gif for top of notebook.
 library(magick)
 my_days_moods&lt;-word_scores_by_weekday %&gt;%
   summarise(mood=mean(score))
 
-#interpolate to create more points for a smooth animation
-interp_moods&lt;-data_frame(doy=unlist(lapply(levels(my_days_moods$doy),rep,7)),
-                         mood_label=round(unlist(lapply(my_days_moods$mood,rep,7)),2),
-                         mood=approx(x=1:7,my_days_moods$mood,n=7*7)$y)
+#interpolate to create more points for a smooth animation.
+# the trick is to create a series where the mood stays constant for a number of frames
+# then transitions smoothly to the next mood value. Examine interp_moods to see how.
+interp_moods&lt;-data_frame(doy=unlist(lapply(levels(my_days_moods$doy),rep,10)),
+                         mood_label=round(unlist(lapply(my_days_moods$mood,rep,10)),2),
+                         mood=approx(x=1:14,unlist(lapply(my_days_moods$mood,rep,2)),n=70)$y)
+
 
 interp_moods$mood_label&lt;- paste(ifelse(interp_moods$mood_label&gt;0,&quot;+&quot;,&quot;&quot;),interp_moods$mood_label)
 
-# I&#39;ll spare you the details of the low-level code
-source(&quot;C:/Users/Arthur/Documents/R Projects/facebook/g_speedometer.r&quot;)</code></pre>
-<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-36-1.png" width="672" /></p>
-<pre class="r"><code>img &lt;- image_graph(600, 400, res = 96)
+# I&#39;ll spare you the details of the low-level code.
+# see it at http://www.gastonsanchez.com/.
+source(&quot;C:/Users/Arthur/Documents/R Projects/facebook/g_speedometer.r&quot;)
+
+img &lt;- image_graph(600, 400, res = 96)
 for(n in 1:nrow(interp_moods)){
   plot_speedometer(label=interp_moods$doy[n],
                    value=round(interp_moods$mood[n],2),

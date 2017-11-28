@@ -452,15 +452,10 @@ pol_sentiment %>% filter(Politician != "Romney") %>%
 
 ```
 
-I didn't really express strong opinions, it seems.  During the election things got pretty heated as you may recall. I have Facebook friends on all sides of the the political divides.  Out of respect, I tried very hard not to trash anybody's candidate and instead tried to accentuate the positive.  On that point, here's what I said in September, 2016:
-```{r}
-timeline_posts %>% 
-  filter(date==as.POSIXct("2016-09-18 06:40:00")) %>% select(post) %>% 
-  kable() %>% 
-  kable_styling(bootstrap_options = "striped", full_width = FALSE, position='left')
-  
-```
+This analysis shows I didn't really express strong opinions.  It was deliberate. During the election things got pretty heated, as you may recall. I have Facebook friends on all sides of the the political divides.  Out of respect, I tried very hard not to trash anybody's candidate and instead tried to accentuate the positive.
+
 #Bonus Friend Analysis!
+
 One more thing.  We've only looked at the 'timeline.htm' file but Facebook's data dump includes a lot of other stuff including a list of your friends and the date they were added.  We can look at a timeline and summary statistics for for this too.
 
 ```{r}
@@ -498,7 +493,7 @@ for (node in 1:length(list_nodes)){
 
 ```
 
-How many Facebook friends do I have?  Not many, by Facebook standards.  This is, of course, the question that measures our entire self-worth. I'm very discriminating about who I friend <harumph>.  Well, that plus I'm not a very likeable person.  Only four people have become so annoying that I unfriended them (both political extremes).  There are more that I unfollowed (too many cat videos) but Facebook doesn't include them in the log for some reason.  Facebook also won't tell me who unfriended me. But I'm sure that would never happen.
+How many Facebook friends do I have?  Not many, by Facebook standards.  This is, of course, the question that measures our entire self-worth. I'm very discriminating about who I friend <harumph>.  Well, that plus I'm not a very likeable person.  Only four people have become so annoying that I unfriended them (both political extremes).  There are more that I unfollowed (too many cat videos) but Facebook doesn't include them in the log for some reason.  Facebook also won't tell me who unfriended me. But I'm sure that no one would do THAT.
 ```{r}
 friend_table %>% group_by(Category) %>% summarize(Number=n())
 ```
@@ -520,7 +515,7 @@ gg
 
 Not too surprising.  There was a lot of friending happening when I first joined Facebook.  Perhaps a bit more curious is the recent renewed uptick in friending.  There has been an influx of renewed high school aquaintances.
 
-Sometimes it is useful too look at the balance of opposites.  For example, we can see the balance of the number of friendings vs. the number of delete friend requests by assigning a negative number to deletions.  There is no simple way to do this with native dplyr functions, though there should be.  Base R is actually better at transforming just certain elements in a column based on some condition.  Fortunately, I found a super-useful bit of code on Stack Overflow that does exactly what we need.
+Sometimes it is useful too look at the balance of opposites.  For example, we can see the balance of the number of friendings vs. the number of delete friend requests by assigning a negative number to deletions.  There is no simple way to do this with native dplyr functions, though there should be.  Base R is actually better at transforming just certain elements in a column based on some condition.  Fortunately, I found a super-useful bit of code on Stack Overflow, `mutate_cond()`, that does exactly what we need.
 ```{r}
 
 mutate_cond <- function(.data, condition, ..., envir = parent.frame()) {
@@ -563,20 +558,25 @@ Because we love cool visualizations, let's show my mood on a silly gauge.  I won
 
 What do you think your gauge would look like?  If it's in the red call the suicide prevention hotline.
 
+The animation is created using the `magick` package.  I am thrilled that this recent release brings the image magick program inboard to R so we no longer have to run an external program to render animated files like GIFs (which I insist on pronouncing with a hard 'G', BTW.)
 ```{r message=FALSE, warning=FALSE}
 # create animated mood gif for top of notebook.
 library(magick)
 my_days_moods<-word_scores_by_weekday %>%
   summarise(mood=mean(score))
 
-#interpolate to create more points for a smooth animation
-interp_moods<-data_frame(doy=unlist(lapply(levels(my_days_moods$doy),rep,7)),
-                         mood_label=round(unlist(lapply(my_days_moods$mood,rep,7)),2),
-                         mood=approx(x=1:7,my_days_moods$mood,n=7*7)$y)
+#interpolate to create more points for a smooth animation.
+# the trick is to create a series where the mood stays constant for a number of frames
+# then transitions smoothly to the next mood value. Examine interp_moods to see how.
+interp_moods<-data_frame(doy=unlist(lapply(levels(my_days_moods$doy),rep,10)),
+                         mood_label=round(unlist(lapply(my_days_moods$mood,rep,10)),2),
+                         mood=approx(x=1:14,unlist(lapply(my_days_moods$mood,rep,2)),n=70)$y)
+
 
 interp_moods$mood_label<- paste(ifelse(interp_moods$mood_label>0,"+",""),interp_moods$mood_label)
 
-# I'll spare you the details of the low-level code
+# I'll spare you the details of the low-level code.
+# see it at http://www.gastonsanchez.com/.
 source("C:/Users/Arthur/Documents/R Projects/facebook/g_speedometer.r")
 
 img <- image_graph(600, 400, res = 96)
