@@ -772,6 +772,7 @@ kill bill banks
 <p>Can you tell my political leanings from this data? Well, duh! You could just read the posts but where’s the fun in that? More practically, if we are analyzing big data sets it would be tough to glean the overall sentiment of many people from reading a feasible sample of posts. Let’s try running the sentiment analysis on all of the posts containing the name of a politician to see of anything emerges.</p>
 <p>Note, I often mention more than one name in a single post and this method won’t distinguish which words apply to which name.</p>
 <pre class="r"><code>pol_sentiment&lt;- NULL
+pol_sent&lt;- NULL
 for (pol in politicos) {
   sent_words&lt;-cleaned_post_words %&gt;% 
     filter(word == pol) %&gt;%
@@ -784,53 +785,42 @@ for (pol in politicos) {
   if(nrow(sent_words)&gt;0){
     avg_score&lt;-summarise(sent_words,opinion=mean(score),post_count=n())
     pol_sentiment&lt;-bind_rows(bind_cols(Politician=str_to_title(pol),avg_score),pol_sentiment)
+    pol_sent&lt;-bind_rows(data_frame(Politician=str_to_title(pol),
+                                   opinion=avg_score$opinion,
+                                   post_count=avg_score$post_count,
+                                   sent_words=list(sent_words$score)
+                                   ),
+    pol_sent)
     
   }
 
 }
-pol_sentiment</code></pre>
-<pre><code>## # A tibble: 8 x 3
-##   Politician     opinion post_count
-##        &lt;chr&gt;       &lt;dbl&gt;      &lt;int&gt;
-## 1     Romney -1.75000000          4
-## 2    Sanders  0.03333333         30
-## 3       Bush -0.41025641         39
-## 4    Johnson  0.22619048         84
-## 5    Clinton  0.03448276         29
-## 6    Hillary  0.01075269         93
-## 7      Trump  0.17073171         82
-## 8      Obama -0.11224490         98</code></pre>
-<p>First off, Palin and McCain don’t appear in this list beacuse I apparently didn’t use any words from the “afinn” lexicon in my posts mentioning them. Second, Romney is only mentioned in four posts so I don’t think we have a valid sample size.</p>
+pol_sent</code></pre>
+<pre><code>## # A tibble: 8 x 4
+##   Politician     opinion post_count sent_words
+##        &lt;chr&gt;       &lt;dbl&gt;      &lt;int&gt;     &lt;list&gt;
+## 1     Romney -1.75000000          4  &lt;int [4]&gt;
+## 2    Sanders  0.03333333         30 &lt;int [30]&gt;
+## 3       Bush -0.41025641         39 &lt;int [39]&gt;
+## 4    Johnson  0.22619048         84 &lt;int [84]&gt;
+## 5    Clinton  0.03448276         29 &lt;int [29]&gt;
+## 6    Hillary  0.01075269         93 &lt;int [93]&gt;
+## 7      Trump  0.17073171         82 &lt;int [82]&gt;
+## 8      Obama -0.11224490         98 &lt;int [98]&gt;</code></pre>
+<p>First off, Palin and McCain don’t appear in this list beacuse I apparently didn’t use any words from the “afinn” lexicon in my posts mentioning them. Second, Romney is only mentioned in four posts so I don’t think we have a valid sample size. Notice that we store the list of sentiment scores for each politician in <code>sent_words</code>. We’ll use that in a minute.</p>
 <p>Taking what’s left, let’s view a chart.</p>
-<pre class="r"><code>pol_sentiment %&gt;% filter(Politician != &quot;Romney&quot;) %&gt;% 
+<pre class="r"><code>pol_sent %&gt;% filter(Politician != &quot;Romney&quot;) %&gt;% 
   ggplot(aes(x=reorder(Politician,opinion),y=opinion))+geom_col()+
   coord_flip()+labs(y=&quot;Sentiment&quot;,x=&quot;&quot;)</code></pre>
 <p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-27-1.png" width="672" /></p>
 <p>I’m sad to say this is far from how I would rank order my feelings about each of these names. I was a Gary Johnson supporter but beyond that this list might as well be random. Sample size is an issue. I am not that prolific a poster and the words I have in common with the sentiment lexicon is fewer still. Also, remember the sentiment ranges run from -5 to +5. We are talking small magnitudes here. Here is the same chart with the maximum allowable range shown.</p>
-<pre class="r"><code>pol_sentiment %&gt;% filter(Politician != &quot;Romney&quot;) %&gt;% 
+<pre class="r"><code>pol_sent %&gt;% filter(Politician != &quot;Romney&quot;) %&gt;% 
   ggplot(aes(x=reorder(Politician,opinion),y=opinion))+geom_col()+
   coord_flip()+labs(y=&quot;Sentiment&quot;,x=&quot;&quot;)+ylim(c(-5,5))</code></pre>
 <p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
-<p>Let’s subject this to a test of signifcance. The “null hypothesis” we want to test is that the mean sentiment score expressed for “Hillary” is not statistically different from the “Trump” score. We duplicate some of the code run above, not for efficiency, but for clarity.</p>
-<pre class="r"><code>trump_opinion&lt;- cleaned_post_words %&gt;% 
-    filter(word == &#39;trump&#39;) %&gt;%
-    select(date) %&gt;% 
-    unique() %&gt;% 
-    inner_join(cleaned_post_words,by=&#39;date&#39;) %&gt;%
-    select(word) %&gt;% 
-    inner_join(get_sentiments(&#39;afinn&#39;),by=&quot;word&quot;) %&gt;% 
-    pull(score)
-
-hillary_opinion&lt;- cleaned_post_words %&gt;% 
-    filter(word == &#39;hillary&#39;) %&gt;%
-    select(date) %&gt;% 
-    unique() %&gt;% 
-    inner_join(cleaned_post_words,by=&#39;date&#39;) %&gt;%
-    select(word) %&gt;% 
-    inner_join(get_sentiments(&#39;afinn&#39;),by=&quot;word&quot;) %&gt;% 
-    pull(score)
-
-
+<p>Let’s subject this to a test of signifcance. The “null hypothesis” we want to test is that the mean sentiment score expressed for “Hillary” is not statistically different from the “Trump” score.</p>
+<pre class="r"><code>trump_opinion&lt;-pol_sent %&gt;% filter(Politician==&quot;Trump&quot;) %&gt;% pull(sent_words) %&gt;% unlist()
+hillary_opinion&lt;-pol_sent %&gt;% filter(Politician==&quot;Hillary&quot;) %&gt;% pull(sent_words) %&gt;% unlist()
 t.test(trump_opinion,hillary_opinion)</code></pre>
 <pre><code>## 
 ##  Welch Two Sample t-test
