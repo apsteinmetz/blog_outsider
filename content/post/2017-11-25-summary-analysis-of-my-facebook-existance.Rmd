@@ -215,7 +215,7 @@ sentiment_score
 Well, this draws an slightly different conclusion. The net score of my sentiment is +0.16 out of range of -5 to +5.  Just barely happy.  While I may use more negative than positive words, my positive words are more positive.  I suspect the word "love" which we already saw is frequently used (though it is "only" a "3") accounts for this.  
 
 What were my most negative words?
-```{r}
+```r
 word_scores<-cleaned_post_words %>% 
   inner_join(get_sentiments('afinn'),by="word") %>% 
   group_by(word,score) %>% summarise(count=n())
