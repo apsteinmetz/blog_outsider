@@ -1,10 +1,8 @@
-+++
-title = "Contact"
-date = "2017-11-25"
-sidemenu = "true"
-description = "How to contact me"
-+++
-
+---
+title: Contact Info
+author: Art Steinmetz
+date: '2017-11-26'
+---
 Email me at apsteinmetz@yahoo.com
 
 #Social Media:
@@ -15,7 +13,7 @@ Email me at apsteinmetz@yahoo.com
 
   [Stackoverflow](https://stackoverflow.com/users/4634335)
   
-# My Web Sites:
+# My Web Sites
 
   <h3>Analyze playlists of radio station WFMU.</h3>
   
