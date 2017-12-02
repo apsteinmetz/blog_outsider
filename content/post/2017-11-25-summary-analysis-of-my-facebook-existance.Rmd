@@ -62,7 +62,7 @@ Now that we have the raw data we need to extract the just the text of the commen
 The challenge here is that we want to get the date also which appears BEFORE the comment and has the tag `<div class="meta">`. Unfortunately, as we see above, merely sharing a link generates this tag without any comment or a different tag class so there are more `meta` classes than `comment` classes. Facebook should create a separate XML record for each log activity, but they don't.
 
 The code below seems inelegant to me.  `for` loops in R are non-idiomatic and indicate somebody was steeped in a non vectorized language (like me).  I tried without success to craft an xpath expression that would walk backwards when it sees a `comment` class to get the date.  In the end I resorted to the devil I know, a loop.
-```{r}
+```{r,cache=TRUE}
 timeline_post_nodes <- raw_timeline %>% 
   html_nodes(xpath="//div[@class ='comment'] | //div[@class='meta']")
 
@@ -215,7 +215,7 @@ sentiment_score
 Well, this draws an slightly different conclusion. The net score of my sentiment is +0.16 out of range of -5 to +5.  Just barely happy.  While I may use more negative than positive words, my positive words are more positive.  I suspect the word "love" which we already saw is frequently used (though it is "only" a "3") accounts for this.  
 
 What were my most negative words?
-```r
+```{r}
 word_scores<-cleaned_post_words %>% 
   inner_join(get_sentiments('afinn'),by="word") %>% 
   group_by(word,score) %>% summarise(count=n())
@@ -320,6 +320,16 @@ t.test(tuesday_moods$mood,sunday_moods$mood)
 Rats!  It looks like our "interesting" observation is not interesting.  The p-value of 0.32 is below 2, so we can't reject our hypothesis.  The difference in mean sentiment for Sunday and Tuesday  would have to be beyond the confidence interval to give us acceptable certainty that I am most cranky on Tuesday.
 
 We can't get too excited by the density plot, either.  My posts are bi-modally distributed but, given the relatively short length of my posts, chances are I use just one sentiment-loaded word and that skews the distribution.  Again, small sample sizes are the problem.  Pretty picture, though!
+
+What times am I most active?
+
+```{r}
+
+hours<-cleaned_post_words %>% mutate(hour=hour(date))
+
+hours %>% ggplot(aes(hour))+geom_bar()+
+  labs(title='Facebook Activity', x='Hour',y='Posts')
+```
 
 #Trends over Time
 

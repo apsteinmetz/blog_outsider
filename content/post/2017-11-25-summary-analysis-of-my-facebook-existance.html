@@ -537,6 +537,12 @@ bind_rows(tuesday_moods,sunday_moods) %&gt;% ggplot(aes(mood,fill=doy))+geom_den
 ## 0.06088435 0.26987711</code></pre>
 <p>Rats! It looks like our “interesting” observation is not interesting. The p-value of 0.32 is below 2, so we can’t reject our hypothesis. The difference in mean sentiment for Sunday and Tuesday would have to be beyond the confidence interval to give us acceptable certainty that I am most cranky on Tuesday.</p>
 <p>We can’t get too excited by the density plot, either. My posts are bi-modally distributed but, given the relatively short length of my posts, chances are I use just one sentiment-loaded word and that skews the distribution. Again, small sample sizes are the problem. Pretty picture, though!</p>
+<p>What times am I most active?</p>
+<pre class="r"><code>hours&lt;-cleaned_post_words %&gt;% mutate(hour=hour(date))
+
+hours %&gt;% ggplot(aes(hour))+geom_bar()+
+  labs(title=&#39;Facebook Activity&#39;, x=&#39;Hour&#39;,y=&#39;Posts&#39;)</code></pre>
+<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
 </div>
 <div id="trends-over-time" class="section level1">
 <h1>Trends over Time</h1>
@@ -548,7 +554,7 @@ bind_rows(tuesday_moods,sunday_moods) %&gt;% ggplot(aes(mood,fill=doy))+geom_den
 
 activity_times %&gt;% 
   ggplot(aes(as.Date(month))) + geom_bar() +labs(x=&quot;Month&quot;,y=&quot;Posts&quot;)</code></pre>
-<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
 <p>What’s up with the beginning of 2013 and December in 2015? Looking at the raw activity log I see that I briefly let Spotify tell you what I was listening to via Facebook. That generated a lot of activity. I turned it off after a couple weeks. In late 2016 around the election we also see an uptick in activity. Otherwise there have been pretty mild ebbs and flows, averaging about 30 posts per month.</p>
 <pre class="r"><code>activity_times %&gt;% 
   group_by(month) %&gt;% 
@@ -585,7 +591,7 @@ avg_per_month
 word_scores_by_month %&gt;%  
   ggplot(aes(x=as.Date(yearmonth),y=mood))+geom_col()+geom_smooth()+labs(x=&quot;Month&quot;,y=&quot;Mood Score&quot;)</code></pre>
 <pre><code>## `geom_smooth()` using method = &#39;loess&#39;</code></pre>
-<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
+<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
 <p>A trend is not very evident. Month-to-month variation is very high. Is it that we don’t have a good sample size or do my moods swing wildly? The most extreme gyration is around the 2016 presidential election. Optimism followed by despair? Perhaps.</p>
 <p>I try to avoid too much talk about politics on Facebook but, like most of us, it was tough in an election year. This gives us an opportunity to dig into a specific topic within the posting corpus.</p>
 <p>Let’s start by seeing how often I mentioned politicians names.</p>
@@ -599,7 +605,7 @@ gg&lt;-cleaned_post_words %&gt;%
   ggplot(aes(x=reorder(word,n),y=n))+geom_col()+coord_flip()+labs(y=&quot;Mentions&quot;,x=&quot;&quot;)
 
 gg</code></pre>
-<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-23-1.png" width="672" /></p>
+<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-24-1.png" width="672" /></p>
 <p>“Johnson”&quot; is Gary Johnson, in case you forgot. Unlike the the “lamestream media,” I gave much more attention to the Libertarian candidate in my posts. Oddly, that didn’t help his success in the election.</p>
 <p>“Hillary”&quot; is the only first name in the list. Using a woman’s first name when equally familiar men are referred to with their last name is often sexist. In my defense, during the election it was important to distinguish between her and husband Bill so that’s why I used “Hillary.” We are not on a first name basis. On the other hand, “Bill” is a common enough name (and noun) so it’s likely that many posts using it don’t refer to the politician. Just to get an idea let’s look at the words bracketing “bill”:</p>
 <pre class="r"><code>cleaned_post_words %&gt;% 
@@ -767,7 +773,7 @@ kill bill banks
   group_by(month,word) %&gt;% 
   summarize(n=n()) %&gt;% 
   ggplot(aes(as.Date(x=month),y=n,fill=word)) + geom_col() +labs(x=&quot;Month&quot;,y=&quot;Mentions&quot;)</code></pre>
-<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-25-1.png" width="672" /></p>
+<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
 <p>Yup, I guess so. Unlike some of my wonderful Facebook friends I have been able to let go of the emotions around the election, as my posts naming politicians have dropped back to their baseline levels. Naturally, the names have changed!</p>
 <p>Can you tell my political leanings from this data? Well, duh! You could just read the posts but where’s the fun in that? More practically, if we are analyzing big data sets it would be tough to glean the overall sentiment of many people from reading a feasible sample of posts. Let’s try running the sentiment analysis on all of the posts containing the name of a politician to see of anything emerges.</p>
 <p>Note, I often mention more than one name in a single post and this method won’t distinguish which words apply to which name.</p>
@@ -812,12 +818,12 @@ pol_sent</code></pre>
 <pre class="r"><code>pol_sent %&gt;% filter(Politician != &quot;Romney&quot;) %&gt;% 
   ggplot(aes(x=reorder(Politician,opinion),y=opinion))+geom_col()+
   coord_flip()+labs(y=&quot;Sentiment&quot;,x=&quot;&quot;)</code></pre>
-<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-27-1.png" width="672" /></p>
+<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
 <p>I’m sad to say this is far from how I would rank order my feelings about each of these names. I was a Gary Johnson supporter but beyond that this list might as well be random. Sample size is an issue. I am not that prolific a poster and the words I have in common with the sentiment lexicon is fewer still. Also, remember the sentiment ranges run from -5 to +5. We are talking small magnitudes here. Here is the same chart with the maximum allowable range shown.</p>
 <pre class="r"><code>pol_sent %&gt;% filter(Politician != &quot;Romney&quot;) %&gt;% 
   ggplot(aes(x=reorder(Politician,opinion),y=opinion))+geom_col()+
   coord_flip()+labs(y=&quot;Sentiment&quot;,x=&quot;&quot;)+ylim(c(-5,5))</code></pre>
-<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
+<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-29-1.png" width="672" /></p>
 <p>Let’s subject this to a test of signifcance. The “null hypothesis” we want to test is that the mean sentiment score expressed for “Hillary” is not statistically different from the “Trump” score.</p>
 <pre class="r"><code>trump_opinion&lt;-pol_sent %&gt;% filter(Politician==&quot;Trump&quot;) %&gt;% pull(sent_words) %&gt;% unlist()
 hillary_opinion&lt;-pol_sent %&gt;% filter(Politician==&quot;Hillary&quot;) %&gt;% pull(sent_words) %&gt;% unlist()
@@ -888,7 +894,7 @@ for (node in 1:length(list_nodes)){
 gg&lt;-friend_table2 %&gt;% ggplot(aes(x=as.Date(yearquarter),fill=Category))+ geom_bar(width=70)
 gg&lt;-gg +labs(title=&quot;Facebook Friending Activity&quot;,y=&quot;Count&quot;,x=&quot;Quarterly&quot;)
 gg</code></pre>
-<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-34-1.png" width="672" /></p>
+<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-35-1.png" width="672" /></p>
 <p>Not too surprising. There was a lot of friending happening when I first joined Facebook. Perhaps a bit more curious is the recent renewed uptick in friending. There has been an influx of renewed high school aquaintances.</p>
 <p>Sometimes it is useful too look at the balance of opposites. For example, we can see the balance of the number of friendings vs. the number of delete friend requests by assigning a negative number to deletions. There is no simple way to do this with native dplyr functions, though there should be. Base R is actually better at transforming just certain elements in a column based on some condition. Fortunately, I found a super-useful bit of code on Stack Overflow, <code>mutate_cond()</code>, that does exactly what we need.</p>
 <pre class="r"><code>mutate_cond &lt;- function(.data, condition, ..., envir = parent.frame()) {
@@ -917,7 +923,7 @@ gg&lt;-friend_table3 %&gt;%
 
 gg&lt;-gg +labs(title=&quot;Facebook Friending Activity&quot;,y=&quot;Count&quot;,x=&quot;Quarterly&quot;)
 gg</code></pre>
-<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-35-1.png" width="672" /></p>
+<p><img src="/post/2017-11-25-summary-analysis-of-my-facebook-existance_files/figure-html/unnamed-chunk-36-1.png" width="672" /></p>
 <p>It seems that adding friends is associated with deleted requests. I’l surmise that when I show up in a new friend’s network that will spark some friend requests from their network. Some, maybe most, will be from people I don’t actually know and I will reject. There are spikes in rejections because I let them stack up before I notice them.</p>
 </div>
 <div id="wrapping-up" class="section level1">
