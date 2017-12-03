@@ -1,7 +1,7 @@
 ---
 title: Outsider Data Science
 author: Art Steinmetz
-date: '2017-11-26'
+date: '2017-11-27'
 ---
 
 ![July Fourth by Grandma Moses](/img/july-fourth.jpg)

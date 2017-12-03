@@ -1,11 +1,12 @@
 ---
-title: Contact Info
+title: Contact
 author: Art Steinmetz
-date: '2017-11-26'
+date: '2017-11-27'
 ---
-Email me at apsteinmetz@yahoo.com
+# Email me
+  [apsteinmetz@yahoo.com](email:apsteinmetz@yahoo.com)
 
-#Social Media:
+# Social Media
 
   [Github](https://github.com/apsteinmetz)
 
@@ -23,5 +24,6 @@ Email me at apsteinmetz@yahoo.com
   
   <h3> A Spirograph toy using R, Shiny and ggplot2! </h3>
   
-  [Spirograph](http://spirograph.outsiderdata.net)
-
+  [Spirograph](https://viztoy.shinyapps.io/ShinySpiro2/)
+  
+  
