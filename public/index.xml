@@ -1,58 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>Outsider Data Science</title>
-    <link>/</link>
-    <description>Recent content on Outsider Data Science</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    <copyright>&amp;copy; 2017. All rights reserved.</copyright>
-    <lastBuildDate>Sun, 26 Nov 2017 00:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
-    
-    
-    <item>
-      <title>Outsider Data Science</title>
-      <link>/about/</link>
-      <pubDate>Sun, 26 Nov 2017 00:00:00 +0000</pubDate>
-      
-      <guid>/about/</guid>
-      <description>July Fourth by Grandma Moses
-I am not a data scientist. Others have coined good terms like &amp;ldquo;Data Nerd&amp;rdquo; and &amp;ldquo;Citizen Data Scientist.&amp;rdquo; I&amp;rsquo;ll coin another: &amp;ldquo;Outsider Data Scientist.&amp;rdquo; I would style myself in the likeness of an &amp;ldquo;outsider&amp;rdquo; artist, Grandma Moses. She was an American artist who didn&amp;rsquo;t pick up a brush between childhood and old age, and had no formal training. The works she produced would never be mistaken for the old masters&amp;rsquo; but they had a certain charm.</description>
-    </item>
-    
-    <item>
-      <title>Contact</title>
-      <link>/contact/</link>
-      <pubDate>Sat, 25 Nov 2017 00:00:00 +0000</pubDate>
-      
-      <guid>/contact/</guid>
-      <description>Email me at apsteinmetz@yahoo.com
-Social Media:
-github
-twitter
-stackoverflow</description>
-    </item>
-    
-    <item>
-      <title>Plumbing the Depths of My Soul (in Facebook)</title>
-      <link>/post/summary-analysis-of-my-facebook-existance/</link>
-      <pubDate>Sat, 25 Nov 2017 00:00:00 +0000</pubDate>
-      
-      <guid>/post/summary-analysis-of-my-facebook-existance/</guid>
-      <description>First post! Let’s start out nice and easy. No big data machine learning or heavy stats. This post will merely explore the depths of my soul through a meta-analysis of every one of my Facebook posts. Meta-navel gazing, if you will.
-Perhaps you are not all that interested in the plumbing the depths of my soul. Still, you may be interested in seeing how you can do an analyis of your own Facebook life in the comfort of your own home.</description>
-    </item>
-    
-    <item>
-      <title></title>
-      <link>/contact/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      
-      <guid>/contact/</guid>
-      <description>code{white-space: pre;}pre:not([class]) {background-color: white;}if (window.hljs &amp;&amp; document.readyState &amp;&amp; document.readyState === &#34;complete&#34;) {window.setTimeout(function() {hljs.initHighlighting();}, 0);}h1 {font-size: 34px;}h1.title {font-size: 38px;}h2 {font-size: 30px;}h3 {font-size: 24px;}h4 {font-size: 18px;}h5 {font-size: 16px;}h6 {font-size: 12px;}.table th:not([align]) {text-align: left;}.</description>
-    </item>
-    
-  </channel>
-</rss>
