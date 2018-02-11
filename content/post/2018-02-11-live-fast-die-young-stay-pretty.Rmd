@@ -9,6 +9,7 @@ tags:
   - music
   - web scraping
   - health
+  - gapminder
 ---
 
 ##Analyzing deaths of rock musicians
@@ -76,7 +77,7 @@ data
 ```
 If we were passing values "by reference" `my_function(data)` would change `data` without the need to assign it back to `data`. That's how `rvest` works.
 
-We use this behaviour to combine the tables in the two Wikipedia articles into one html page by extracting the tables in the second wiki article and making them xml siblings of the tables in the first.
+We use this behavior to combine the tables in the two Wikipedia articles into one html page by extracting the tables in the second wiki article and making them xml siblings of the tables in the first.
 
 Alternatively, we could load the two pages, extract the tables separately and combine them later but this is trickier!
 ```{r}
@@ -126,6 +127,7 @@ deaths_raw<-read_html("death_page2.html") %>%
 
 deaths_raw[1:5,] %>% kable(format.args=list(big.mark=","))
 ```
+
 ...and so on.
 
 Almost done with the boring bits. Separate out the list of name and bands into, at most, four bands. Turn the date string into a POSIX-style date. Replace the empty causes with "Not Specified." Finally, strip the footnote numbers out of the file.
@@ -148,8 +150,9 @@ deaths<-deaths %>% mutate_cond(is.na(`Cause of death`),`Cause of death`="Not Spe
 deaths<-deaths %>% mutate_cond(`Cause of death`=="",`Cause of death`="Not Specified")
 deaths[1:5,]%>% kable(format.args=list(big.mark=","))
 ```
-#Submitting to Wikipedia is getting more popular.
-Now we have a clean table.  Before going further we should note that death entries are growing over time.  No great surprises here but this says something about the age of Wikipedia, the growing popularity of Wikipedia and the age of Rock and Roll.  It does not say anything about the business getting more risky.
+
+#Another Caveat
+Now we have a clean table.  Before going further we should note that death entries are growing over time.  No great surprises here but but note that the in the early days of rock there were were few old rockers.  We should keep this in the back of our mind as we proceed.
 
 ```{r}
 deaths<-deaths %>% mutate(Year=year(Date))
@@ -172,6 +175,7 @@ cause_table<-deaths %>%
 
 cause_table[1:11,]%>% kable(format.args=list(big.mark=","))
 ```
+
 Looking through the table we see that many causes can be generalized.  Let's aggregate a bit. We are making some choices here.  For instance, I call any cause containing the words "heart" or "cardiac" as "heart disease."  I count alcohol as a drug. Where multiple terms exist, drugs trump accidents.  Suicide trumps everthing but cancer. Cancer trumps everthing.  Note the use of the very handy `mutate_cond` function.
 ```{r}
 #add a new column "general cause"
@@ -255,6 +259,7 @@ gg<-cause_table[1:12,]  %>%
 gg<-gg+coord_flip()
 gg
 ```
+
 NOW, we are done with all the data wrangling and can get to the (morbid) fun stuff.
 
 This gives us a decent picture of how rock stars die.  Mostly from the same things that kill all of us. Heart disease and cancer were the leading causes of death in US in 2015, followed by lung disease and accidents according to https://www.cdc.gov/nchs/fastats/deaths.htm and shown below.
@@ -267,6 +272,7 @@ us_deaths<-data_frame(General_Cause=as_factor(c('Heart Disease','Cancer',
                       US=c(633842,595930,212103,146571,140323,110561,79535,49959,44193,15696,683917))
 us_deaths %>% kable(format.args=list(big.mark=","))
 ```
+
 We might also note:
 Murder: 15,696 (https://ucr.fbi.gov/crime-in-the-u.s/2015/crime-in-the-u.s.-2015/tables/table-4)
 
@@ -299,7 +305,6 @@ comp_deaths<-cause_table %>%
   na.omit() %>% 
   mutate(Rockers=Rockers/sum(Rockers),US=US/sum(US)) %>% 
   {.}
-  
 
 gg<-comp_deaths %>% ggplot(aes(US,Rockers))+geom_point()
 gg<-gg+  geom_text_repel(label=comp_deaths$General_Cause)
@@ -310,6 +315,7 @@ gg<-gg+scale_x_continuous(labels=scales::percent)
 gg<-gg+scale_y_continuous(labels=scales::percent)
 gg
 ```
+
 This scatter plot shows the preponderance of rock musician deaths relative to the broader US population.  Where the points lie above the line it means rock musicians die of that cause more often than the overall US population.  We can see that suicide, murder and, especially, accidents account for more relative deaths than they do in the broader population.  Cancer seems more prevalent, too.  We can't know, but might suspect, this due to behavioral factors like smoking.
 
 #Die Young?
@@ -336,6 +342,7 @@ life_exp %>% ggplot(aes(birth_year,expected_longevity))+geom_line()+geom_point(a
   labs(title="Gapminder U.S. Life Expectancy at Birth, Extrapolated",y="Life Expectancy",x="Birth Year")
 
 ```
+
 We see that the `gapminder` data is pretty linear so we should be okay to extrapolate.  That said, we are going way beyond the observed range.  This is generally bad practice and, [according to Edward Tufte](https://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=0001yB), was a contributing factor in the Columbia Space Shuttle disaster (that, and Powerpoint).  I saw some sources that indicate the line should bend downward in the 1800s.  I am not controlling for demographics, either.  Our sample sizes are pretty small at the far end of the range, anyway, so any conclusions would have to be taken with a huge grain of salt,regardless.  Still, lets plunge on!
 
 We need to apply the expected longevity for each musician for the year they were born and compare that to the age they were at death.  We then summarize that data for each year of deaths.  To put it another way, in any given year, how did the rock musicians who died compare to the life expectancy for all people born in the US the same year each rock musician did?
@@ -370,7 +377,10 @@ gg<-gg+ scale_colour_manual(name = 'Lines',
 gg<-gg+ scale_fill_identity(name = 'Bars', guide = 'legend',labels = c('Gap'))
 gg
 ```
+
 This really surprised me.  Rock stars used to die young, but not any more!  They have completely closed the gap with the U.S. population at large (We can discount the early years in this chart since there are so few observations).  Again, Keith Richards, stick with the whatever you're doing, dude!
+
+Be careful, though. Remember what we observed above.  In the early days of rock, there were few old musicians.  This chart may simply reflect the arrival of old rockers.  To do this analysis the proper way we would need to adjust for that somehow.  The same issue might skew the relative accident frequency.  Further research is needed.
 
 Aww, heck with it.  Let's show the tidyverse way to roll this.  Start from the `death_age` table we created above.  Tidyfy it with `gather`, then plot.
 
@@ -386,6 +396,7 @@ gg<-gg+ scale_colour_manual(name="",
                             labels = c('Gap',"Rockers",'US Pop.(expected)'))
 gg
 ```
+
 This is much simpler, at the expense of losing the bar `geom` for `Gap`.  The first example is a complicated mix of mixing `color`, `fill` and legend labels.  The code for the second is far more clear to me. But...if we want to mix `geom_line` and `geom_bar` we are back to a more complicated treatment.
 
 
@@ -424,32 +435,16 @@ deaths %>% filter(Age==highlight) %>%
   kable(format.args=list(big.mark=","))
 
 ```
+
 Tragic, of course.  Those of us who have achieved a certain age occasionally reflect upon all the times in our youth when we did stupid stuff that could have killed us but luck favored us at that moment.  Did I say "we?" Well maybe just me.
 
 How do causes of death change as rock musicians age?  For this we'll use a `geom_density` plot to get smooth progressions over time in a stacked format.  Using `position="fill"` is the way to get the stack of causes to reach 100% for all age cohorts.  I mention this because I was scratching my head over how to do this.  I was confusing the use of the argument `"fill"` in this context with the use of `fill` to create a different series for each categories of a variable.  We use `fill` in both senses here:
 `geom_density(aes(fill=General_Cause),color="grey",position="fill")`
 
-
-```{r}
-#cut off below 21 and above 85 because the data gets pretty thin
-gg<-deaths %>%  
-  filter(Age >21,Age<86) %>% 
-  ggplot(aes(Age,..count..))+geom_density(aes(fill=General_Cause),color="grey",alpha=0.9,position="fill")
-gg<-gg+labs(title="Top Causes of Rock Musician Deaths by Age of Death",
-            y="Relative Frequency")
-gg<-gg+scale_y_continuous(labels=scales::percent,limits=c(0,1.00))
-gg<-gg+theme(panel.background = element_blank(),
-             panel.grid.major.x = element_line(color="black"))
-
-#make a palette for 15 categories with good color separation
-pal<-c(brewer.pal(12,"Set3"),brewer.pal(3,"Set2"))
-gg<-gg+scale_fill_manual(values=pal)
-
-gg
-```
 If we assume "Not Specified" deaths are in proportion to the reported causes, we can filter it it out get a clearer picture.
 
 ```{r}
+#cut off below 21 and above 85 because the data gets pretty thin
 gg<-deaths %>%  
   filter(General_Cause != "Not Specified") %>% 
   filter(Age >21,Age<86) %>% 
@@ -459,18 +454,23 @@ gg<-gg+labs(title="Top Causes of Rock Musician Deaths by Age of Death",
 gg<-gg+scale_y_continuous(labels=scales::percent,limits=c(0,1.00))
 gg<-gg+theme(panel.background = element_blank(),
              panel.grid.major.x = element_line(color="black"))
+#make a palette for 15 categories with good color separation
+pal<-c(brewer.pal(12,"Set3"),brewer.pal(3,"Set2"))
+gg<-gg+scale_fill_manual(values=pal)
 gg
 ```
+
 If you make it into your 50s as a rocker you are out of the  woods for suicide, murder and accidents. Cancer supplants accidents as the leading cause after age 40.  Heart disease is prevalent starting at 40 and onward.  "Not Specified" rises substantially with age.  I suspect it's because rock stars who die in their prime are more reported upon.
 
 #A couple more questions suggested by our discoveries.
 
-Note the emergence and dissapearce of AIDS as a cause of death from people in their late 20s to 50.  Is this a function of a certain number of years when AIDS was a particular scourge?  Is it a chronic, manageable, condition now so that it won't be a frequent cause of death any more? Let's look at the number of reported AIDS deaths by year.
+Note the emergence and dissapearce of AIDS as a cause of death from people in their late 20s to 50.  Is this a function of just the 80s and 90s when AIDS was a particular scourge?  Is it now a chronic, manageable, condition so that it won't be a frequent cause of death any more? Let's look at the number of reported AIDS deaths by year.
 
 ```{r}
 deaths %>% filter(General_Cause=="AIDS") %>% ggplot(aes(Year))+geom_bar()
 ```
-There are so few instances of AIDS deaths that we can't be confident of our hypothesis. Still, it is consistent with the dissapearance of AIDS as a cause after 2001 for many years - until 2017.  The last case is Michael Freidman.  I quesion his inclusion on this list as he was known as a Broadway song writer.  Still he was a tragic case.  His disease progressed rapidly but neither he nor his friends believed it was possible that HIV was causing his symptoms.  By the time he sought medical attention it was too late.  [The theatre community was stunned](https://www.nytimes.com/2017/10/11/theater/michael-friedman-aids-death-theater.html) that, in this place and time, AIDS could still kill someone.
+
+There are so few instances of AIDS deaths that we can't be confident of our hypothesis. Still, it is consistent with the dissapearance of AIDS as a cause after 2001 for many years - until 2017.  The last case is Michael Freidman.  I question his inclusion on this list as he was known as a Broadway song writer.  Still his was a tragic case.  His disease progressed rapidly but neither he nor his friends believed it was possible that HIV was causing his symptoms.  By the time he sought medical attention it was too late.  [The theatre community was stunned](https://www.nytimes.com/2017/10/11/theater/michael-friedman-aids-death-theater.html) that, in this place and time, AIDS could still kill someone.
 
 Finally, let's use this data to question our "live fast" assertion from above.  We know deaths from all causes rise with age.  Maybe the asbsolute number of accidental deaths stays the same (or even rises) but just goes down relative to other causes common to all geezers. As a reality check, let's ask if the absolute number changes with age.
 
@@ -488,7 +488,8 @@ gg<-gg+ scale_fill_manual(name='',
                           labels = c('Accident','All Causes'))
 gg
 ```
-The absolute number of accidental deaths fall as people age, even as total deaths rise. So, yes, rock musicians, like the rest of us, do get more careful as they age!
+
+The absolute number of accidental deaths falls as people age, even as total deaths rise. So, yes, rock musicians, like the rest of us, do get more careful as they age!
 
 #Conclusion
 
