@@ -9,7 +9,7 @@ tags:
   - web scraping
   - sports
 ---
-##Looking at Winter Olympic Medal Rankings by Vintage of Sport Introduction
+#Looking at Winter Olympic Medal Rankings by Vintage of Sport Introduction
 
 Norway is a tiny country that punches way above its weight in the Winter Olympic medal count.  We are not surprised as those folks are practically born on skis.  At the same time, toussle-haired surfer dudes and dudettes from the US seem to be all over the hill when snowboards are involved.  Notably, the sports where the US is most visible are sports which arose fairly recently.  Is there a pattern here?  Let's do a quick hit to see if we can visualize the dominance of countries, not by event, but by vintage of a sport's introduction to the games.
 
