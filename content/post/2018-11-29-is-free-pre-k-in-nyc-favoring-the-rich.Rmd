@@ -212,7 +212,7 @@ sumSeats <- schools %>%
 
 ```
 So we go from this:
-![](img/prekbooklet.png)<!-- -->
+![](/img/prekbooklet.png)
 
 then to this:
 ```{r}
