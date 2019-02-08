@@ -163,7 +163,7 @@ voter_18 <- voter_18 %>% mutate(income_2018=ifelse(income_2018==97,NA,income_201
 voter_18[1:10,]
 
 # We did a lot of work.  Save it.
-#save(voter_18,file="data/voter_18.rdata")
+save(voter_18,file="data/voter_18.rdata")
 # free up 30mb of memory
 rm(voter_18_raw)
 ```
@@ -175,7 +175,7 @@ demographics <- voter_18 %>%
   select(-question,-answer)
 
 demographics %>% group_by(gender_2018) %>%
-  summarise(count=n())
+  summarise(count=n()) %>% kable()
 ```
 ```{r}
 demographics %>%
@@ -188,74 +188,74 @@ The final step in massaging the data is to rescale all the question answers to b
 ```{r}
 #add two new columns to hold scaled answers.
 voter_18_scaled<-voter_18 %>% mutate(fiscal=NA,social=NA)
-# +1 is fiscal liberal
+# -1 is fiscal liberal
 voter_18_scaled <- voter_18_scaled %>% 
-  mutate(fiscal=ifelse(question=="trustgovt_2018",answer-2,fiscal))
+  mutate(fiscal=ifelse(question=="trustgovt_2018",-(answer-2),fiscal))
 
-# +1 is social liberal
+# -1 is social liberal
 voter_18_scaled <- voter_18_scaled %>%
-  mutate(social=ifelse(question=="immi_makedifficult_2018",(answer-3)*-0.5,social))
+  mutate(social=ifelse(question=="immi_makedifficult_2018",(answer-3)*0.5,social))
 voter_18_scaled <- voter_18_scaled %>%
   mutate(social=ifelse(question=="immi_makedifficult_2018",
                        ifelse(answer==8,0,social),social))
 
-# +1 is fiscal liberal
+# -1 is fiscal liberal
 voter_18_scaled <- voter_18_scaled %>%
-  mutate(fiscal=ifelse(question=="tax_goal_federal_2018",(answer-2.5)*(2/3),fiscal))
+  mutate(fiscal=ifelse(question=="tax_goal_federal_2018",(answer-2.5)*-(2/3),fiscal))
 
-# +1 is fiscal liberal
+# -1 is fiscal liberal
 voter_18_scaled <- voter_18_scaled %>%
-  mutate(fiscal=ifelse(question=="govt_reg_2016",(answer-2),fiscal))
+  mutate(fiscal=ifelse(question=="govt_reg_2016",-(answer-2),fiscal))
 voter_18_scaled <- voter_18_scaled %>%
   mutate(fiscal=ifelse(question=="govt_reg_2016",
                        ifelse(answer==8,0,fiscal),fiscal))
 
-# +1 is social liberal
+# -1 is social liberal
 voter_18_scaled <- voter_18_scaled %>%
-  mutate(social=ifelse(question=="sexism1_2018",(answer-2.5)*(2/3),social))
+  mutate(social=ifelse(question=="sexism1_2018",(answer-2.5)*-(2/3),social))
 
-# +1 is social liberal
+# -1 is social liberal
 voter_18_scaled <- voter_18_scaled %>%
-  mutate(social=ifelse(question=="holy_2018",(answer-2),social))
+  mutate(social=ifelse(question=="holy_2018",-(answer-2),social))
 
-# +1 is social liberal
+# -1 is social liberal
 voter_18_scaled <- voter_18_scaled %>%
-  mutate(social=ifelse(question=="gaymar_2016",(answer-1.5)*-2,social))
+  mutate(social=ifelse(question=="gaymar_2016",(answer-1.5)*2,social))
 voter_18_scaled <- voter_18_scaled %>%
   mutate(social=ifelse(question=="gaymar_2016",
                        ifelse(answer==8,0,social),social))
 
-# +1 is social liberal
+# -1 is social liberal
 voter_18_scaled <- voter_18_scaled %>%
-  mutate(social=ifelse(question=="view_transgender_2016",(answer-1.5)*-2,social))
+  mutate(social=ifelse(question=="view_transgender_2016",(answer-1.5)*2,social))
 voter_18_scaled <- voter_18_scaled %>%
   mutate(social=ifelse(question=="view_transgender_2016",
                        ifelse(answer==8,0,social),social))
 
-# +1 is social liberal
+# -1 is social liberal
 voter_18_scaled <- voter_18_scaled %>%
-  mutate(social=ifelse(question=="abortview3_2016",(answer-2)*-1,social))
+  mutate(social=ifelse(question=="abortview3_2016",(answer-2),social))
 voter_18_scaled <- voter_18_scaled %>%
   mutate(social=ifelse(question=="abortview3_2016",
                        ifelse(answer==8,0,social),social))
 
-# +1 is social liberal
+# -1 is social liberal
 voter_18_scaled <- voter_18_scaled %>%
-  mutate(social=ifelse(question=="third_soc_2018",(answer-3)*-0.5,social))
+  mutate(social=ifelse(question=="third_soc_2018",(answer-3)*0.5,social))
 
-# +1 is fiscal liberal
+# -1 is fiscal liberal
 voter_18_scaled <- voter_18_scaled %>%
-  mutate(fiscal=ifelse(question=="third_econ_2018",(answer-3)*-0.5,fiscal))
+  mutate(fiscal=ifelse(question=="third_econ_2018",(answer-3)*0.5,fiscal))
 
-# +1 is fiscal liberal
+# -1 is fiscal liberal
 voter_18_scaled <- voter_18_scaled %>%
-  mutate(fiscal=ifelse(question=="gvmt_involment_2016",(answer-1)*-1,fiscal))
+  mutate(fiscal=ifelse(question=="gvmt_involment_2016",(answer-1),fiscal))
 voter_18_scaled <- voter_18_scaled %>%
   mutate(fiscal=ifelse(question=="gvmt_involment_2016",
                        ifelse(answer==8,0,fiscal),fiscal))
 
 # We did a lot of work.  Save it.
-#save(voter_18_scaled,file="data/voter_18_scaled.rdata")
+save(voter_18_scaled,file="data/voter_18_scaled.rdata")
 
 ```
 Now we have values that we can aggregate for each question. They are all normalized and given equal weight. Should each question be given equal weight?  I don't know, but now we can compute average scores for each `caseid` (each one is one voter) . We also add the demographic features to each observation.  So now every `caseid` in the survey is assigned a separate fiscal and social temperament score. 
@@ -270,8 +270,8 @@ Let's start off at the highest level.  What are the mean values for each dimensi
 ```{r}
 mean_social <- mean(scores$social,na.rm = T)
 mean_fiscal <- mean(scores$fiscal,na.rm = T)
-print(paste("Mean Fiscal=",round(mean_fiscal,2),
-            "Mean Social=",round(mean_social,2)))
+print(paste("Mean Fiscal=",round(mean_fiscal,2)))
+print(paste("Mean Social=",round(mean_social,2)))
 ```
 Well that is an encouraging start.  The signs are in the libertarian quadrant, anyway, but are they statistically significant?  Specifically, can we reject the hypothesis that the true mean is greater than zero for social, and less than zero for fiscal?
 ```{r}
@@ -291,12 +291,12 @@ gg <- ggplot(scores,aes(fiscal,social)) + geom_point()
 gg <- gg +  geom_jitter(width=0.05,height=0.05)
 gg <- gg + geom_hline(yintercept = 0,color="red")
 gg <- gg + geom_vline(xintercept = 0,color="red")
-gg <- gg + annotate("text",label=c("Libertarian"),x=-0.9,y=0.9,color="red")
+gg <- gg + annotate("text",label=c("Libertarian"),x=0.9,y=-0.9,color="red")
 gg <- gg + labs(title="Separation of Social and Fiscal Values",
-                y = "Social Score (Higher=More Liberal)",
-                x = "Fiscal Score (Higher=More Liberal)",
+                y = "Social Score (Lower=More Liberal)",
+                x = "Fiscal Score (Lower=More Liberal)",
                 caption = "Source: VoterStudyGroup.org")
-gg <- gg + annotate("text",x=0.7,y=-1.0,color="red",
+gg <- gg + annotate("text",x=-0.7,y=1.0,color="red",
                     label=paste("Mean Fiscal=",round(mean_fiscal,2),
                                 "Mean Social=",round(mean_social,2)))
 gg <- gg + geom_smooth(method="lm")
@@ -305,7 +305,7 @@ gg
 
 The first thing to note is the values are all over the chart. We've added some random "jitter" noise to the position of each point with `geom_jitter()`.  Otherwise, many of the points would overlap and obscure the density of the points. Even so, careful scrutiny of of the standard error range around the regression line shows that a huge number of points lie very close to the line.
 
-Sadly, for a libertarian, the scores tend to line up close to the 45 degree axis, which means people who are more socially conservative are more likely to be fiscally conservative as well. The libertarian quadrant is the upper left, which is more sparsely populated.
+Sadly, for a libertarian, the scores tend to line up close to the 45 degree axis, which means people who are more socially conservative are more likely to be fiscally conservative as well. The libertarian quadrant is the lower right, which is more sparsely populated.
 
 ```{r}
 lm(scores$social~scores$fiscal) %>% broom::tidy()
@@ -317,9 +317,9 @@ Let's count voter incidence in each quadrant.
 #call zero scores "Neutral"
 scores <- scores %>% 
   mutate(fiscal_label=cut(scores$fiscal,c(-1,-0.0001,0.0001,1),
-                      labels=c("Conservative","Neutral","Liberal"))) %>% 
+                      labels=c("Liberal","Neutral","Conservative"))) %>% 
   mutate(social_label=cut(scores$social,c(-1,-0.01,0.01,1),
-                      labels=c("Conservative","Neutral","Liberal")))
+                      labels=c("Liberal","Neutral","Conservative")))
 
 xtabs(~fiscal_label+social_label,scores) %>% 
   as_tibble() %>% 
@@ -334,12 +334,17 @@ This is suggestive of traditional party platforms so how does this look broken o
 
 gg <-ggplot(scores,aes(fiscal,social,color=party_2018))+geom_point()
 gg <- gg +  geom_jitter(width=0.05,height=0.05)
-gg <- gg + geom_hline(yintercept = 0,color="red")
-gg <- gg + geom_vline(xintercept = 0,color="red")
-gg <- gg + annotate("text",label=c("Libertarian"),x=-0.9,y=0.9,color="red")
+gg <- gg + geom_hline(yintercept = 0)
+gg <- gg + geom_vline(xintercept = 0)
+gg <- gg + annotate("text",label=c("Libertarian"),x=0.9,y=-0.9)
+gg <- gg + scale_color_manual(values=c(Republican='#e41a1c',
+                                       Democrat='#377eb8',
+                                       Independent='#4daf4a',
+                                       Other='#984ea3',
+                                       `Not Sure`='#ff7f00'))
 gg <- gg + labs(title="Party Lines Align With Temperament",
-                y = "Social Score (Higher=More Liberal)",
-                x = "Fiscal Score (Higher=More Liberal)",
+                y = "Social Score (Lower=More Liberal)",
+                x = "Fiscal Score (Lower=More Liberal)",
                 caption = "Source: VoterStudyGroup.org")
 gg
 
@@ -353,12 +358,12 @@ The survey respondents are overwhelmingly white. What does the plot look like if
 gg <- scores %>% filter(race_2018 != "White") %>% 
   ggplot(aes(fiscal,social,color=race_2018))+geom_point()
 gg <- gg +  geom_jitter(width=0.05,height=0.05)
-gg <- gg + geom_hline(yintercept = 0,color="red")
-gg <- gg + geom_vline(xintercept = 0,color="red")
-gg <- gg + annotate("text",label=c("Libertarian"),x=-0.9,y=0.9,color="red")
+gg <- gg + geom_hline(yintercept = 0)
+gg <- gg + geom_vline(xintercept = 0)
+gg <- gg + annotate("text",label=c("Libertarian"),x=0.9,y=-0.9)
 gg <- gg + labs(title="Minorities Are Not Too Different from Whites",
-                y = "Social Score (Higher=More Liberal)",
-                x = "Fiscal Score (Higher=More Liberal)",
+                y = "Social Score (Lower=More Liberal)",
+                x = "Fiscal Score (Lower=More Liberal)",
                 caption = "Source: VoterStudyGroup.org")
 gg
 
@@ -368,7 +373,7 @@ The sub sample above looks very similar to the whole data set.  Black voters do 
 
 Let's meet some individuals.  Who are the folks who show strong libertarian sentiments (greater than 0.5 social, less than -0.5 fiscal), all nineteen of them?
 ```{r}
-scores %>% filter(fiscal < (-0.5),social > (0.5)) %>% select(gender_2018,race_2018,party_2018,income_2018_000,state_2018)
+scores %>% filter(fiscal < (0.5),social > (-0.5)) %>% select(gender_2018,race_2018,party_2018,income_2018_000,state_2018)
 ```
 
 These folks are almost all white, but our set is a tiny sub sample so I doubt any generalizations are significant.  There is only one Democrat in the bunch.  They are not rich and they're spread around the country. They are men and women.
@@ -382,7 +387,7 @@ gg <- gg + coord_flip() + theme(axis.text.x = element_text(angle=-90))
 gg <- gg + geom_hline(yintercept = 0,color="red")
 gg <- gg + labs(title="Higher Income Does  Not Make a Fiscal Conservative",
                 x = "Annual Income ($000)",
-                y = "Fiscal Score (Higher=More Liberal)",
+                y = "Fiscal Score (Lower=More Liberal)",
                 caption = "Source: VoterStudyGroup.org")
 gg
 ```
@@ -396,7 +401,7 @@ gg <- gg + coord_flip() + theme(axis.text.x = element_text(angle=-90))
 gg <- gg + geom_hline(yintercept = 0,color="red")
 gg <- gg + labs(title="Higher Income Does Make One More Socially Liberal",
                 x = "Annual Income ($000)",
-                y = "Social Score (Higher=More Liberal)",
+                y = "Social Score (Lower=More Liberal)",
                 caption = "Source: VoterStudyGroup.org")
 gg
 ```
@@ -408,8 +413,8 @@ There is some association with more socially liberal views as income rises.  The
 Let's look at average scores by state.  To remind us of the influence that larger states have on the overall numbers we'll grab population data from the Census Bureau.  There are a number of R packages to access the census API but those are more than we need and require an API key.  Here, we'll just grab a summary CSV file from the web site.  
 ```{r}
 # download population summary from census bureau
-#state_pop_raw<-read_csv("https://www2.census.gov/programs-surveys/popest/datasets/2010-2018/national/totals/nst-est2018-alldata.csv")
-#save(state_pop_raw,file="data/state_pop_raw.rdata")
+state_pop_raw<-read_csv("https://www2.census.gov/programs-surveys/popest/datasets/2010-2018/national/totals/nst-est2018-alldata.csv")
+save(state_pop_raw,file="data/state_pop_raw.rdata")
 load("data/state_pop_raw.rdata")
 # filter to keep only state level data and add abbreviations
 # manually insert District of Columbia as a state
@@ -426,14 +431,14 @@ gg <- scores %>% group_by(state_2018) %>%
 gg <- gg + ggrepel::geom_text_repel(aes(label=state_2018))
 gg <- gg + scale_size(trans="log10",
                       labels=c("0","1 mm","3 mm","10 mm","30 mm","More"))
- gg <- gg + scale_color_gradient(trans="log10",
+gg <- gg + scale_color_gradient(trans="log10",
                                 labels=c("0","1 mm","3 mm","10 mm","30 mm","More"))
 gg <- gg + geom_hline(yintercept = 0)
 gg <- gg + geom_vline(xintercept = 0)
 gg <- gg + annotate("text",label=c("Libertarian"),x=-0.15,y=0.4)
 gg <- gg + labs(title="Separation of Social and Fiscal Values",
-                y = "Social Score (Higher=More Liberal)",
-                x = "Fiscal Score (Higher=More Liberal)",
+                y = "Social Score (Lower=More Liberal)",
+                x = "Fiscal Score (Lower=More Liberal)",
                 caption = "Source: VoterStudyGroup.org")
 
 gg
@@ -503,13 +508,22 @@ gg <- ggplot(scores_narrow,aes(fiscal,social,color=party_2018))+geom_point() + g
 gg <- gg + geom_hline(yintercept = 0)
 gg <- gg + geom_vline(xintercept = 0)
 gg <- gg + labs(title="What Kind of Third Party Would Voters Prefer?",
-                y = "Social Score (Higher=More Liberal)",
-                x = "Fiscal Score (Higher=More Liberal)",
+                y = "Social Score (Lower=More Liberal)",
+                x = "Fiscal Score (Lower=More Liberal)",
                 caption = "Source: VoterStudyGroup.org")
-gg <- gg + annotate("text",label=c("Libertarian"),x=-0.9,y=0.9)
-gg <- gg + annotate("text",label=c("Populist?"),x=0.9,y=-0.9)
-gg <- gg + annotate("text",label=c("Left of Democrats"),x=0.9,y=0.9)
-gg <- gg + annotate("text",label=c("Right of Republicans"),x=-0.9,y=-0.9)
+gg <- gg + annotate("text",label=c("Libertarian"),x=0.9,y=-0.9,fontface="bold")
+gg <- gg + annotate("text",label=c("Populist?"),x=-0.9,y=0.9,fontface="bold")
+gg <- gg + annotate("text",label=c("Left of Democrats"),x=-0.9,y=-0.9,fontface="bold")
+gg <- gg + annotate("text",
+                    label=c("Right of Republicans"),
+                    x=0.9,y=0.9,
+                    fontface="bold")
+gg <- gg + scale_color_manual(values=c(Republican='#e41a1c',
+                                       Democrat='#377eb8',
+                                       Independent='#4daf4a',
+                                       Other='#984ea3',
+                                       `Not Sure`='#ff7f00'))
+
 gg
 
 ```
@@ -529,11 +543,13 @@ tmp <-scores_narrow %>%
 
 
 
-xtabs(~social_direction+fiscal_direction,tmp) %>% as_tibble()
+xtabs(~social_direction+fiscal_direction,tmp) %>% as_tibble() %>% kable()
 ```
 
 ## Conclusion
 I started this exercise hoping to find some support for my personal views among the broader electorate.  Sadly, I didn't find much.  The strongest statement I can make is there is a slight bias among both Republicans and Democrats for more centrist policies.  But the fun of data science is finding things you didn't expect and in validating or refuting hunches and feelings with good science. I know something today I didn't know yesterday so I'll call it a win!
+
+UPDATE 2/8/2019: Based on feedback, I changed party colors and left/right positions to those most Americans are accomstomed to.
 
 ```{r}
 sessionInfo()
