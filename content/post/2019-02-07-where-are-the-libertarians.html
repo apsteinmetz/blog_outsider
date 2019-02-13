@@ -454,7 +454,7 @@ gg &lt;- gg + scale_color_gradient(trans=&quot;log10&quot;,
                                 labels=c(&quot;0&quot;,&quot;1 mm&quot;,&quot;3 mm&quot;,&quot;10 mm&quot;,&quot;30 mm&quot;,&quot;More&quot;))
 gg &lt;- gg + geom_hline(yintercept = 0)
 gg &lt;- gg + geom_vline(xintercept = 0)
-gg &lt;- gg + annotate(&quot;text&quot;,label=c(&quot;Libertarian&quot;),x=-0.15,y=0.4)
+gg &lt;- gg + annotate(&quot;text&quot;,label=c(&quot;Libertarian&quot;),x=0.15,y=-0.4)
 gg &lt;- gg + labs(title=&quot;Separation of Social and Fiscal Values&quot;,
                 y = &quot;Social Score (Lower=More Liberal)&quot;,
                 x = &quot;Fiscal Score (Lower=More Liberal)&quot;,
@@ -473,9 +473,7 @@ gg</code></pre>
 <h2>My Last Attempt at Validation</h2>
 <p>I went through the <em>YouGov.com</em> survey and picked out the questions I feel are relevant, a highly subjective exercise. Even so,the results do not support my belief that maybe a plurality of people have libertarian sensibilities. But there were hints that gave me some hope.</p>
 <p>First, there is a clear yearning for a choice beyond the existing parties as this question shows:</p>
-<p><em>In your view, do the Republican and Democratic parties do an adequate job of
-representing the American people, or do they do such a poor job that a third
-major party is needed?</em></p>
+<p><em>In your view, do the Republican and Democratic parties do an adequate job of representing the American people, or do they do such a poor job that a third major party is needed?</em></p>
 <table>
 <thead>
 <tr class="header">
@@ -495,8 +493,7 @@ major party is needed?</em></p>
 </tbody>
 </table>
 <p>The fact that most people want another choice tells us nothing about what that choice is. Another question does seem to suggest libertarian economic sentiment in excess of what the number of Republicans might indicate:</p>
-<p><em>In general, do you think there is too much or too little regulation of business
-by the government?</em></p>
+<p><em>In general, do you think there is too much or too little regulation of business by the government?</em></p>
 <table>
 <thead>
 <tr class="header">
@@ -524,11 +521,8 @@ by the government?</em></p>
 </tbody>
 </table>
 <p>Finally, there are two questions in the survey that go explicitly to the separation of social and fiscal values.</p>
-<p><em>1. If you were to vote for a new third party, where would you like it to stand on
-social and cultural issues—like abortion and same-sex marriage?</em></p>
-<p><em>2. If you were to vote for a new third party, where would you like it to stand on
-economic issues—like how much the government spends and how many services it
-provides?</em></p>
+<p><em>1. If you were to vote for a new third party, where would you like it to stand on social and cultural issues—like abortion and same-sex marriage?</em></p>
+<p><em>2. If you were to vote for a new third party, where would you like it to stand on economic issues—like how much the government spends and how many services it provides?</em></p>
 <p>The range of answers for both is:</p>
 <table>
 <thead>
@@ -639,7 +633,7 @@ xtabs(~social_direction+fiscal_direction,tmp) %&gt;% as_tibble() %&gt;% kable()<
 <p>I started this exercise hoping to find some support for my personal views among the broader electorate. Sadly, I didn’t find much. The strongest statement I can make is there is a slight bias among both Republicans and Democrats for more centrist policies. But the fun of data science is finding things you didn’t expect and in validating or refuting hunches and feelings with good science. I know something today I didn’t know yesterday so I’ll call it a win!</p>
 <p>UPDATE 2/8/2019: Based on feedback, I changed party colors and left/right positions to those most Americans are accomstomed to.</p>
 <pre class="r"><code>sessionInfo()</code></pre>
-<pre><code>## R version 3.5.0 (2018-04-23)
+<pre><code>## R version 3.5.1 (2018-07-02)
 ## Platform: x86_64-w64-mingw32/x64 (64-bit)
 ## Running under: Windows 10 x64 (build 17134)
 ## 
@@ -670,9 +664,9 @@ xtabs(~social_direction+fiscal_direction,tmp) %&gt;% as_tibble() %&gt;% kable()<
 ## [25] curl_3.3         fansi_0.4.0      highr_0.7        broom_0.5.1     
 ## [29] Rcpp_1.0.0       scales_1.0.0     backports_1.1.3  jsonlite_1.6    
 ## [33] hms_0.4.2        digest_0.6.18    stringi_1.2.4    ggrepel_0.8.0   
-## [37] bookdown_0.9     grid_3.5.0       cli_1.0.1        tools_3.5.0     
+## [37] bookdown_0.9     grid_3.5.1       cli_1.0.1        tools_3.5.1     
 ## [41] magrittr_1.5     lazyeval_0.2.1   crayon_1.3.4     pkgconfig_2.0.2 
 ## [45] xml2_1.2.0       lubridate_1.7.4  assertthat_0.2.0 rmarkdown_1.11  
 ## [49] httr_1.4.0       rstudioapi_0.9.0 R6_2.3.0         nlme_3.1-137    
-## [53] compiler_3.5.0</code></pre>
+## [53] compiler_3.5.1</code></pre>
 </div>
