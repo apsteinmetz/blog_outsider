@@ -23,7 +23,7 @@ I’ve been a spreadsheet power user from the days of Visicalc for the Apple ][.
 
 5. Visualization.  It is easy to create charts in Excel.  It is easy to create charts in R, though it is done in code, not interactively.  What R can do that Excel can’t, is to go further to make great looking charts because of the customization that is possible.  I won’t claim it is easy, though.  The learning curve is [steep, but rewarding](http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html).
 
-![](http://r-statistics.co/screenshots/ggplot_masterlist_1.png)
+![](http://r-statistics.co/screenshots/ggplot_masterlist_2.png)
 [SOURCE](https://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html)
 
 6. Scalability.  As your data sets become larger, R scales with them.  Excel becomes unwieldy.
