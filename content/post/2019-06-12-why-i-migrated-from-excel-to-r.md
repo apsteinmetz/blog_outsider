@@ -9,7 +9,7 @@ tags: []
 description: ''
 topics: []
 ---
-![](https://drive.google.com/uc?export=view&id=1J1XiQqUdyAMa9Id4vrkXN9tgtlDFewxC)
+![Old Spreadsheets](/img/spreadsheet_mosaic.png)
 
 I’ve been a spreadsheet power user from the days of Visicalc for the Apple ][.  I migrated to Lotus 1-2-3, to Borland Quattro and finally to Excel.  With Excel, I’ve bludgeoned Visual Basic to create some pretty complicated dashboards and analytics.  When I started using R I used tools like [RExcel](http://rcom.univie.ac.at/) that plug R in as an analytic server within Excel, or I would use Excel to download data from investment databases and export it for use in R.  But now I find I open up Excel only rarely and do all my quantitative investigations entirely within R.  Why?
 
