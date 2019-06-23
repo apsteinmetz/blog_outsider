@@ -33,6 +33,7 @@ topics: []
 <p>Generating the puzzle is the easy part.</p>
 <p>The first task is to generate the puzzle with random letters. It would be cruel to place no requirement to use vowels so we also specify a minimum number of vowels. We sample the required number of consonants and vowels and assign them to each segment of the polygon. The default is four sides with two consonants and one vowel per side.</p>
 <p>Just to be cute, let’s write the function so we can optionally expand the geometry of the puzzle to an arbitrary number of sides and number of letters per side, not just a square as we see in <em>The Times</em>.</p>
+<p>If you are playing along at home, delete the <code>set.seed()</code> line in the code below after you have established you get the same results I do or you will get the same puzzle every time you call <code>generate_puzzle</code>.</p>
 <pre class="r"><code># letterboxed game
 library(tidyverse)
 library(wfindr)
@@ -50,7 +51,7 @@ word_list &lt;- words.eng
 # ------------------------------------------------------------
 generate_puzzle &lt;- function(sides=4,letters_per_side=3,
                             vowel_count=4,replacement = FALSE){
-  set.seed(1234567) # delete this line or you will get the same puzzle every time
+  set.seed(1234567) # DELETE THIS LINE OR YOU WILL GET THE SAME PUZZLE EVERY TIME
   if(sides &lt; 4){
     print(&quot;Minimum Side is 4, changing to 4&quot;)
     sides = 4
@@ -103,7 +104,7 @@ generate_puzzle()</code></pre>
 ## 11     4     2 a     
 ## 12     4     3 f</code></pre>
 <p>Now we have a data frame with twelve random letters, including four vowels, assigned to one of three spots on four sides.</p>
-<p>It’s not necessary to solve the puzzle, but it would be nice to draw the puzzle in the style that appears in <em>The Times</em>. If all we needed to do was make a square the task of drawing it would be trivial but, as noted above, I can’t leave well enough alone. If we want to make polygons of arbitrary sizes so we need to do a bit of trigonometry. First we generate the vertices of our polygon, then the points on each segment where the letters will go (as an aside, I say “vertices,” the proper Latin plural. The “newspaper of record” abandoned Latin plurals a decade ago. It grinds my gears to see the Times printing “vertexes”).</p>
+<p>It’s not necessary to solve the puzzle, but it would be nice to draw the puzzle in the style that appears in <em>The Times</em>. If all we needed to do was make a square the task of drawing it would be trivial but, as noted above, I can’t leave well enough alone. If we want to make polygons of arbitrary sizes we need to do a bit of trigonometry. First we generate the vertices of our polygon, then the points on each segment where the letters will go (as an aside, I say “vertices,” the proper Latin plural. The “newspaper of record” abandoned Latin plurals a decade ago. It grinds my gears to see the Times printing “vertexes”).</p>
 <pre class="r"><code># -------------------------------------------------------------
 get_polygon &lt;- function(sides=4){
   x_center &lt;- 0
@@ -170,7 +171,7 @@ generate_puzzle() %&gt;%
   get_letter_coords(sides=sides,letters_per_side = letters_per_side) %&gt;% 
   draw_puzzle()</code></pre>
 <p><img src="/post/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
-<p>Remember we designed the generator to work with arbitrary dimensions. Let’s try 5 sides with 2 letters per side.</p>
+<p>Remember we designed the generator to work with arbitrary dimensions. Let’s try five sides with two letters per side.</p>
 <pre class="r"><code>generate_puzzle(5,2) %&gt;%
   get_letter_coords(5,2) %&gt;% 
   draw_puzzle(5,2)</code></pre>
@@ -231,7 +232,7 @@ test_needed_letters &lt;- function(word_chain){
   return(setdiff(all_puzzle_letters,
                      word_chain_chars))
 }</code></pre>
-<p>Now we come to the workhorse recursive function. “Recursive” just means it calls itself. I’ve learned the trick to recursive functions is getting out of them, otherwise you get trapped and run out of memory pretty quickly. At least nowadays you kids don’t have to worry about the whole machine crashing. You can just nuke the process that’s stuck.</p>
+<p>Now we come to the workhorse recursive function. “Recursive” just means it calls itself. I’ve learned the trick to recursive functions is getting out of them, otherwise you get deeper and deeper into the “Beyond” section of “Bed, Bath and Beyond” and run out of memory pretty quickly. At least nowadays you kids don’t have to worry about the whole machine crashing. You can just nuke the process that’s stuck.</p>
 <p>We start by preparing to iterate <code>make_chain</code> over the full list of valid words. Naturally we expect to find a solution before traversing much of the list. We build the solution chain by choosing a word that ends with a letter that has not been an ending letter yet. Otherwise we might chase our tail forever if a solution doesn’t lie on that path. Then we pick the best next word as described above. Then we call <code>make_chain</code> again and again and again.</p>
 <p>Here we limit the solution chain to a maximum of five words. Each time <code>make_chain</code> is called we run some tests and climb back out of the recursive stack if one of these conditions has been met:</p>
 <ol style="list-style-type: decimal">
@@ -351,8 +352,8 @@ draw_solution &lt;- function(puzzle, solutions){
 }
 
 draw_solution(puzzle, solutions)</code></pre>
-<p><img src="/post/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times_files/figure-html/unnamed-chunk-10-1.png" width="672" />
-Let’s go back to the image at the top of this post which is from <em>The Times</em>. We’ll use those letters to solve an actual puzzle. Do the puzzle authors generate the puzzles randomly or do they work backword from a selected word list? I have no idea.</p>
+<p><img src="/post/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p>Let’s go back to the image at the top of this post which is from <em>The Times</em>. We’ll use those letters to solve an actual puzzle. Do the puzzle authors generate the puzzles randomly or do they work backword from a selected word list? I have no idea.</p>
 <pre class="r"><code>sample_letters &lt;- &quot;taperdnilyco&quot;
 puzzle &lt;- generate_puzzle() %&gt;% get_letter_coords()
 #replace random letters with the one in the known puzzle

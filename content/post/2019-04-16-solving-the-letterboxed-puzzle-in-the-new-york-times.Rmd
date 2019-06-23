@@ -36,6 +36,8 @@ Generating the puzzle is the easy part.
 The first task is to generate the puzzle with random letters.  It would be cruel to place no requirement to use vowels so we also specify a minimum number of vowels.  We sample the required number of consonants and vowels and assign them to each segment of the polygon. The default is four sides with two consonants and one vowel per side.
 
 Just to be cute, let's write the function so we can optionally expand the geometry of the puzzle to an arbitrary number of sides and number of letters per side, not just a square as we see in *The Times*.
+
+If you are playing along at home, delete the `set.seed()` line in the code below after you have established you get the same results I do or you will get the same puzzle every time you call `generate_puzzle`.
 ```{r message=FALSE, warning=FALSE}
 # letterboxed game
 library(tidyverse)
@@ -54,7 +56,7 @@ word_list <- words.eng
 # ------------------------------------------------------------
 generate_puzzle <- function(sides=4,letters_per_side=3,
                             vowel_count=4,replacement = FALSE){
-  set.seed(1234567) # delete this line or you will get the same puzzle every time
+  set.seed(1234567) # DELETE THIS LINE OR YOU WILL GET THE SAME PUZZLE EVERY TIME
   if(sides < 4){
     print("Minimum Side is 4, changing to 4")
     sides = 4
@@ -95,7 +97,7 @@ generate_puzzle()
 
 Now we have a data frame with twelve random letters, including four vowels, assigned to one of three spots on four sides.
 
-It's not necessary to solve the puzzle, but it would be nice to draw the puzzle in the style that appears in *The Times*.  If all we needed to do was make a square the task of drawing it would be trivial but, as noted above, I can't leave well enough alone.  If we want to make polygons of arbitrary sizes so we need to do a bit of trigonometry.  First we generate the vertices  of our polygon, then the points on each segment where the letters will go (as an aside, I say "vertices," the proper Latin plural.  The "newspaper of record" abandoned Latin plurals a decade ago. It grinds my gears to see the Times printing "vertexes").
+It's not necessary to solve the puzzle, but it would be nice to draw the puzzle in the style that appears in *The Times*.  If all we needed to do was make a square the task of drawing it would be trivial but, as noted above, I can't leave well enough alone.  If we want to make polygons of arbitrary sizes we need to do a bit of trigonometry.  First we generate the vertices  of our polygon, then the points on each segment where the letters will go (as an aside, I say "vertices," the proper Latin plural.  The "newspaper of record" abandoned Latin plurals a decade ago. It grinds my gears to see the Times printing "vertexes").
 
 ```{r}
 # -------------------------------------------------------------
@@ -165,7 +167,7 @@ generate_puzzle() %>%
   draw_puzzle()
 ```
 
-Remember we designed the generator to work with arbitrary dimensions.  Let's try 5 sides with 2 letters per side.
+Remember we designed the generator to work with arbitrary dimensions.  Let's try five sides with two letters per side.
 ```{r}
 generate_puzzle(5,2) %>%
   get_letter_coords(5,2) %>% 
@@ -219,7 +221,7 @@ test_needed_letters <- function(word_chain){
                      word_chain_chars))
 }
 ```
-Now we come to the workhorse recursive function.  "Recursive" just means it calls itself.  I've learned the trick to recursive functions is getting out of them, otherwise you get trapped and run out of memory pretty quickly.  At least nowadays you kids don't have to worry about the whole machine crashing.  You can just nuke the process that's stuck.  
+Now we come to the workhorse recursive function.  "Recursive" just means it calls itself.  I've learned the trick to recursive functions is getting out of them, otherwise you get deeper and deeper into the "Beyond" section of  "Bed, Bath and Beyond" and run out of memory pretty quickly.  At least nowadays you kids don't have to worry about the whole machine crashing.  You can just nuke the process that's stuck.  
 
 We start by preparing to iterate `make_chain` over the full list of valid words.  Naturally we expect to find a solution before traversing much of the list.  We build the solution chain by choosing a word that ends with a letter that has not been an ending letter yet. Otherwise we might chase our tail forever if a solution doesn't lie on that path.  Then we pick the best next word as described above. Then we call `make_chain` again and again and again.
 
@@ -334,6 +336,7 @@ draw_solution <- function(puzzle, solutions){
 
 draw_solution(puzzle, solutions)
 ```
+
 Let's go back to the image at the top of this post which is from *The Times*.  We'll use those letters to solve an actual puzzle.  Do the puzzle authors generate the puzzles randomly or do they work backword from a selected word list?  I have no idea.
 
 ```{r}
