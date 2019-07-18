@@ -253,7 +253,7 @@ r_pkg_contributors %>%
  summary()
 ```
 
-There are 73 out of the top 100 R packages with repos we *easily* found on Github (remember, I'm lazy). The median number of contributors is 10. 300 people have contributed to the `fs` package, which is implements the linux file library `libuv`.
+There are 75 out of the top 100 R packages with repos we *easily* found on Github (remember, I'm lazy). The median number of contributors is 10. 300 people have contributed to the `fs` package, which is implements the linux file library `libuv`.
 
 How did we do with the Python packages?
 ```{r}
