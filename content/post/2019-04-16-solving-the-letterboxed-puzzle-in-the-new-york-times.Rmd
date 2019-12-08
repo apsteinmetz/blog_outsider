@@ -16,7 +16,7 @@ What is the difference between "computer programming" and "data science?"  To so
 
 For this post, I go back to my roots in the 1980s as an amateur computer scientist to solve a new *New York Times* puzzle called "Letterboxed." In particular I employ recursion to build a tree of possible solutions.  This exercise reminded me how languages like R allow such easy plug-ins to high-powered algorithms written by "real" computer scientists in "real" languages like C++.  Data scientists stand on the shoulders of giants who wrote the low-level code.  
 
-I'll confess, I don't like playing games and doing puzzles much. I also take the fun out of it for other people. When someone gave my kids "Cards Against Humanity" as a gift, I went through the deck and  removed all the really filthy cards (the kids were relieved to see I left in plenty of poop references). When I see one I immediately think about an algorithm to play or solve it.
+I'll confess, I don't like playing games and doing puzzles much. I also take the fun out of it for other people. When someone gave my kids "Cards Against Humanity" as a gift, I went through the deck and  removed all the really filthy cards (the kids were relieved to see I left in plenty of poop references). When I see a puzzle I immediately think about an algorithm to play or solve it.
 
 ![Sample board from *The Times*](\post\2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times_files\sample_board.png)
 
