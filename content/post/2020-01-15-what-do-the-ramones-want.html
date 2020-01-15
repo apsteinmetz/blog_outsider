@@ -15,7 +15,7 @@ topics: []
 
 
 
-<p>Recently I saw a tweet that shared this hilarious poster.
+<p>Recently I saw a tweet that shared this hilarious poster of Ramones “wants”.
 <img src="/post/2020-01-15-what-do-the-ramones-want_files/Wants4thEdition.jpg" alt="Ramones Want What?" />
 Dan Gneiding (aka Grayhood) is the graphic designer who created this. You can buy it <a href="http://grayhood.com/shop/ramones-vs-misfits-1-2-3-4th-edition">here</a></p>
 <p>Very cool, but how accurate is it? I asked Dan and says he took some artistic license, as he should! You may accuse me of being that pedantic “Comic Book Guy” from “The Simpsons” but, when I saw it, I immediately wondered how I could tally these Ramones lyrics myself or, rather, get R to do it for me. The <code>tidytext</code> mining package makes short work of the project, as we’ll see.</p>
@@ -32,16 +32,13 @@ Dan Gneiding (aka Grayhood) is the graphic designer who created this. You can bu
 <div id="load-packages" class="section level2">
 <h2>Load Packages</h2>
 <p>First, load packages.</p>
-<pre class="r"><code>#devtools::install_github(&quot;dmi3kno/polite&quot;)
-library(tidyverse)
+<pre class="r"><code>library(tidyverse)
 library(tidytext)
 library(rvest)
 library(reshape2)
 library(wordcloud)
 library(scales)
 library(genius)
-# very dark theme for ggplot courtesy of
-#devtools::install_github(&#39;cttobin/ggthemr&#39;)
 library(ggthemr)
 library(ggrepel)
 

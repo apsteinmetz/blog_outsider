@@ -12,7 +12,7 @@ tags:
 description: ''
 topics: []
 ---
-Recently I saw a tweet that shared this hilarious poster.
+Recently I saw a tweet that shared this hilarious poster of Ramones "wants".
 ![Ramones Want What?](/post/2020-01-15-what-do-the-ramones-want_files/Wants4thEdition.jpg)
 Dan Gneiding (aka Grayhood) is the graphic designer who created this.  You can buy it [here](http://grayhood.com/shop/ramones-vs-misfits-1-2-3-4th-edition)
 
@@ -29,7 +29,6 @@ Without any further adieu, hey, ho, let's go!
 First, load packages.
 
 ```{r message=FALSE, warning=FALSE}
-#devtools::install_github("dmi3kno/polite")
 library(tidyverse)
 library(tidytext)
 library(rvest)
@@ -37,8 +36,6 @@ library(reshape2)
 library(wordcloud)
 library(scales)
 library(genius)
-# very dark theme for ggplot courtesy of
-#devtools::install_github('cttobin/ggthemr')
 library(ggthemr)
 library(ggrepel)
 
