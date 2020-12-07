@@ -52,7 +52,7 @@ logo="/img/favicon.png"
     url = "/contact/"
   [[menu.main]]
     name = "Blogroll"
-    pre = "<i class='fa fa-phone fa-fw'></i>"
+    pre = "<i class='fa fa-blog fa-fw'></i>"
     weight =4
     identifier="blogroll"
     url = "/blogroll/"
