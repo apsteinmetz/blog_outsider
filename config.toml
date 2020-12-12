@@ -3,10 +3,10 @@ languageCode = "en-us"
 title = "Outsider Data Science"
 theme = "blackburn"
 author = "Arthur Steinmetz"
-copyright = "&copy; 2017. All rights reserved."
+copyright = "&copy; 2017-2020. All rights reserved."
 canonifyurls = true
 paginate = 10
-ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
+ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_cache$", "\\.knit\\.md$", "\\.utf8\\.md$"]
 logo="/img/favicon.png"
 
 [indexes]
