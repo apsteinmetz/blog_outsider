@@ -1,36 +1,72 @@
 baseurl = "https://outsiderdata.netlify.com/"
 languageCode = "en-us"
 title = "Outsider Data Science"
-theme = "blackburn"
+
+theme = "anatole"
 author = "Arthur Steinmetz"
-copyright = "&copy; 2017-2020. All rights reserved."
+copyright = "&copy; 2017-2022. All rights reserved."
 canonifyurls = true
 paginate = 10
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_cache$", "\\.knit\\.md$", "\\.utf8\\.md$"]
-logo="/img/favicon.png"
+# logo="/img/favicon.png"
+enableEmoji = true
+enableRobotsTXT = true
 
 [indexes]
   tag = "tags"
   topic = "topics"
 
+[math]
+enable = false  # options: true, false. Enable math support globally, default: false. You can always enable math on per page.
+use = "katex"  # options: "katex", "mathjax". default is "katex".
+
 [params]
   # Shown in the home page
+  description = "Putting what's in here, out there. With R."
   subtitle = "Putting what's in there, out there. With R."
-  brand = ""
+  images = ["img/logo_lg.jpg"]
+  profilePicture = "img/logo_lg.png"
+  builtWith = true
+  mainSections = ["post"]
+  # favIcon = "favicons/"
+  displayMode = "dark"
+  
   #googleAnalytics = "Your Google Analytics tracking ID"
   #disqus = "Your Disqus shortname"
   # CSS name for highlight.js
-  highlightjs = "androidstudio"
-  dateFormat = "02 Jan 2006"
+  # highlightjs = "androidstudio"
+  #dateFormat = "02 Jan 2006"
+  singleDateFormat = "Mon, Jan 2, 2006"
+  indexDateFormat = "Mon, Jan 2, 2006"
+  listDateFormat = "Jan 2"
   ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
   
-[menu]
-  # Shown in the side menu.
+  [[params.SocialIcons]]
+  icon = "fab fa-twitter"
+  title = "Twitter"
+  url = "https://twitter.com/adababbage"
+
+  [[params.SocialIcons]]
+  icon = "fab fa-github"
+  title = "GitHub"
+  url = "https://github.com/apsteinmetz"
+
+  [[params.SocialIcons]]
+  icon = "fab fa-linkedin"
+  title = "Linkedin"
+  url = "https://www.linkedin.com/in/asteinmetz/"
+
+  [[params.SocialIcons]]
+  icon = "fab fa-stack-overflow"
+  title = "Twitter"
+  url = "https://twitter.com/adababbage"
+
+[menus]
   [[menu.main]]
     name = "Home"
-    pre = "<img src='/img/logo_sm.png' alt='logo'><br><i class='fa fa-home fa-fw'></i>"
-    weight = 1
-    identifier = "home"
+    pre = "<i class='fa fa-list fa-fw'></i>"
+    weight = 100
+    identifier = "Home"
     url = "/"
   [[menu.main]]
     name = "Posts"
@@ -56,14 +92,4 @@ logo="/img/favicon.png"
     weight =4
     identifier="blogroll"
     url = "/blogroll/"
-
-[social]
-  # Link your social networking accouns to the side menu
-  # by entering your username or ID.
-  twitter = "adababbage"
-  #facebook = "*"
-  #instagram = "*"
-  github = "apsteinmetz"
-  stackoverflow = "4634335"
-  #linkedin = "*"
 

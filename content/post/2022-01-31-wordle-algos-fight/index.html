@@ -1,0 +1,456 @@
+---
+title: Wordle Algos, Fight!
+author: Art Steinmetz
+date: '2022-01-31'
+slug: []
+categories:
+  - R
+tags:
+  - puzzle
+  - tidyverse
+  - text mining
+description: ''
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<p><img src="images/solved_game.png" /></p>
+<div id="designing-the-problem" class="section level3">
+<h3>Designing The Problem</h3>
+<p>As of January 2022 it’s all Wordle, all the time in certain corners of the internet. If you are unfamiliar with the game a quick Google search will fill you in so I won’t waste space here. As I mentioned in <a href="https://outsiderdata.netlify.app/post/solving-the-letterboxed-puzzle-in-the-new-york-times/">an earlier post</a> I like thinking up algorithms to play games more than I like playing the games. Many people in the R Statistics community apparently feel the same way, as Twitter has been filled with people writing their own Wordle helpers in R.</p>
+<p>Most of these helpers come down to reducing the possible guess set to words that fit what we know from previous guesses. Regexes of various complexity will do this for us. Suppose we know the first letter is “c,” the third is “a” and the last letter is “e,” shown by green squares in the original game. Assuming we know the word set the target word is drawn from this will tell us what the possible next guesses are.</p>
+<pre class="r"><code>grep(&quot;^c.a.e$&quot;,wordle::wordle_solns,value = T)</code></pre>
+<pre><code>## [1] &quot;crate&quot; &quot;craze&quot; &quot;crave&quot; &quot;chase&quot; &quot;chafe&quot; &quot;crane&quot; &quot;cease&quot;</code></pre>
+<p>It gets a bit more complicated when we know that some letters are in the word but we only know a position they are NOT in, shown by yellow squares in original game. The dark magic of regex can be summoned to get any match of conditions we care to think of.</p>
+<p>What these helpers don’t do is tell you the BEST next word to try, given the constraints imposed by earlier guesses (I am speaking of the “hard” mode in the game, where the player must use the letters revealed in previous guesses for the next guess. This is what we will be working in here). A number of intuitive schemes have been thrown out there, mostly centering on what the optimal first word is. As it turns out getting a good first word matters an awful lot but there is an enormous amount of luck involved, too.</p>
+<p>The most obvious strategy to to pick a first word with a lot of vowels. To get a bit more sophisticated we might pick words with the most frequently used letters in English words of five letters. At the next level we might think of the positions of these levels and pick words with popular letters in popular positions. Lastly we might consider two-letter combinations, bigrams. “ES” and “LY” are very popular endings of words, for example.</p>
+<p>We will construct algorithms to choose the most likely next best word using each of these methods. We can then rank all possible words according to these schemes.</p>
+<p>When playing the game we filter the ranked word list to allow just those words on the list that conform to what our guesses have taught us about the winning word so far. Again, we are playing only in “hard” mode here. When playing in “not-hard” mode the strategy would be different. It would make sense to pick a second word based on narrowing down the total solution set, a word with no letters in common to the first one. I think hard mode is more fun.</p>
+<p>Finally, we will play a lot of games using each method. This is the Monte Carlo part of it. This piece of the project will use the beautiful <a href="https://github.com/coolbutuseless/wordle">Wordle package</a> written by “mikefc” aka “coolbutuseless.” I say “beautiful” because mikefc is a real programmer. As a pretend data scientist I code just enough to analyze my data. For a data scientist there is a lot to learn about programming by careful perusal of the code in this package.</p>
+<p>But I digress. Using the <code>Wordle</code> package we can pit virtual players using the different strategies again the game for as many trials as we have patience for. I just replaced my 10-year old laptop with a shiny new one so I’m feeling the need for speed!</p>
+<p>Who is the best Wordle player? Let’s find out!</p>
+</div>
+<div id="setup-the-environment" class="section level2">
+<h2>Setup The Environment</h2>
+<p>Here are the packages we’ll use. Note we will use parallel processing where we can to speed things up. Since scoring each word is an independent task the <code>doFuture</code> package will help us out. On my 16-core processor this speeds everything up by a factor of five
+For more on this see <a href="https://cran.r-project.org/web/packages/doFuture/vignettes/doFuture.html">here</a>.</p>
+<pre class="r"><code>library(tidyverse)
+library(wordle)
+library(doRNG)
+library(doFuture)
+library(progress)
+
+# set up parallel session
+# this will allow playing multiple games concurrently
+registerDoFuture()
+plan(multisession,workers = availableCores()-1)</code></pre>
+<div id="what-words" class="section level3">
+<h3>What Words?</h3>
+<p>There are many word sets out there we might use to make our choices from. <a href="http://norvig.com/ngrams/">The Natural Language Corpus Data</a> from Peter Norvig is a great centralized source for all the word lists you might want for English text analysis. In particular the first site references Donald Knuth’s (yes, THAT Knuth) <a href="https://www-cs-faculty.stanford.edu/~knuth/sgb.html">“list of the 5757 five-letter words of English.”</a>. We could use that corpus for our puzzle solver but we won’t. As it turns out we can use the actual word list from the game. A simple inspection of the Wordle web page reveals two word lists, a short one of solutions and a longer one of acceptable guesses. Why two lists?</p>
+<p><a href="https://www.nytimes.com/2022/01/03/technology/wordle-word-game-creator.html">According to the creator</a>, Josh Wardle, his partner, Palak Shah, complained the long list contained too many obscure words, so she chose the words she recognized to make up possible winners. Ms. Shah is right but she may want to go over the long list again because there are many common words still in the excluded list (“belts?”).</p>
+<p>I am only interested in guessing words that might win so we will use the shorter list. Secondly, I’d rather have the computer work with a similar vocabulary as mine. Both lists are present in the <code>Wordle</code> package.</p>
+<pre class="r"><code>words = wordle::wordle_solns</code></pre>
+</div>
+</div>
+<div id="building-the-players" class="section level2">
+<h2>Building the “Players”</h2>
+<div id="the-naive-strategy" class="section level3">
+<h3>The “Naive” Strategy</h3>
+<p>The naive strategy scores all the words in the set by assigning a value to each letter based on it’s frequency of occurrence in the set and sums it up. It’s worth looking at how the frequencies of letters in the winner list differs from the larger list as it suggests using the short list to score will be more profitable. The big difference in the occurrence of “S” is interesting. Remember the short list is a curated, not necessarily representative, sample of the larger set.</p>
+<pre class="r"><code># use the smaller, 2315 word list from which the winners are drawn
+# note the allowable guess list is much bigger
+win_words &lt;-  wordle::wordle_solns
+more_words &lt;- wordle::wordle_dict
+
+get_letter_freq &lt;- function(word_list=wordle_solns){
+  word_list %&gt;% 
+    str_split(pattern=&quot;&quot;) %&gt;% 
+    unlist() %&gt;% 
+    enframe(value=&quot;letter&quot;) %&gt;% 
+    count(letter,name=&quot;freq&quot;) %&gt;% 
+    arrange(desc(freq))
+}
+
+letter_freq_solns &lt;-get_letter_freq(wordle_solns) %&gt;% 
+    transmute(letter,freq = freq/length(win_words))
+
+letter_freq_all &lt;- get_letter_freq(wordle_dict) %&gt;% 
+  transmute(letter,freq = freq/length(more_words))
+
+ggplot() + 
+  geom_col(data=letter_freq_solns,aes(toupper(letter),freq,fill=freq)) + 
+  geom_point(data=letter_freq_all,aes(toupper(letter),freq),size=2) + 
+  scale_fill_distiller(palette = &quot;Greens&quot;,
+                       values = scales::rescale(1.2^(1:9)),
+                       direction = 1) +
+  scale_y_continuous(labels = scales::percent) +
+  theme(legend.position = &quot;none&quot;) +
+  labs(title=&quot;Liklihood of Letter Appearing in a word&quot;,
+       subtitle = &quot;Bars are Set of Winners, Dots are Full Word Set&quot;,
+       y=&quot;Probability That Letter Occurs in Word&quot;,
+       x = &quot;Letter&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/letter_freq-1.png" width="672" />
+Now we can score the all the words by assigning a value to each of the letters and adding it up.</p>
+<pre class="r"><code># a function we will use for all our strategies
+letter_vec &lt;- function(string){
+  unlist(str_split(string,&quot;&quot;))
+}
+
+score_word_naive &lt;- (function(word){
+  word_vec&lt;- unlist(str_split(word,&quot;&quot;))
+  letter_freq_solns %&gt;% filter(letter %in% word_vec) %&gt;% 
+    tally(freq) %&gt;% 
+    pull(n)
+})
+
+# this is where the actual work happens
+word_scores_naive &lt;- foreach (word = words) %dopar%
+  score_word_naive(word)
+
+# normalize scores
+word_scores_naive &lt;-   tibble(word = words,
+         naive_score = unlist(word_scores_naive)) %&gt;% 
+  mutate(naive_score = naive_score/max(naive_score) *100) %&gt;% 
+  arrange(desc(naive_score))
+
+print(word_scores_naive[1:10,])</code></pre>
+<pre><code>## # A tibble: 10 x 2
+##    word  naive_score
+##    &lt;chr&gt;       &lt;dbl&gt;
+##  1 later       100  
+##  2 alter       100  
+##  3 alert       100  
+##  4 arose        99.5
+##  5 irate        98.9
+##  6 stare        98.9
+##  7 arise        97.6
+##  8 raise        97.6
+##  9 learn        96.6
+## 10 renal        96.6</code></pre>
+<p>As an aside, we don’t want to waste our first word with anything that has double letters so I’m happy that none of our top ten do that. Also note that some are anagrams of each other and we can consider them equivalent as starting words for this strategy. With that, we decide our five best starting words are “later,” “arose,” “irate,” “stare,” and “raise.”</p>
+</div>
+<div id="the-smart-strategy" class="section level3">
+<h3>The “Smart” Strategy</h3>
+<p>This is an improvement on the “naive” strategy. Here we score the possible solutions we learn from each new guess based on letter frequency in the new, smaller, solution set. This should greatly reduce the solution set for subsequent guesses. To see why this is so consider this artificial example. Suppose we know that “ck” ends the word and our remaining choices are “snuck,” “snack,” and “block.” You can see that by picking “snack” or “snuck we will either win or know the answer because we will know if an”s” appears in the word. If we choose “block” we will either win or be left with two possible choices. “block” scores lowest using the “smart” score method.</p>
+<p>In smaller sets there will be ties so we go to our original “naive scores” as tie breakers.</p>
+<p>This strategy will run more slowly because we no longer have a score lookup table but have to create scores on the fly. We could pre-compute the entire score tree but that seems like a bit much to handle. See the “Learnings” section at the end for some others’ work on this.</p>
+<pre class="r"><code>score_word_smart &lt;- function(word,word_list=wordle_solns,letter_freq=letter_freq_solns){
+  word_vec&lt;-letter_vec(word)
+  score &lt;- letter_freq %&gt;%
+    filter(letter %in% word_vec) %&gt;% 
+    tally(freq,name = word) %&gt;% 
+    unlist()
+  return(score)
+}
+
+next_best_words2 &lt;- function(next_words,break_ties=TRUE){
+  letter_freq &lt;- get_letter_freq(next_words)
+  scores &lt;- map(next_words,score_word_smart,next_words,letter_freq) %&gt;% 
+    unlist() %&gt;% 
+    enframe(name=&quot;word&quot;,value = &#39;score&#39;)
+  if (break_ties){
+    # get tiebreaker by adding the naive score to the right of the decimal point
+    scores &lt;- scores %&gt;% 
+      left_join(word_scores_naive,by=&quot;word&quot;) %&gt;% 
+      mutate(score = score + naive_score/100)
+  }
+    return(arrange(scores,desc(score)))
+    
+}</code></pre>
+</div>
+<div id="the-bigram-strategy" class="section level3">
+<h3>The “Bigram” Strategy</h3>
+<p>I have high hopes for this one. Certain pairs of letters are so much more likely to appear than others. For example, Without much thought we realize that “es” will form the plural of many words. Of course that happens only at the end of words so now we will take position into account.</p>
+<pre class="r"><code>#  tally the most popular bigrams at each position
+bigram_vec &lt;- function(string){
+  vec &lt;- letter_vec(string)
+  c(paste0(vec[1:2],collapse = &quot;&quot;),
+    paste0(vec[2:3],collapse = &quot;&quot;),
+    paste0(vec[3:4],collapse = &quot;&quot;),
+    paste0(vec[4:5],collapse = &quot;&quot;))
+}
+
+bigrams = tibble()
+pos_range = 1:4
+for (pos in pos_range){
+    bigram = str_sub(words,pos,pos+1)
+    bigrams &lt;- bigrams %&gt;% bind_rows(tibble(position=pos,bigram=bigram))
+  }
+
+bigram_freq &lt;- bigrams %&gt;% 
+  group_by(position) %&gt;% 
+  count(bigram) %&gt;% 
+  mutate(probability = n/length(words)) %&gt;% 
+  select(bigram,position,probability) %&gt;% 
+  complete(position,bigram,fill=list(probability=0)) %&gt;% 
+  unique() %&gt;% 
+  arrange(position,desc(probability))
+
+# Bigram Plot
+#show top 10 at each position
+bigram_freq %&gt;% 
+  group_by(position) %&gt;% 
+  mutate(bigram = toupper(bigram)) %&gt;% 
+  slice_max(probability,n=5) %&gt;%  
+  mutate(position = as.factor(position)) %&gt;% 
+  mutate(bigram = as.factor(bigram)) %&gt;% 
+  #  mutate(bigram = as.factor(as.character(bigram))) %&gt;% 
+  #  complete(position,bigram,fill=list(probability=0)) %&gt;% 
+  ggplot(aes(position,bigram,fill=probability)) + 
+  geom_tile() + 
+  labs(title = &quot;Probability of Most Frequent Wordle Pairs&quot;,
+       y=&quot;Letter Pair&quot;) +
+  scale_fill_distiller(palette = &quot;Greens&quot;,
+                       values = scales::rescale(1.2^(1:9)),
+                       direction = 1)+
+  scale_x_discrete(name = &quot;Positions&quot;,labels = c(&quot;1,2&quot;,&quot;2,3&quot;,&quot;3,4&quot;,&quot;4,5&quot;))</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/bigram_freq-1.png" width="672" /></p>
+<p>“ER” at the end is the big winner here. This makes “later” from the naive strategy super interesting as a start word. “EA” is common in both the second and third positions. “CH” is common both to start and end a word. Remember when I discouraged the “waste” of a double letter word? Now consider “steer” which has the most likely beginning and ending bigrams. Remember we thought that “es” was an obvious bigram? While there are 726 words in the big corpus that end in “es,” there are NONE in the set of winning words! Very interesting. Now let’s score the word set by bigram frequency.</p>
+<pre class="r"><code>score_word_bigram &lt;- function(word) {
+  enframe(bigram_vec(word), name = &quot;position&quot;, value = &quot;bigram&quot;) %&gt;%
+    left_join(bigram_freq, by = c(&quot;position&quot;, &quot;bigram&quot;)) %&gt;%
+    tally(probability) %&gt;%
+    unlist()
+}
+
+# our parallel cluster is already set up so we can save the overhead
+word_scores_bigram &lt;- foreach (word = words) %dopar%
+  score_word_bigram(word)
+
+# normalize
+word_scores_bigram &lt;- tibble(word = words,
+                             bigram_score = unlist(word_scores_bigram)) %&gt;%
+  mutate(bigram_score = bigram_score / max(bigram_score) * 100) %&gt;%
+  arrange(desc(bigram_score))
+print(word_scores_bigram[1:10, ])</code></pre>
+<pre><code>## # A tibble: 10 x 2
+##    word  bigram_score
+##    &lt;chr&gt;        &lt;dbl&gt;
+##  1 crier        100  
+##  2 sheer         97.0
+##  3 steer         95.8
+##  4 drier         93.9
+##  5 cheer         92.4
+##  6 freer         88.6
+##  7 flier         87.9
+##  8 cater         86.7
+##  9 corer         83.7
+## 10 finer         81.8</code></pre>
+<p>The most interesting words are “crier,” “sheer,” “steer,” “drier,” and “cheer.”</p>
+<p>It’s clear that the bigram strategy has different opinions than the naive strategy. How different?</p>
+<pre class="r"><code>left_join(word_scores_naive,word_scores_bigram, by = &quot;word&quot;) %&gt;% 
+ggplot(aes(naive_score,bigram_score)) + 
+  geom_point() + 
+  labs(title = &quot;A Big Difference of Opinion&quot;,
+       subtitle = &quot;Word Scores Using Two Different Strategies&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/score_scatter1-1.png" width="672" />
+All the words containing two “e”s do well on the bigram score but terrible on the naive score. Conversely, words like “ethos” and “eclat” (what’s that?) that start with “e” have a high naive score but low bigram score.</p>
+<p>Since there is diversity of opinion, might there be a benefit in combining the two scores? Let’s add a player that takes the average of the two scores.</p>
+<pre class="r"><code>word_scores_combo &lt;- left_join(word_scores_naive, word_scores_bigram, by=&quot;word&quot;) %&gt;% 
+  transmute(word,combo_score = naive_score+bigram_score) %&gt;% 
+  mutate(combo_score = combo_score/max(combo_score)*100) %&gt;% 
+  arrange(desc(combo_score))
+
+print(word_scores_combo[1:10,])</code></pre>
+<pre><code>## # A tibble: 10 x 2
+##    word  combo_score
+##    &lt;chr&gt;       &lt;dbl&gt;
+##  1 later       100  
+##  2 cater       100. 
+##  3 saner        97.7
+##  4 hater        96.2
+##  5 steer        95.5
+##  6 alter        94.8
+##  7 crier        94.8
+##  8 flier        93.8
+##  9 liner        93.2
+## 10 paler        93.1</code></pre>
+</div>
+<div id="the-simmering-strategy" class="section level3">
+<h3>The Simmering Strategy</h3>
+<p>Among the people who have given thought to an optimal strategy using R is Jacob Simmering. He <a href="https://jacobsimmering.com/post/wordle/">takes the Naive approach to the next level</a> by considering the position of each letter as well. Here is a very pretty plot from his post. It is interesting to note where popular letters do and don’t appear. As you see from the middle panel, “a” is more often at the in the middle but seldom at the beginning or end. “Y” is often at the end but rarely anywhere else. Again, the my corpus is the set of winning Wordle words which differs from the Simmering one.</p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/viz_simmer-1.png" width="672" />
+In Jacob Simmering’s scoring method, he weights letters appearing anywhere (“yellow”) and in a known location (“green”) the same. I do a variant, “simmering_wgt” where I double the value of a “green” letter. See Jacob’s site for the code to do the scoring. Here are the top ten words using this method.</p>
+<pre><code>## # A tibble: 10 x 3
+##    word  simmering_score simmering_wgt_score
+##    &lt;chr&gt;           &lt;dbl&gt;               &lt;dbl&gt;
+##  1 erase            96.2               100  
+##  2 eerie           100                  99.9
+##  3 tease            92.6                97.9
+##  4 rarer            96.2                97.6
+##  5 eater            97.3                96.9
+##  6 lease            92.2                96.5
+##  7 elate            93.2                95.8
+##  8 cease            87.9                95.0
+##  9 stare            87.9                94.7
+## 10 steer            91.0                94.2</code></pre>
+<p>As a control group, let’s add a column of random scores as a “player” as well.</p>
+<pre class="r"><code>scoring_methods &lt;- as_factor(c(&quot;random&quot;,&quot;naive&quot;,&quot;smart&quot;,&quot;bigram&quot;,&quot;combo&quot;,&quot;simmer2&quot;))
+
+# add a column to order words randomly as a control
+scored_words &lt;- scored_words %&gt;% 
+  mutate(random_score = sample(1:nrow(scored_words),replace = FALSE))</code></pre>
+</div>
+<div id="setting-up-the-game" class="section level3">
+<h3>Setting Up The Game</h3>
+<p>Now we have five “players” and we can use the game engine in the <code>wordle</code> package to run repeated trials pitting each one against each other. As a human, my average Wordle score is close to four, give or take. By the third guess it’s just luck whether I hit on three or four or five.</p>
+<p>We will iterate over each player and determine the average score, including games where the puzzle is solved too late, on the seventh try or later. We will also count the number of times it takes more than six tries, “busts.” First we arrange the word list from best to worst for the current player. After the player makes a guess, the game engine tells us how we’ve done. We can ask the game engine for all the valid words at this point. We match that against our ordered list of words for the player and choose the highest ranking <code>next_best_word()</code>. Repeat until the game is solved.</p>
+</div>
+<div id="fight" class="section level3">
+<h3>Fight!</h3>
+<p><img src="images/street_fighter.jpg" />
+While the machine is churning through 1000 games for each of 10 starting words for each of six methods, you could play some stirring music to make this seem exciting. I know I am quivering with anticipation. Go Bigram!</p>
+<pre class="r"><code># sort a different ranking table for each scoring method as called
+arrange_scored_words &lt;- function(scoring_method = &quot;naive&quot;) {
+  switch(
+    scoring_method,
+    random = arrange(scored_words, desc(random_score)),
+    naive  = arrange(scored_words, desc(naive_score)),
+    smart  = arrange(scored_words, desc(naive_score)),
+    combo  = arrange(scored_words, desc(combo_score)),
+    bigram = arrange(scored_words, desc(bigram_score)),
+    # we don&#39;t use simmer1 here
+    simmer1 = arrange(scored_words, desc(simmering_score)),
+    simmer2 = arrange(scored_words, desc(simmering_wgt_score))
+  )
+}
+
+# chose the highest ranked word that meets conditions
+next_best_word &lt;- function(words,method) {
+  if (method == &quot;smart&quot;) {
+    next_word &lt;- next_best_words2(words) %&gt;% 
+      .$word %&gt;% 
+      .[1]
+  } else {
+  next_word &lt;- words_ranked %&gt;%
+    filter(word %in% words) %&gt;%
+    .$word %&gt;%
+    .[1]
+  }
+return(next_word)
+}
+
+# run games for each word scoring method
+# WARNING: do not attempt to show the progress bar or attempts when
+# running parallel process. It won&#39;t look pretty
+show_prog_bar &lt;- FALSE
+show_attempts &lt;- FALSE
+# override progress bar setting if you want to see attempts
+if (show_attempts) show_prog_bar = FALSE
+start_word_count &lt;- 10
+num_tries &lt;- 1000
+total_games &lt;- length(scoring_methods) * start_word_count * num_tries
+if (show_prog_bar) prog_bar &lt;- progress_bar$new(total=total_games)
+start_num &lt;- 0
+results &lt;- tibble()</code></pre>
+<pre class="r"><code>play_game &lt;- function(words_ranked,start_word,method) {
+  if (show_prog_bar) prog_bar$tick()
+      # initialize new game
+      game &lt;- WordleGame$new(words_ranked$word)
+      player &lt;- WordleHelper$new(nchar = 5, words_ranked$word)
+      if (show_attempts) {
+        player$update(start_word, game$try(start_word, quiet = FALSE))
+      } else{
+        player$update(start_word, game$try(start_word, quiet = TRUE))
+      }
+      # keep guessing
+      while (!game$is_solved()) {
+        next_word &lt;-next_best_word(player$words,method)
+        if (show_attempts) {
+          player$update(next_word, game$try(next_word, quiet = FALSE))
+        } else{
+          player$update(next_word, game$try(next_word, quiet = TRUE))
+        }
+      }
+      if (show_attempts) {
+        cat(&quot;Solved in&quot;, length(game$attempts), &quot;tries&quot;)
+        print(game$attempts)
+        
+      }
+      return(length(game$attempts))
+}
+
+# MAIN LOOP TO PLAY GAMES
+registerDoRNG()
+# iterate through methods
+for (method in scoring_methods) {
+  if (show_prog_bar)
+    prog_bar$message(paste(&quot;ALGO:&quot;, method))
+  else
+    print(method)
+  words_ranked &lt;- arrange_scored_words(method)
+  # iterate through 10 best starting words
+    for (start_word in start_words) {
+    # play many many games
+    # Parallel multi-core method
+    try_vec &lt;- foreach (n = 1:num_tries) %dopar% {
+      play_game(words_ranked, start_word,method)
+    } %&gt;%
+      unlist()
+
+    # # non-multicore version
+    # try_vec &lt;- NULL
+    # for (n in 1:num_tries) {
+    #   try_vec &lt;- c(try_vec, play_game(words_ranked, start_word))
+    # }
+    
+    results &lt;- bind_rows(
+      results,
+      tibble(
+        method = as_factor(method),
+        start_word = start_word,
+        mean_guess = mean(try_vec),
+        try_vec = try_vec
+      )
+    )
+  }
+}
+if (show_prog_bar) prog_bar$terminate()
+
+results_nest &lt;- results %&gt;% nest(try_vec = try_vec)
+# don&#39;t lose the results that took a long time to run!
+#save(results_nested,file=&quot;data\mc_results.rdata&quot;)</code></pre>
+<p>So, how did we do?</p>
+<pre class="r"><code>results_nest %&gt;% group_by(method) %&gt;% 
+  summarise(mean_guess=mean(mean_guess)) %&gt;% 
+  mutate(method = forcats::fct_reorder(method,mean_guess)) %&gt;% 
+  ggplot(aes(method,mean_guess,label=mean_guess))  + geom_col() + 
+  geom_text(nudge_y = 0.2) + 
+  labs(title = &quot;How Many Guesses To Win, On Average?&quot;,
+       subtitle = glue::glue(&quot;Monte Carlo with {num_tries} Trials
+       for each of {start_word_count} Best Start Words&quot;),
+       caption = &quot;NOTE: Lower is Better&quot;,
+       y = &quot;Mean Attempts to Win&quot;,
+       x = &quot;Word Ranking Algorithm&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/display%20results-1.png" width="672" /></p>
+<p>The “smart” strategy does best but still is closer to four tries than three. Otherwise our attempts to improve on the “naive” strategy did not bear fruit. Bigram is scarcely better than “random.” Considering frequency AND position of letters, as “simmer2” does, scores the worst.</p>
+<p>Remember that “simmer2” weights green squares double vs. yellow ones. “Combo” ranks words on the average of “naive” and “bigram” word scores.</p>
+<p>We can also count the fraction of tries where we “bust.” taking more than six tries to find the word.</p>
+<pre class="r"><code># count busts
+results_nest &lt;- results_nest %&gt;% group_by(method,start_word) %&gt;% 
+  mutate(busts = map(try_vec,function(x) length(x[x &gt; 6]))) %&gt;% 
+  unnest(busts)
+
+results_nest %&gt;% 
+  group_by(method) %&gt;% 
+  tally(busts) %&gt;% 
+  mutate(bust_pct = n/(num_tries*start_word_count)*100) %&gt;% 
+  mutate(method = forcats::fct_reorder(method,bust_pct)) %&gt;% 
+  ggplot(aes(method,bust_pct,label=paste0(bust_pct,&quot;%&quot;)))  + geom_col() + 
+  geom_text(nudge_y = 0.2) + 
+  labs(title = &#39;How Often Do We &quot;Bust?&quot;&#39;,
+       subtitle = glue::glue(&quot;Monte Carlo with {num_tries} Trials
+       for each of {start_word_count} Best Start Words&quot;),
+       caption = &quot;NOTE: Lower is Better&quot;,
+       y = &quot;Percent of Games Busted&quot;,
+       x = &quot;Word Ranking Algorithm&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>There is no strategy that does not bust occasionally but it’s rare.</p>
+</div>
+<div id="learnings" class="section level3">
+<h3>Learnings</h3>
+<p>It is disappointing that we can’t do much better than four guesses on average. That’s about what I do with my puny human brain. Even “random” is in the running. It suggests that there is a lot of chance in winning. After two and three guesses there is often a decent sized set of words that score equally well to use for the next guess, so it comes down to pure chance. It is also disappointing that a sophisticated word ranking, “simmer2,” performs relatively poorly. In fact, its “bust” percentage is nearly double what the “random” method achieves. My suspicion is that this method’s affinity for words with double “e”s and/or three vowels is its downfall. Too many vowels creates too many wasted guesses in hard mode.</p>
+<p>There is room for improvement. Tyler Glaiel is a professional game designer and has <a href="https://medium.com/@tglaiel/the-mathematically-optimal-first-guess-in-wordle-cbcb03c19b0a">written a post about his experiments</a> in building a Wordle bot. He achieves much better results than we do here but is using “not-hard” mode. Eamon Mcmanus does a <a href="https://eamonnmcmanus.blogspot.com/2022/01/solving-wordle.html">fantastic overview of various approaches</a> in the literature to solving the old “Mastermind” game and applies them to Wordle. He gets similar results to Tyler. I am curious to know how these approaches might apply to “hard” mode and how much worse their results might be. Finally, if you want to submit a <code>next_best_word</code> algo for another round, let me know. Happy Wordling!</p>
+</div>
+</div>
