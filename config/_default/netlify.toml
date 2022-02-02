@@ -2,11 +2,6 @@
 publish = "public"
 command = "hugo --gc --minify"
 
-[context.production.environment]
-HUGO_VERSION = "0.92.1"
-HUGO_ENV = "production"
-HUGO_ENABLEGITINFO = "true"
-
 [context.split1]
 command = "hugo --gc --minify --enableGitInfo"
 
@@ -33,3 +28,8 @@ HUGO_ENABLEGITINFO = "true"
 from = "/npmjs/*"
 to = "/npmjs/"
 status = 200
+
+[[headers]]
+  for = "/*"
+    [headers.values]
+    Access-Control-Allow-Origin = "*"
