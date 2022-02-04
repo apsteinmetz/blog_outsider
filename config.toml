@@ -50,12 +50,6 @@ logo="/img/favicon.png"
     weight =4
     identifier="contact"
     url = "/contact/"
-  [[menu.main]]
-    name = "Blogroll"
-    pre = "<i class='fa fa-blog fa-fw'></i>"
-    weight =4
-    identifier="blogroll"
-    url = "/blogroll/"
 
 [social]
   # Link your social networking accouns to the side menu
