@@ -114,6 +114,7 @@ ggplot() +
        x = "Letter")
 
 ```
+
 Now we can score the all the words by assigning a value to each of the letters and adding it up. 
 
 ```{r naive_score}
@@ -263,6 +264,7 @@ ggplot(aes(naive_score,bigram_score)) +
        subtitle = "Word Scores Using Two Different Strategies")
 
 ```
+
 All the words containing two "e"s do well on the bigram score but terrible on the naive score.  Conversely, words like "ethos" and "eclat" (what's that?) that start with "e" have a high naive score but low bigram score.
 
 Since there is diversity of opinion, might there be a benefit in combining the two scores?  Let's add a player that takes the average of the two scores.
@@ -332,6 +334,7 @@ letter_matches %>%
   scale_fill_distiller(palette = "Spectral") + 
   theme(legend.position = "bottom")
 ```
+
 In Jacob Simmering's scoring method, he weights letters appearing anywhere ("yellow") and in a known location ("green") the same.  I do a variant, "simmering_wgt" where I double the value of a "green" letter.  See Jacob's site for the code to do the scoring.  Here are the top ten words using this method.
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
@@ -378,6 +381,8 @@ scored_words <- word_scores_naive %>%
 
 word_scores_simmering[1:10,]
 ```
+
+### Allow A "Sucker" At The Table
 As a control group, let's add a column of random scores as a "player" as well.
 
 ```{r add_random}

@@ -90,8 +90,8 @@ ggplot() +
        subtitle = &quot;Bars are Set of Winners, Dots are Full Word Set&quot;,
        y=&quot;Probability That Letter Occurs in Word&quot;,
        x = &quot;Letter&quot;)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/letter_freq-1.png" width="672" />
-Now we can score the all the words by assigning a value to each of the letters and adding it up.</p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/letter_freq-1.png" width="672" /></p>
+<p>Now we can score the all the words by assigning a value to each of the letters and adding it up.</p>
 <pre class="r"><code># a function we will use for all our strategies
 letter_vec &lt;- function(string){
   unlist(str_split(string,&quot;&quot;))
@@ -244,8 +244,8 @@ ggplot(aes(naive_score,bigram_score)) +
   geom_point() + 
   labs(title = &quot;A Big Difference of Opinion&quot;,
        subtitle = &quot;Word Scores Using Two Different Strategies&quot;)</code></pre>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/score_scatter1-1.png" width="672" />
-All the words containing two “e”s do well on the bigram score but terrible on the naive score. Conversely, words like “ethos” and “eclat” (what’s that?) that start with “e” have a high naive score but low bigram score.</p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/score_scatter1-1.png" width="672" /></p>
+<p>All the words containing two “e”s do well on the bigram score but terrible on the naive score. Conversely, words like “ethos” and “eclat” (what’s that?) that start with “e” have a high naive score but low bigram score.</p>
 <p>Since there is diversity of opinion, might there be a benefit in combining the two scores? Let’s add a player that takes the average of the two scores.</p>
 <pre class="r"><code>word_scores_combo &lt;- left_join(word_scores_naive, word_scores_bigram, by=&quot;word&quot;) %&gt;% 
   transmute(word,combo_score = naive_score+bigram_score) %&gt;% 
@@ -270,8 +270,8 @@ print(word_scores_combo[1:10,])</code></pre>
 <div id="the-simmering-strategy" class="section level3">
 <h3>The Simmering Strategy</h3>
 <p>Among the people who have given thought to an optimal strategy using R is Jacob Simmering. He <a href="https://jacobsimmering.com/post/wordle/">takes the Naive approach to the next level</a> by considering the position of each letter as well. Here is a very pretty plot from his post. It is interesting to note where popular letters do and don’t appear. As you see from the middle panel, “a” is more often at the in the middle but seldom at the beginning or end. “Y” is often at the end but rarely anywhere else. Again, the my corpus is the set of winning Wordle words which differs from the Simmering one.</p>
-<p><img src="{{< blogdown/postref >}}index_files/figure-html/viz_simmer-1.png" width="672" />
-In Jacob Simmering’s scoring method, he weights letters appearing anywhere (“yellow”) and in a known location (“green”) the same. I do a variant, “simmering_wgt” where I double the value of a “green” letter. See Jacob’s site for the code to do the scoring. Here are the top ten words using this method.</p>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/viz_simmer-1.png" width="672" /></p>
+<p>In Jacob Simmering’s scoring method, he weights letters appearing anywhere (“yellow”) and in a known location (“green”) the same. I do a variant, “simmering_wgt” where I double the value of a “green” letter. See Jacob’s site for the code to do the scoring. Here are the top ten words using this method.</p>
 <pre><code>## # A tibble: 10 x 3
 ##    word  simmering_score simmering_wgt_score
 ##    &lt;chr&gt;           &lt;dbl&gt;               &lt;dbl&gt;
@@ -285,6 +285,9 @@ In Jacob Simmering’s scoring method, he weights letters appearing anywhere (�
 ##  8 cease            87.9                95.0
 ##  9 stare            87.9                94.7
 ## 10 steer            91.0                94.2</code></pre>
+</div>
+<div id="allow-a-sucker-at-the-table" class="section level3">
+<h3>Allow A “Sucker” At The Table</h3>
 <p>As a control group, let’s add a column of random scores as a “player” as well.</p>
 <pre class="r"><code>scoring_methods &lt;- as_factor(c(&quot;random&quot;,&quot;naive&quot;,&quot;smart&quot;,&quot;bigram&quot;,&quot;combo&quot;,&quot;simmer2&quot;))
 
