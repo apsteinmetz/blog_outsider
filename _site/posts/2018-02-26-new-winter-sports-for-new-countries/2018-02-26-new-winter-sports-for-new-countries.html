@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Art Steinmetz">
+<meta name="dcterms.date" content="2018-02-26">
+
+<title>Outsider Data Science - New Winter Sports for New Countries</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Outsider Data Science</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">
+ <span class="menu-text">About</span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">New Winter Sports for New Countries</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">web scraping</div>
+    <div class="quarto-category">sports</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Art Steinmetz </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">February 26, 2018</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="looking-at-winter-olympic-medal-rankings-by-vintage-of-sport-introduction" class="level1">
+<h1>
+Looking at Winter Olympic Medal Rankings by Vintage of Sport Introduction
+</h1>
+<p>
+Norway is a tiny country that punches way above its weight in the Winter Olympic medal count. We are not surprised as those folks are practically born on skis. At the same time, toussle-haired surfer dudes and dudettes from the US seem to be all over the hill when snowboards are involved. Notably, the sports where the US is most visible are sports which arose fairly recently. Is there a pattern here? Let’s do a quick hit to see if we can visualize the dominance of countries, not by event, but by vintage of a sport’s introduction to the games.
+</p>
+<pre class="sourceCode r code-with-copy"><code>library(tidyverse)
+library(rvest)
+library(knitr)</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+</section>
+<section id="scrape-and-clean-the-data-from-the-web" class="level1">
+<h1>
+Scrape and Clean the Data from the Web
+</h1>
+<p>
+I chose to get the medal total by scraping the NBC site. Doubtless you could find another source for this. Making an error-proof run through the countries was like navigating slalom gates. The code is simple now but, due to variations in the tables from country to country it took a number of iterations to get this right. Using the “Inspect” feature of Google Chrome really helped me here to extract the right pieces (“xpath selectors”).
+</p>
+<p>
+By the time you see this the web site may have changed or disappeared.
+</p>
+
+<pre class="sourceCode r code-with-copy"><code>#get top medal countries. Countries with 10 or more medals in total
+URL_stub&lt;-"http://www.nbcolympics.com/medals/"
+
+#the order of the countries is grouped by continent, then total medal count
+countries&lt;-as_factor(c("Norway","Germany","Netherlands","Austria","Switzerland",
+                       "France","Sweden","Italy","olympic-athlete-russia",
+                       "south-korea","Japan",
+                       "united-states","Canada"))
+
+all_medals&lt;-data_frame()
+for (country in countries){
+  print(country)
+  medals_raw&lt;-read_html(paste0(URL_stub,country))
+  medals&lt;-medals_raw %&gt;%
+    html_node(xpath="//table[@class='grid-table grid-table-2018']") %&gt;%
+    html_table() %&gt;% .[,1:5] %&gt;%
+    mutate(Country=country) %&gt;%
+    # get rid of special chars
+    mutate(Sport=str_extract(Sport,"(\\w|\\-| )+")) %&gt;%
+    select(Country,everything()) %&gt;%
+    {.}
+  all_medals&lt;-bind_rows(medals,all_medals)
+}</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<pre><code>## [1] "Norway"
+## [1] "Germany"
+## [1] "Netherlands"
+## [1] "Austria"
+## [1] "Switzerland"
+## [1] "France"
+## [1] "Sweden"
+## [1] "Italy"
+## [1] "olympic-athlete-russia"
+## [1] "south-korea"
+## [1] "Japan"
+## [1] "united-states"
+## [1] "Canada"</code></pre>
+<p>
+Now get the Wikipedia page that describes the first year an event was held. We are limiting ourselves to the broad class of sport. There are many snowboarding events that were introduced in different years. We are lumping all snowboard events together and using just the first year a snowboarding event was introduced.
+</p>
+<p>
+Again, there is no guarantee that the Wikipedia page format won’t change in the future.
+</p>
+
+<pre class="sourceCode r code-with-copy"><code>URL&lt;-"https://en.wikipedia.org/wiki/Winter_Olympic_Games"
+wiki_page_raw&lt;-read_html(URL)
+
+current_sports&lt;-wiki_page_raw %&gt;%
+  html_node(xpath="//*[@id='mw-content-text']/div/table[3]") %&gt;%
+  html_table() %&gt;% .[,1:4] %&gt;%
+  mutate(Years=str_extract(Years,"\\d{4}")) %&gt;%
+  rename(Notes=`Medal events contested in 2014`,Year=Years) %&gt;%
+  mutate(Notes=str_replace(Notes,"\\[\\d+\\]",""))</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+The names of the sports aren’t exactly the same at both sites so align the names of the sports in both tables.
+</p>
+<pre class="sourceCode r code-with-copy"><code>#we can get some better alignment by forcing case agreement
+all_medals&lt;-all_medals %&gt;% mutate(Sport=str_to_title(Sport))
+current_sports&lt;-current_sports %&gt;% mutate(Sport=str_to_title(Sport))
+
+#manually fix the four remaining problems
+current_sports&lt;-current_sports %&gt;% mutate(Sport=ifelse(Sport=="Short Track Speed Skating","Short Track",Sport))
+current_sports&lt;-current_sports %&gt;% mutate(Sport=ifelse(Sport=="Bobsleigh","Bobsled",Sport))
+current_sports&lt;-current_sports %&gt;% mutate(Sport=ifelse(Sport=="Ice Hockey","Hockey",Sport))
+current_sports&lt;-current_sports %&gt;% mutate(Sport=ifelse(Sport=="Cross-Country Skiing","Cross-Country",Sport))
+
+#diplay clean results
+all_medals %&gt;% select(Sport) %&gt;%
+  distinct() %&gt;%
+  left_join(current_sports) %&gt;%
+  arrange(Year) %&gt;%
+  kable()</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+
+<table class="table">
+<thead>
+<tr class="header">
+<th align="left">
+Sport
+</th>
+<th align="left">
+Year
+</th>
+<th align="right">
+Events
+</th>
+<th align="left">
+Notes
+</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">
+Figure Skating
+</td>
+<td align="left">
+1924
+</td>
+<td align="right">
+5
+</td>
+<td align="left">
+Men’s and women’s singles; pairs; ice dancing and team event.
+</td>
+</tr>
+<tr class="even">
+<td align="left">
+Speed Skating
+</td>
+<td align="left">
+1924
+</td>
+<td align="right">
+14
+</td>
+<td align="left">
+Men’s and women’s 500 m, 1000 m, 1500 m, 5000 m, Massstart and team pursuit; women’s 3000 m; men’s 10,000 m.
+</td>
+</tr>
+<tr class="odd">
+<td align="left">
+Bobsled
+</td>
+<td align="left">
+1924
+</td>
+<td align="right">
+3
+</td>
+<td align="left">
+Four-man race, two-man race and two-woman race.
+</td>
+</tr>
+<tr class="even">
+<td align="left">
+Hockey
+</td>
+<td align="left">
+1924
+</td>
+<td align="right">
+2
+</td>
+<td align="left">
+Men’s and women’s tournaments.
+</td>
+</tr>
+<tr class="odd">
+<td align="left">
+Curling
+</td>
+<td align="left">
+1924
+</td>
+<td align="right">
+3
+</td>
+<td align="left">
+Men’s, women’s and mixed doubles. tournaments.
+</td>
+</tr>
+<tr class="even">
+<td align="left">
+Cross-Country
+</td>
+<td align="left">
+1924
+</td>
+<td align="right">
+12
+</td>
+<td align="left">
+Men’s sprint, team sprint, 30&nbsp;km pursuit, 15&nbsp;km, 50&nbsp;km and 4x10&nbsp;km relay; women’s sprint, team sprint, 15&nbsp;km pursuit, 10&nbsp;km, 30&nbsp;km and 4x5&nbsp;km relay.
+</td>
+</tr>
+<tr class="odd">
+<td align="left">
+Nordic Combined
+</td>
+<td align="left">
+1924
+</td>
+<td align="right">
+3
+</td>
+<td align="left">
+Men’s 10&nbsp;km individual normal hill, 10&nbsp;km individual large hill and team.
+</td>
+</tr>
+<tr class="even">
+<td align="left">
+Ski Jumping
+</td>
+<td align="left">
+1924
+</td>
+<td align="right">
+4
+</td>
+<td align="left">
+Men’s individual large hill, team large hill; men’s and women’s individual normal hill.
+</td>
+</tr>
+<tr class="odd">
+<td align="left">
+Skeleton
+</td>
+<td align="left">
+1928
+</td>
+<td align="right">
+2
+</td>
+<td align="left">
+Men’s and women’s events.
+</td>
+</tr>
+<tr class="even">
+<td align="left">
+Alpine Skiing
+</td>
+<td align="left">
+1936
+</td>
+<td align="right">
+11
+</td>
+<td align="left">
+Men’s and women’s downhill, super G, giant slalom, slalom, and combined, and parallel slalom.
+</td>
+</tr>
+<tr class="odd">
+<td align="left">
+Biathlon
+</td>
+<td align="left">
+1960
+</td>
+<td align="right">
+11
+</td>
+<td align="left">
+Sprint (men: 10&nbsp;km; women: 7.5&nbsp;km), the individual (men: 20&nbsp;km; women: 15&nbsp;km), pursuit (men: 12.5&nbsp;km; women: 10&nbsp;km), relay (men: 4x7.5&nbsp;km; women: 4x6&nbsp;km; mixed: 2x7.5&nbsp;km+2x6&nbsp;km), and the mass start (men: 15&nbsp;km; women: 12.5&nbsp;km).
+</td>
+</tr>
+<tr class="even">
+<td align="left">
+Luge
+</td>
+<td align="left">
+1964
+</td>
+<td align="right">
+4
+</td>
+<td align="left">
+Men’s and women’s singles, men’s doubles, team relay.
+</td>
+</tr>
+<tr class="odd">
+<td align="left">
+Freestyle Skiing
+</td>
+<td align="left">
+1992
+</td>
+<td align="right">
+10
+</td>
+<td align="left">
+Men’s and women’s moguls, aerials, ski cross, superpipe, and slopestyle.
+</td>
+</tr>
+<tr class="even">
+<td align="left">
+Short Track
+</td>
+<td align="left">
+1992
+</td>
+<td align="right">
+8
+</td>
+<td align="left">
+Men’s and women’s 500 m, 1000 m, 1500 m; women’s 3000&nbsp;m relay; and men’s 5000&nbsp;m relay.
+</td>
+</tr>
+<tr class="odd">
+<td align="left">
+Snowboarding
+</td>
+<td align="left">
+1998
+</td>
+<td align="right">
+8
+</td>
+<td align="left">
+Men’s and women’s parallel, half-pipe, snowboard cross, and slopestyle.
+</td>
+</tr>
+</tbody>
+
+</table>
+<p>
+Good! It must be noted that we are working with tiny data here. If my boss asked me to do this I would just manually create all these tables, in the interest of time. Here at OutsideRdata we do things, not the hard way, but the way that teaches us the most!
+</p>
+<p>
+The cleaning is done. Now lets join the tables, make sure the countries are in the right order and add some observations using the oh-so-useful <code>complete</code> function to put zeros in the missing combinations of year and sport for every country.
+</p>
+
+<pre class="sourceCode r code-with-copy"><code>final_table &lt;- all_medals %&gt;%
+  select(Country,Sport,Total) %&gt;%
+  left_join(current_sports) %&gt;% .[,1:4]
+
+#make sure the order of the countries matches the order we started with
+final_table$Country &lt;- as_factor(final_table$Country,levels=levels(countries))
+
+#fill empty cases with zero so there are no blanks in the plot
+final_table &lt;- final_table %&gt;% complete(Country,Sport,Year,fill=list(Total=0))
+
+agg_medals&lt;-final_table %&gt;% group_by(Country,Year) %&gt;%
+  summarize(Total=sum(Total))
+agg_medals[1:10,] %&gt;% kable()</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<table class="table">
+<thead>
+<tr class="header">
+<th align="left">
+Country
+</th>
+<th align="left">
+Year
+</th>
+<th align="right">
+Total
+</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">
+Canada
+</td>
+<td align="left">
+1924
+</td>
+<td align="right">
+11
+</td>
+</tr>
+<tr class="even">
+<td align="left">
+Canada
+</td>
+<td align="left">
+1928
+</td>
+<td align="right">
+0
+</td>
+</tr>
+<tr class="odd">
+<td align="left">
+Canada
+</td>
+<td align="left">
+1936
+</td>
+<td align="right">
+0
+</td>
+</tr>
+<tr class="even">
+<td align="left">
+Canada
+</td>
+<td align="left">
+1960
+</td>
+<td align="right">
+0
+</td>
+</tr>
+<tr class="odd">
+<td align="left">
+Canada
+</td>
+<td align="left">
+1964
+</td>
+<td align="right">
+2
+</td>
+</tr>
+<tr class="even">
+<td align="left">
+Canada
+</td>
+<td align="left">
+1992
+</td>
+<td align="right">
+12
+</td>
+</tr>
+<tr class="odd">
+<td align="left">
+Canada
+</td>
+<td align="left">
+1998
+</td>
+<td align="right">
+4
+</td>
+</tr>
+<tr class="even">
+<td align="left">
+united-states
+</td>
+<td align="left">
+1924
+</td>
+<td align="right">
+7
+</td>
+</tr>
+<tr class="odd">
+<td align="left">
+united-states
+</td>
+<td align="left">
+1928
+</td>
+<td align="right">
+0
+</td>
+</tr>
+<tr class="even">
+<td align="left">
+united-states
+</td>
+<td align="left">
+1936
+</td>
+<td align="right">
+3
+</td>
+</tr>
+</tbody>
+
+</table>
+<section id="a-digression" class="level2">
+<h2 class="anchored" data-anchor-id="a-digression">
+A Digression
+</h2>
+<p>
+A best practice with tidy data is to have every observation and every variable in a single data table. Where we want to use the data in a related table we use <code>_join</code> to add the data to the main table. This runs contrary to best practice in the early days of PC databases where “relational” was a big part of data manipulation. The data tables were kept separate and linked by keys. Keys are still how <code>_join</code> works, of course, but we just make one humongous table rather than look up the related fields on the fly. This is faster but uses more memory and/or storage. Back in the day when a couple megabytes of RAM was a lot, we cared about those things, even for small data projects. Now, we use local million-row tables with nary a blink of the eye. You kids don’t know how tough it was!
+</p>
+</section>
+</section>
+<section id="visualize" class="level1">
+<h1>
+Visualize
+</h1>
+<pre class="sourceCode r code-with-copy"><code>agg_medals %&gt;% ggplot(aes(Year,Country,fill=Total))+geom_tile()</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-6-1.png" class="img-fluid">
+</p>
+<p>
+We see some patterns emerging but this chart is mostly a reflection of the fact that most of the sports have been around since the beginning of the Winter games. There are more medals to be won in those sports. Let’s normalize the data by the fraction of total medals in each vintage. Also clean up the labels a bit.
+</p>
+<pre class="sourceCode r code-with-copy"><code>agg_medals&lt;-agg_medals %&gt;%
+  group_by(Year) %&gt;%
+  mutate(Pct_That_Year=Total/sum(Total))
+
+agg_medals %&gt;%
+  ggplot(aes(Year,Country,fill=Pct_That_Year))+geom_tile()+
+  labs(title="New Countries Win in New Sports",
+       subtitle="Medal Ranking by Vintage of Sport",
+       x="Year Sport Introduced",
+       y="Country by Continent")+
+  geom_hline(yintercept = 2.5,size=2)+
+  geom_hline(yintercept = 4.5,size=2)</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-7-1.png" class="img-fluid">
+</p>
+<p>
+There you have it. We clearly see that the U.S. and Canada come to the fore with the most recently introduced events. The schussing countries of Europe are a bit stronger in the older sports. Note the intersection of Germany and 1964. There was one sport inaugurated in 1964, luge. Likewise, in 1928 the only sport introduced was skeleton. Some events, like skeleton, appeared, dissapeared then reappeared again (in the case of skeleton, 2002). Biathalon is listed as a 1960 vintage sport - newish. Cross-country skiing is half the event and the Norwegians are very strong, of course. This shows the limitation of this analysis.
+</p>
+<p>
+It is strange that skeleton, bobsled and luge are broken out as separate sports while “Alpine Skiing” is just one. For the purposes of this analysis it doesn’t affect the conclusions.
+</p>
+<p>
+If we wanted to take this further, a more robust analysis would use several Olympics to get a larger sample size but I have to move on to March Madness!
+</p>
+</section>
+
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

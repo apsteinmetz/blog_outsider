@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Art Steinmetz">
+<meta name="dcterms.date" content="2019-07-16">
+
+<title>Outsider Data Science - Gender Diversity in R and Python Package Contributors</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Outsider Data Science</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">
+ <span class="menu-text">About</span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Gender Diversity in R and Python Package Contributors</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">github</div>
+    <div class="quarto-category">gender</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Art Steinmetz </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 16, 2019</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">
+Introduction
+</h2>
+<p>
+Over the last few years I have really enjoyed becoming part of the R community. One of the best things about the community is the welcoming, inclusive and supportive nature of it. I can’t speak for other communities in the computer or data science worlds but I am well aware of the “brogrammer” culture in some circles that can be off-putting at times. The rise of codes of conduct across the open source world is changing things for the better, I think.
+</p>
+<p>
+A couple months ago the creator of Python was interviewed saying <a href="https://qz.com/1624252/pythons-creator-thinks-it-has-a-diversity-problem/">he thinks open source programming languages have a gender diversity problem</a>. This got me to thinking about whether the inclusive environment I observe in the R community is reflected in female contributions to popular packages and how it compares to the Python world. Most of these packages are maintained on Github which includes all the contributors who use the Github environment to contribute. Let’s take a stab at identifying the gender of these contributors by name.
+</p>
+<p>
+We will take a multi-stage approach to getting an answer to this question.
+</p>
+<ol style="list-style-type: decimal">
+<li>
+Get the names of the top packages in R and Python.
+</li>
+<li>
+Identify which those packages which are maintained on Github.
+</li>
+<li>
+Get the contributors to those packages (not as easy as it sounds).
+</li>
+<li>
+Get baby names by gender from the U.S. Social Security database.
+</li>
+<li>
+Decide whether a name is likely to be female or male.
+</li>
+<li>
+Map all package conrtributors to gender, where possible.
+</li>
+</ol>
+<p>
+As usual I follow a couple conventions. The Tidyverse dialect is used throughout. All functions to fetch data from the Web are wrapped in a test to see if the data was already retrieved. This ensures that this notebook won’t break if things in the wild change. In that event, you must get the data files from this Github repo for this to work.
+</p>
+
+<pre class="sourceCode r code-with-copy"><code>library(tidyverse)
+library(purrr)
+library(jsonlite)
+library(rvest)
+library(data.table) #for downloading CRAN/RStudio logs
+library(httr)
+library(gh)
+library(formattable) #percent</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+</section>
+<section id="identify-the-top-packages-in-r-and-python." class="level2">
+<h2 class="anchored" data-anchor-id="identify-the-top-packages-in-r-and-python.">
+Identify the top packages in R and Python.
+</h2>
+<p>
+Use the cranlogs api from RStudio to get top package downloads from their CRAN mirror. This is potentially a slow function but the top package downloads are pretty stable so we choose five randomly selected dates.
+</p>
+<pre class="sourceCode r code-with-copy"><code># ----------------------------------------------------------------
+#select 5 random days from the last six months
+# Read data from RStudio site
+# custom version of a function from the installr package. See my Github repo.
+source(file="data/download_RStudio_CRAN_data.R") 
+
+if (!file.exists("data/r_pkg_list.rdata")) {
+ RStudio_CRAN_dir &lt;- download_RStudio_CRAN_data(START = Sys.Date()-180,END = Sys.Date(),sample=5)
+ # read .gz compressed files form local directory
+ RStudio_CRAN_data &lt;- read_RStudio_CRAN_data(RStudio_CRAN_dir)
+ 
+ dim(RStudio_CRAN_data)
+ 
+ # Find the most downloaded packages
+ r_pkg_list &lt;- most_downloaded_packages(RStudio_CRAN_data,n=100) %&gt;% 
+  as_tibble(.name_repair = make.names,c("downloads")) %&gt;% 
+  rename(package=X)
+ 
+ save(r_pkg_list,file="data/r_pkg_list.rdata")
+} else load("data/r_pkg_list.rdata")</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+With Python the work as already been done for us here: <a href="https://hugovk.github.io/top-pypi-packages/" class="uri">https://hugovk.github.io/top-pypi-packages/</a>. How helpful!
+</p>
+<pre class="sourceCode r code-with-copy"><code>if (!file.exists("data/python_pkg_list.rdata")){
+ 
+ py_pkgs_raw&lt;-read_json("https://hugovk.github.io/top-pypi-packages/top-pypi-packages-365-days.json",
+             simplifyVector = TRUE)
+ python_pkg_list &lt;- py_pkgs_raw$rows[1:100,] %&gt;% 
+  as_tibble() %&gt;% 
+  rename(package=project,downloads=download_count)
+ save(python_pkg_list,file="data/python_pkg_list.rdata")
+} else load("data/python_pkg_list.rdata")</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+</section>
+<section id="get-the-contributor-names-for-each-package-repo." class="level2">
+<h2 class="anchored" data-anchor-id="get-the-contributor-names-for-each-package-repo.">
+Get the contributor names for each package repo.
+</h2>
+<p>
+This is the messy stuff. We build functions to get contributors to packages and then the real names of those contributors.
+</p>
+<p>
+We start with a search for the relevant repo with just repo name and optionally the language. Suppose we want to know the names of the R <code>dplyr</code> contributors. The workflow looks like this:
+</p>
+<p>
+Call the API:
+</p>
+<p>
+<a href="https://api.github.com/search/repositories?q=dplyr+language:r" class="uri">https://api.github.com/search/repositories?q=dplyr+language:r</a>
+</p>
+<p>
+Github returns a list of the most relevant results based on their point system. In practice this means the package we care about will be the first item in the list. In this case:
+</p>
+<p>
+“full_name”: “tidyverse/dplyr”
+</p>
+<p>
+One problem I encountered is that not all R packages are tagged as being in the R language. In particular, <code>Rcpp</code> and <code>data.table</code> are considered C language repos by Github. This is one reason why not all the top packages appear to have Github repos. I manually grab the contributors for the two packages mentioned above but, out of laziness, I didn’t go looking for any other missing packages. As we will see, most of the top 100 packages for both languages are found so we have a fairly representative sample…I assume.
+</p>
+<p>
+Once we have the full package name we can create URLs to get the usernames of all the contributors.
+</p>
+<p>
+Contributor url: <a href="https://api.github.com/repos/tidyverse/dplyr/contributors" class="uri">https://api.github.com/repos/tidyverse/dplyr/contributors</a>
+</p>
+<p>
+This JSON object will not contain the “real” names but the links to user profiles. We have to make yet another call to the API to extract the real names. Note some people use pseudonyms so the real name won’t be available.
+</p>
+<p>
+Calling the endpoint for the username “<a href="https://api.github.com/users/romainfrancois" class="uri">https://api.github.com/users/romainfrancois</a>”,
+</p>
+<p>
+will return, among other things:
+</p>
+<p>
+“name”: “Romain François”
+</p>
+<p>
+Finally, we get what we are after!
+</p>
+<p>
+NOTE: You will need a Github API key for this work. Please refer to the documentation for the <code>gh</code> package.
+</p>
+<p>
+The utility functions are below:
+</p>
+<pre class="sourceCode r code-with-copy"><code>my_gh &lt;- function(end_point) {
+  return(jsonlite::fromJSON(jsonlite::toJSON(gh::gh(end_point)),simplifyVector = T))
+}
+
+json_to_df &lt;- function(json){
+  return(jsonlite::fromJSON(jsonlite::toJSON(json),simplifyVector = T))
+}
+
+# --------------------------------------------------------------------
+get_contributor_ids &lt;- function(target_repo){
+# loop through all pages of contributors 
+ search_url &lt;- paste0("/repos/",
+            target_repo,
+            "/contributors")
+ contributors_json &lt;- gh(search_url)
+ 
+ # return null in case of no contributors
+ if (nchar(contributors_json[1])==0) return(NULL)
+ 
+ contrib_node &lt;- contributors_json
+ repeat {
+  contrib_node &lt;- try(gh_next(contrib_node),silent=TRUE)
+  if (is(contrib_node) == "try-error") break
+  contributors_json &lt;- c(contributors_json,contrib_node) 
+ }
+
+ contributor_ids &lt;- json_to_df(contributors_json) %&gt;%
+  bind_rows() %&gt;%  
+  select(login,url,avatar_url)
+ return(contributor_ids)
+}
+
+# ---------------------------------------------------------------------------
+ get_name &lt;- function(contrib_url){
+  user_data &lt;- my_gh(contrib_url)
+  # just return login name if real name is missing
+  if (is_empty(user_data$name)) return(user_data$login) else return(user_data$name)
+ }
+
+# --------------------------------------------------------------------
+get_contrib_info &lt;- function(repo_name="dplyr",language=NULL){
+  print(repo_name)
+  # we don't know the Github username associated with the package
+  #so construct a search to get the most likely candidate
+  search_url &lt;- paste0("/search/repositories?q=",
+                       repo_name)
+  if (!is.null(language)){
+    search_url &lt;- paste0(search_url,"+language:", language)
+  }
+  # first api call.
+  repos &lt;- my_gh(search_url) %&gt;% .$items
+  # return NULL if no repos in Github are found
+  if (length(repos) == 0) return(NULL)
+  
+  # get full path for exact match on repo name
+  # there might be more than one user with repo of the same name
+  # Since they will be in order of Github "score", take just the first one
+  target_repo &lt;- repos %&gt;% 
+    select(name,full_name) %&gt;% 
+    filter(name == repo_name) %&gt;%
+    pull(full_name) %&gt;% 
+    .[1] %&gt;% 
+    unlist()
+  # return NULL if no repos in Github are found
+  if (is.null(target_repo)) return(NULL)
+  
+  #second api call
+  # get user urls for all contributors
+  contributor_ids &lt;- get_contributor_ids(target_repo)
+  
+  # return null in case of no contributors
+  if (is.null(contributor_ids)) return(NULL)
+  if (is.null(language)) language &lt;- "none"
+  contrib_names&lt;-map(contributor_ids$url,get_name) %&gt;% unlist()
+  print(paste(length(contrib_names)," contributors"))
+  contrib_info &lt;- tibble(language=language,
+                         package=repo_name,
+                         path=target_repo,
+                         contributor=contrib_names) %&gt;% 
+    bind_cols(contributor_ids) %&gt;% 
+    select(-url) %&gt;% unnest()
+  return(contrib_info)
+}</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+Now let’s do the work of iterating through the package lists. As mentioned above, I get two packages manually before looping through the remaining packages. I chose to use a <code>for</code> loop, as opposed to <code>map</code> or <code>apply</code> so we can save the intermediate results. It is a fairly slow process and you may reach your API data limit before finishing. You don’t want to start from scratch halfway through! If you have to do this in multiple sessions, manually edit the package lists to include just what is left to retrieve.
+</p>
+
+<pre class="sourceCode r code-with-copy"><code>load("data/r_pkg_list.rdata")
+if (!file.exists("data/r_pkg_contributors.rdata")){
+  r_pkg_contributors &lt;- NULL
+  # Rcpp package is categorized as C++, not R, langauge so get it manually.
+  contrib_info_rcpp &lt;- get_contrib_info("Rcpp")
+  contrib_info_rcpp &lt;- contrib_info_rcpp %&gt;% mutate(language = "r")
+  r_pkg_contributors &lt;- bind_rows(r_pkg_contributors,contrib_info_rcpp)
+  r_pkg_list &lt;- r_pkg_list %&gt;% filter(package != "Rcpp")
+  
+  # data.table package is categorized as C++, not R, langauge so get it manually.
+  contrib_info_dt &lt;- get_contrib_info("data.table")
+  contrib_info_dt &lt;- contrib_info_dt %&gt;% mutate(language = "r")
+  r_pkg_contributors &lt;- bind_rows(r_pkg_contributors,contrib_info_dt)
+  r_pkg_list &lt;- r_pkg_list %&gt;% filter(package != "dt")
+  
+  # use for loop instead of map or apply so we can save intermediate steps
+  for(pkg in r_pkg_list$package) {
+    r_pkg_contributors &lt;- r_pkg_contributors %&gt;% 
+      bind_rows(get_contrib_info(pkg,language="r"))
+    save(r_pkg_contributors,file="data/r_pkg_contributors.rdata")
+  }
+} else load("data/r_pkg_contributors.rdata")
+
+load("data/python_pkg_list.rdata")
+if (!file.exists("data/python_pkg_contributors.rdata")){
+ python_pkg_contributors &lt;- NULL
+ for(pkg in python_pkg_list$package) {
+  python_pkg_contributors &lt;- python_pkg_contributors %&gt;% 
+   bind_rows(get_contrib_info(pkg,language="python"))
+  save(python_pkg_contributors,file="data/python_pkg_contributors.rdata")
+ } 
+} else load("data/python_pkg_contributors.rdata")
+
+#Let's merge the two datasets to simplify handling.
+pkg_contributors &lt;- bind_rows(r_pkg_contributors,python_pkg_contributors)</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+</section>
+<section id="analysis" class="level1">
+<h1>
+Analysis
+</h1>
+<p>
+Since we went through a lot of trouble to get this data, let’s do some exploratory work on package contributors in general before we come to the main question of this post.
+</p>
+<pre class="sourceCode r code-with-copy"><code>load("data/r_pkg_contributors.rdata")
+
+#summarize what we found
+r_pkg_contributors %&gt;% 
+ group_by(package) %&gt;% 
+ summarise(contributors=n()) %&gt;% 
+ summary()</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<pre><code>##    package           contributors   
+##  Length:75          Min.   :  1.00  
+##  Class :character   1st Qu.:  3.50  
+##  Mode  :character   Median : 10.00  
+##                     Mean   : 30.49  
+##                     3rd Qu.: 32.50  
+##                     Max.   :300.00</code></pre>
+<p>
+There are 75 out of the top 100 R packages with repos we <em>easily</em> found on Github (remember, I’m lazy). The median number of contributors is 10. 300 people have contributed to the <code>fs</code> package, which is implements the linux file library <code>libuv</code>.
+</p>
+<p>
+How did we do with the Python packages?
+</p>
+<pre class="sourceCode r code-with-copy"><code>load("data/python_pkg_contributors.rdata")
+
+#summarize what we found
+python_pkg_contributors %&gt;% 
+ group_by(package) %&gt;% 
+ summarise(contributors=n()) %&gt;% 
+ summary()</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<pre><code>##    package           contributors  
+##  Length:81          Min.   :  1.0  
+##  Class :character   1st Qu.: 10.0  
+##  Mode  :character   Median : 44.0  
+##                     Mean   :101.7  
+##                     3rd Qu.:116.0  
+##                     Max.   :429.0</code></pre>
+<p>
+Right off the bat, it looks like Python package development is more of a community effort. The median package has 44 contributors. The venerable <code>matplotlib</code> takes the prize of most contributors at 429.
+</p>
+<p>
+Let’s look at the most contributed-to packages. Remember this is NOT a ranking of the most popular packages. It is a ranking of the number of contributors among the most popular packages. For R, the takeaway is that the Tidyverse is very much a shared effort.
+</p>
+<pre class="sourceCode r code-with-copy"><code>pkg_contributors %&gt;% 
+ filter(language=="r") %&gt;% 
+ group_by(package) %&gt;%
+ summarise(contributors=n()) %&gt;% 
+ arrange(contributors) %&gt;%
+ top_n(10,wt=contributors) %&gt;% 
+ ggplot(aes(as_factor(package),contributors)) + 
+ geom_col()+ 
+ labs(title = "R Packages", x = "Package Name",y = "Contributor Count") +
+ coord_flip()</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-5-1.png" width="672">
+</p>
+<pre class="sourceCode r code-with-copy"><code>pkg_contributors %&gt;% 
+ filter(language=="python") %&gt;% 
+ group_by(package) %&gt;%
+ summarise(contributors=n()) %&gt;% 
+ arrange(contributors) %&gt;%
+ top_n(10,wt=contributors) %&gt;% 
+ ggplot(aes(as_factor(package),contributors)) + 
+ geom_col()+ 
+ labs(title = "Python Packages", x = "Package Name",y = "Contributor Count") +
+ coord_flip()</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-6-1.png" width="672">
+</p>
+<p>
+Let’s compare the number of contributors for the top packages in both languages, we find that Python packages tend to have many more contributors.
+</p>
+<pre class="sourceCode r code-with-copy"><code>summary_contrib&lt;-pkg_contributors %&gt;% 
+ group_by(language,package) %&gt;% 
+ summarise(num_contributors=n()) %&gt;% 
+ group_by(language) %&gt;% 
+ mutate(ranking=rank(num_contributors,ties.method = "first")) %&gt;%
+ mutate(ranking=max(ranking)-ranking+1) %&gt;% 
+ arrange(ranking)
+
+summary_contrib %&gt;% 
+ ggplot(aes(ranking,num_contributors,group=language,color=language)) + 
+ geom_path(size=2) + 
+ theme(axis.text.x=element_blank()) +
+ labs(main="Top Python Packages Show More Collaboration",
+    x="Packages in Order of Contributors",
+    y="Number of Contributors")</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-7-1.png" width="672"> Who are the most prolific contributors among the top packages? We note, with R, that many of the top packages are part of the tidyverse ecosystem and will have a very high degree of overlap among package contributors. No one Tidyverse package is a good proxy of the contributors to the rest, however.
+</p>
+<section id="who-are-the-most-prolific-r-package-contributors" class="level2">
+<h2 class="anchored" data-anchor-id="who-are-the-most-prolific-r-package-contributors">
+Who are the most prolific R package contributors?
+</h2>
+<pre class="sourceCode r code-with-copy"><code>pkg_contributors %&gt;% 
+ filter(language=="r") %&gt;% 
+ group_by(contributor) %&gt;% 
+ summarise(packages=n()) %&gt;% 
+ arrange(desc(packages))</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<pre><code>## # A tibble: 1,299 x 2
+##    contributor            packages
+##    &lt;chr&gt;                     &lt;int&gt;
+##  1 Hadley Wickham               45
+##  2 Jim Hester                   36
+##  3 Kirill Müller                31
+##  4 Mara Averick                 26
+##  5 Jennifer (Jenny) Bryan       24
+##  6 Gábor Csárdi                 19
+##  7 Hiroaki Yutani               18
+##  8 Lionel Henry                 16
+##  9 Yihui Xie                    16
+## 10 Christophe Dervieux          15
+## # ... with 1,289 more rows</code></pre>
+</section>
+<section id="who-are-the-most-prolific-python-package-contributors" class="level2">
+<h2 class="anchored" data-anchor-id="who-are-the-most-prolific-python-package-contributors">
+Who are the most prolific Python package contributors?
+</h2>
+<pre class="sourceCode r code-with-copy"><code>pkg_contributors %&gt;% 
+ filter(language=="python") %&gt;% 
+ group_by(contributor) %&gt;% 
+ summarise(packages=n()) %&gt;% 
+ arrange(desc(packages))</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<pre><code>## # A tibble: 6,194 x 2
+##    contributor     packages
+##    &lt;chr&gt;              &lt;int&gt;
+##  1 Jon Dufresne          30
+##  2 Hugo                  27
+##  3 Marc Abramowitz       24
+##  4 Jason R. Coombs       18
+##  5 Jakub Wilk            17
+##  6 Alex Gaynor           16
+##  7 Anthony Sottile       15
+##  8 Felix Yan             15
+##  9 Ville Skyttä          15
+## 10 Donald Stufft         14
+## # ... with 6,184 more rows</code></pre>
+</section>
+<section id="people-who-swing-both-ways." class="level2">
+<h2 class="anchored" data-anchor-id="people-who-swing-both-ways.">
+People who swing both ways.
+</h2>
+<p>
+Who are the awesome humans who have contributed to both top R and Python packages? Grouping by login name ensures that we don’t get two different people with the same name but we drop it for display. There are 44 people who have contributed to some of both the top Python and R packages.
+</p>
+<pre class="sourceCode r code-with-copy"><code>two_lang_contrib &lt;- pkg_contributors %&gt;% 
+ group_by(login,contributor,language) %&gt;%
+ summarise(packages=n()) %&gt;% 
+ spread(language,packages) %&gt;% 
+ ungroup() %&gt;% 
+ select(-login)
+
+two_lang_contrib &lt;- two_lang_contrib[complete.cases(two_lang_contrib),] %&gt;% 
+ arrange(desc(r))
+
+two_lang_contrib </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<pre><code>## # A tibble: 46 x 3
+##    contributor              python     r
+##    &lt;chr&gt;                     &lt;int&gt; &lt;int&gt;
+##  1 Craig Citro                   3     7
+##  2 Elliott Sales de Andrade      2     5
+##  3 Philipp A.                    4     4
+##  4 Aaron Schumacher              2     3
+##  5 Ayappan                       1     2
+##  6 Chapman Siu                   1     2
+##  7 Ethan White                   1     2
+##  8 Katrin Leinweber              2     2
+##  9 Mark Sandan                   1     2
+## 10 Tim D. Smith                  3     2
+## # ... with 36 more rows</code></pre>
+</section>
+<section id="try-to-determine-gender-of-contributors." class="level2">
+<h2 class="anchored" data-anchor-id="try-to-determine-gender-of-contributors.">
+Try to determine gender of contributors.
+</h2>
+<p>
+I hope you found the digressions above interesting. Now let’s do what we came to do.
+</p>
+<p>
+To flag names by gender we use the Social Security baby names database for 1990. It is important to be aware of the limitations of this.
+</p>
+<ol style="list-style-type: decimal">
+<li>
+<p>
+I used 1990 because I guess that is close to the average birth year of most package contributors. Is it? My birth year is (cough) 1958. I am an outlier.
+</p>
+</li>
+<li>
+<p>
+The dataset contains registered births for only the United States. Many contributors were born, or live today, outside the U.S. The U.S, while more of a melting pot than many countries, will have a subset of global names.
+</p>
+</li>
+<li>
+<p>
+Transliteration of names from languages that don’t use Western characters don’t follow hard and fast rules. The same name might be transliterated multiple ways. “Sergey” or “Sergei?”
+</p>
+</li>
+<li>
+<p>
+Ordering of surname and given name. Chinese names typically are reported surname first. Many Chinese people follow western conventions in global settings but maybe not. I may be tagging the surname as the given name in some (many?) cases.
+</p>
+</li>
+<li>
+<p>
+Many names are used for “both” (yes, I know) genders. I choose an aribitrary ratio of gender predominance of 75% to pronounce certainty. Noteworthy: “Hadley” is in our “Uncertain” bucket.
+</p>
+</li>
+<li>
+<p>
+Gender identity becomes a choice at some age. People may choose (or not choose) a gender inconsistant with the identification in this dataset.
+</p>
+</li>
+<li>
+<p>
+Some people use pseudonyms that are not common names.
+</p>
+</li>
+</ol>
+<p>
+Knowing all that, let’s plunge on.
+</p>
+<p>
+You can find the link to the <a href="https://catalog.data.gov/dataset/baby-names-from-social-security-card-applications-national-level-data/resource/fdfd2c5c-6190-4fac-9ead-ae478e0c2790">baby names data set here</a>. There are CSV files for each birth year in a zip file. Download, extract and import the file called “yob1990.txt”
+</p>
+<pre class="sourceCode r code-with-copy"><code>names_90 &lt;- read_csv("data/yob1990.txt",
+           col_names=c("first","gender","count"),
+           col_types = list(col_character(),col_character(),col_number()))
+
+names_90 &lt;- names_90 %&gt;% 
+ mutate(first = tolower(first)) %&gt;% 
+ select(first,gender,count) %&gt;% 
+ spread(gender,count) %&gt;% 
+ mutate_if(is.numeric, ~replace(., is.na(.), 0)) %&gt;% 
+ mutate(prob_female=F/(F+M))
+
+cutoff = 0.75 # threshhold probability for calling gender
+names_90 &lt;- names_90 %&gt;% mutate(gender="Uncertain")
+names_90 &lt;- names_90 %&gt;% mutate(gender=if_else(prob_female&gt;cutoff,"Female",gender))
+names_90 &lt;- names_90 %&gt;% mutate(gender=if_else(prob_female&lt;(1-cutoff),"Male",gender))
+names_90_subset &lt;- names_90 %&gt;% select(first,gender)</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+Now let’s join the baby names to our contributors.
+</p>
+<pre class="sourceCode r code-with-copy"><code>pkg_contributors &lt;-pkg_contributors %&gt;%
+ separate("contributor",into=c("first"),remove=FALSE,extra="drop")
+genders &lt;- pkg_contributors %&gt;% 
+ select(-path,-avatar_url,-login) %&gt;% 
+ mutate(first = tolower(first)) %&gt;% 
+ left_join(names_90_subset,by="first") %&gt;% 
+ mutate_all(~replace(., is.na(.),"Uncertain")) </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+Our answer now looms into view. Base R has a nice tile plot that illustrates the proportions and sizes of the cells in a crosstab so we’ll use that.
+</p>
+
+<pre class="sourceCode r code-with-copy"><code>agg_gender &lt;- genders %&gt;%  
+ select(language,gender) %&gt;% 
+ table() 
+agg_gender %&gt;% plot(main="Gender Representation in Package Contributions")</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-13-1.png" width="672">
+</p>
+<p>
+Right away we note the large fraction of “Uncertain” genders, about a third. As we noted above, there are many more contributors to Python packages, as reflected in the width of the tiles. We also can see that the fraction of women contributing to R packages looks greater.
+</p>
+<p>
+For our ultimate conclusion, let’s assume that the “Uncertain” gender breaks into male and female in the same proportions that already exist.
+</p>
+
+<pre class="sourceCode r code-with-copy"><code>agg_gender &lt;- genders %&gt;% 
+ filter(gender != "Uncertain") %&gt;% 
+ select(language,gender) %&gt;% 
+ table() %&gt;% prop.table(margin=1) 
+
+percent(agg_gender,digits = 0)</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<pre><code>##         gender
+## language Female Male
+##   python  4%    96% 
+##   r       8%    92%</code></pre>
+<p>
+There it is. This was certainly a lot of work to get to a four cell crosstab but we have our answer. <strong>Women contribute to the top R packages at twice the rate of top Python packages.</strong> Can we speculate as to a reason? R is almost exclusively a data science language and most of the top packages reflect that. Python is more of a general purpose language that is also quite popular for data science, but as we look down the list of most popular Python packages we see more utility packages. Perhaps women are less represented in general computer science than they are in data science. With both languages, more than 90% of the contributors are men. Clearly, we have a way to go with gender diversity in both communities. Narrowing down the package list to focus on just data science packages is an avenue for further exploration.
+</p>
+<p>
+As a bonus, what are the most “feminine” packages?
+</p>
+<pre class="sourceCode r code-with-copy"><code>genders %&gt;% group_by(language,package,gender) %&gt;% 
+  filter(gender != "Uncertain") %&gt;% 
+  count() %&gt;% 
+  spread(gender,n) %&gt;% 
+  mutate(frac_female = Female/(Female+Male)) %&gt;% 
+  arrange(desc(frac_female))</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<pre><code>## # A tibble: 147 x 5
+## # Groups:   language, package [147]
+##    language package    Female  Male frac_female
+##    &lt;chr&gt;    &lt;chr&gt;       &lt;int&gt; &lt;int&gt;       &lt;dbl&gt;
+##  1 r        cellranger      1     1       0.5  
+##  2 r        hms             1     2       0.333
+##  3 r        rprojroot       1     2       0.333
+##  4 r        tidyselect      3     6       0.333
+##  5 r        forcats         7    18       0.28 
+##  6 r        ellipsis        1     3       0.25 
+##  7 python   decorator       2     7       0.222
+##  8 r        scales          5    18       0.217
+##  9 r        tidyr          11    41       0.212
+## 10 r        pillar          1     4       0.2  
+## # ... with 137 more rows</code></pre>
+<p>
+That’s interesting. There are 28 popular packages across both languages where more than 10% of the contributors are female. Of those 25 are R packages and only 3 are Python packages.
+</p>
+<p>
+There are other dimensions of diversity we might look at that are beyond the ability to infer from names. It would be nice if we could see actual images of all contributors so we might make some observations about racial diversity or remove some of the ambiguities around gender identification. This approach would come with its own set of challenges and risks, however.
+</p>
+<p>
+As mentioned at the start of this ariticle, there are many reasons to take our conclusions with a grain of salt. I certainly do not claim this analysis is definitive. A better approach might be to simply survey the contributors. Still, the results conform with what intuition might provide.
+</p>
+<p>
+I welcome critiques of my methods or conclusions. I have a sneaky suspicion I got the Github contributor names the hard way. Thanks for reading!
+</p>
+</section>
+</section>
+
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

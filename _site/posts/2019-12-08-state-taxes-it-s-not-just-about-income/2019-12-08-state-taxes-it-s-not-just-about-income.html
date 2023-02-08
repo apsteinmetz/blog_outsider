@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Art Steinmetz">
+<meta name="dcterms.date" content="2019-12-08">
+
+<title>Outsider Data Science - State Taxes: It’s not just about Income</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script src="../../site_libs/htmlwidgets-1.6.1/htmlwidgets.js"></script>
+<script src="../../site_libs/plotly-binding-4.10.1/plotly.js"></script>
+<script src="../../site_libs/typedarray-0.1/typedarray.min.js"></script>
+<script src="../../site_libs/jquery-3.5.1/jquery.min.js"></script>
+<link href="../../site_libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet">
+<script src="../../site_libs/crosstalk-1.2.0/js/crosstalk.min.js"></script>
+<link href="../../site_libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="../../site_libs/plotly-main-2.11.1/plotly-latest.min.js"></script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Outsider Data Science</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html">
+ <span class="menu-text">Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/asteinmetz/"><i class="bi bi-linkedin" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/adababbage"><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://fosstodon.org/@adababbage"><i class="bi bi-mastodon" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/apsteinmetz"><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#which-states-impose-the-most-tax-pain" id="toc-which-states-impose-the-most-tax-pain" class="nav-link active" data-scroll-target="#which-states-impose-the-most-tax-pain">Which States Impose the Most “Tax Pain?”</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">State Taxes: It’s not just about Income</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">tax</div>
+    <div class="quarto-category">plotly</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Art Steinmetz </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">December 8, 2019</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="which-states-impose-the-most-tax-pain" class="level2">
+<h2 class="anchored" data-anchor-id="which-states-impose-the-most-tax-pain">Which States Impose the Most “Tax Pain?”</h2>
+<p>Much of the discussion around tax burdens focuses on income taxes but, at the state level, that leaves out two other big sources of tax liability, sales and property taxes. Here we’ll quickly look at the interplay of all three taxes in a graphical way. This can inform our thinking about how attractive it is to live in each state and on public policy questions involving tax fairness. The <code>plotly</code> package lets us easily create an interactive 3D scatter plot that is uniquely useful to visualize this.</p>
+<p>Sales taxes vary greatly by state but, for lower income people, might be the biggest tax burden. Indeed, since low-income families spend a larger fraction of their income, these taxes are “regressive” since the relative burden grows as income falls. Income taxes are typically “progressive” since, in most states, the rate grows with income levels. Property taxes aren’t directly levied on renters but the landlords pass the tax through via higher rents, so everyone pays. Let’s take a quick look at how tax rates vary by state and category.</p>
+<p>The tax data was found in three different places:</p>
+<ul>
+<li>Income tax rates from https://taxfoundation.org/state-individual-income-tax-rates-brackets-2019/</li>
+<li>Property tax Rates from https://wallethub.com/edu/states-with-the-highest-and-lowest-property-taxes/11585/</li>
+<li>Sales Tax Rates https://www.salestaxinstitute.com/resources/rates</li>
+</ul>
+<p>I make some choices in how to present the data. First of all, I use the top marginal rates, so this represents the “worst-case” tax burden. It should be representative of the overall tax structure and useful to compare across states. Next, I add average municipal income taxes computed by the Tax Foundation for each state to the state income tax rate. If you live in New York City, this will substantially understate your tax burden and overstate it elsewhere. Some municipalities levy sales taxes as well but I do NOT include these because they vary so widely and we don’t have all day. Also, municipalities love to tax people who can’t vote, like out of towners, with hotel and rental car taxes. These would not affect your view of where to live. How about excise taxes on gasoline, cigarettes, etc? Not included.</p>
+<p>I already combined the data from each source with the adjustments mentioned above into a single CSV file. Load it with the required libraries.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>(<span class="fu">library</span>(tidyverse))</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>(<span class="fu">library</span>(plotly))</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>state_rates <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/state_rate.csv"</span>,<span class="at">col_types =</span> <span class="st">"fnnn"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s take a quick look at the summary statistics.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(state_rates[,<span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   income_tax       sales_tax      property_tax  
+ Min.   : 0.000   Min.   :0.000   Min.   :0.270  
+ 1st Qu.: 4.925   1st Qu.:4.375   1st Qu.:0.730  
+ Median : 5.950   Median :6.000   Median :0.980  
+ Mean   : 5.835   Mean   :5.062   Mean   :1.119  
+ 3rd Qu.: 7.190   3rd Qu.:6.250   3rd Qu.:1.550  
+ Max.   :13.300   Max.   :7.250   Max.   :2.440  </code></pre>
+</div>
+</div>
+<p>Some states have no personal income tax at all but have to raise revenue somehow. Most commonly, sales tax forms a big part of the budget. Is there a pattern where lower income tax rates correlate with higher sales or property taxes? A correlation matrix provides a quick check.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">cor</span>(state_rates[<span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">income_tax</th>
+<th style="text-align: right;">sales_tax</th>
+<th style="text-align: right;">property_tax</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">income_tax</td>
+<td style="text-align: right;">1.0000000</td>
+<td style="text-align: right;">0.0292638</td>
+<td style="text-align: right;">0.1074844</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">sales_tax</td>
+<td style="text-align: right;">0.0292638</td>
+<td style="text-align: right;">1.0000000</td>
+<td style="text-align: right;">0.1115520</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">property_tax</td>
+<td style="text-align: right;">0.1074844</td>
+<td style="text-align: right;">0.1115520</td>
+<td style="text-align: right;">1.0000000</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>It doesn’t look like there is any relationship.</p>
+<p>Tax rates are not the same thing as cash out of pocket. As mentioned above, several issues affect the translation of rates to dollars. Ideally, we would like to know which states are the most expensive to live in, tax-wise. We don’t care which pocket it comes out of but we have to make assumptions.</p>
+<p>Let’s add adjustment factors for the impact of sales and property taxes relative to income taxes. This will let us add all three together to come up with a “tax pain” index. In theory, property taxes are levied according to a percentage of the value of the home. But there are complex formulas that go beyond just the published “rate.” In New York, it turns out that the median property tax bill is roughly equal to the median income tax liability, so I chose an adjustment factor of 1.0. How much of your taxable income is spent on consumption of things that sales tax is levied on? As mentioned above, low earners typically live hand-to-mouth. Affluent people can save more for deferred consumption, philanthropy or passing to heirs. I chose to assume 30% of household income is spent where sales taxes apply. Also note that sales tax rates are flat. Not only do poor people consume a higher fraction of their income, sales taxes aren’t scaled by income. You can play around with both of these adjustment factors based on what you want to see. There is no “correct” number. Low income families might pay no income tax and property taxes only indirectly, so sales tax is really the only tax that matters for them.</p>
+<p>The tax pain index can be crudely interpreted as the fraction of a high earner’s income that will be paid in just state taxes. I call it an “index” because it can also be interpreted as a comparison of the relative tax burden across states for all wage earners.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># judge how to weight realized cost of sales and property relative to income tax.</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>sales_adj    <span class="ot">=</span> <span class="fl">0.3</span> <span class="co"># assume we spend 30% of our taxable income on items subject to sales tax.</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>property_adj <span class="ot">=</span> <span class="fl">1.0</span> <span class="co"># assume median income tax liability is about equal to the property tax on the median home. </span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># use these adjustments to create ranking that we will use to color the markers in the plot.</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># the sum of the adjusted values is a *rough* guide to the total tax burden.</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>state_rates_adj <span class="ot">&lt;-</span> state_rates <span class="sc">%&gt;%</span> </span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">tax_pain =</span> income_tax <span class="sc">+</span> (sales_tax <span class="sc">*</span> sales_adj) <span class="sc">+</span> (property_tax <span class="sc">*</span> property_adj)) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>   <span class="fu">arrange</span>(<span class="fu">desc</span>(tax_pain))</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(state_rates_adj[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>,])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped">
+<thead>
+<tr class="header">
+<th style="text-align: left;">state</th>
+<th style="text-align: right;">income_tax</th>
+<th style="text-align: right;">sales_tax</th>
+<th style="text-align: right;">property_tax</th>
+<th style="text-align: right;">tax_pain</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">California</td>
+<td style="text-align: right;">13.30</td>
+<td style="text-align: right;">7.25</td>
+<td style="text-align: right;">0.77</td>
+<td style="text-align: right;">16.245</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">New Jersey</td>
+<td style="text-align: right;">11.25</td>
+<td style="text-align: right;">6.63</td>
+<td style="text-align: right;">2.44</td>
+<td style="text-align: right;">15.679</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">New York</td>
+<td style="text-align: right;">10.69</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">1.68</td>
+<td style="text-align: right;">13.570</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Minnesota</td>
+<td style="text-align: right;">9.85</td>
+<td style="text-align: right;">6.88</td>
+<td style="text-align: right;">1.15</td>
+<td style="text-align: right;">13.064</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Hawaii</td>
+<td style="text-align: right;">11.00</td>
+<td style="text-align: right;">4.00</td>
+<td style="text-align: right;">0.27</td>
+<td style="text-align: right;">12.470</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Vermont</td>
+<td style="text-align: right;">8.75</td>
+<td style="text-align: right;">6.00</td>
+<td style="text-align: right;">1.83</td>
+<td style="text-align: right;">12.380</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Iowa</td>
+<td style="text-align: right;">8.75</td>
+<td style="text-align: right;">6.00</td>
+<td style="text-align: right;">1.53</td>
+<td style="text-align: right;">12.080</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Maryland</td>
+<td style="text-align: right;">8.60</td>
+<td style="text-align: right;">6.00</td>
+<td style="text-align: right;">1.10</td>
+<td style="text-align: right;">11.500</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Oregon</td>
+<td style="text-align: right;">10.28</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">1.04</td>
+<td style="text-align: right;">11.320</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">District of Columbia</td>
+<td style="text-align: right;">8.95</td>
+<td style="text-align: right;">6.00</td>
+<td style="text-align: right;">0.55</td>
+<td style="text-align: right;">11.300</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>state_rates_adj <span class="sc">%&gt;%</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>   <span class="co"># reorder the state factor levels so they display in order of tax pain, not alphabetically</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>   <span class="fu">mutate</span>(<span class="at">state =</span> <span class="fu">fct_reorder</span>(state,tax_pain)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>   <span class="fu">ggplot</span>(<span class="fu">aes</span>(state,tax_pain)) <span class="sc">+</span> <span class="fu">geom_col</span>() <span class="sc">+</span> </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>   <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Cumulative Impact of State Taxes"</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">subtitle =</span> <span class="st">"Income, Sales and Property"</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="st">"State"</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="st">'"Tax Pain" Index'</span>) <span class="sc">+</span> </span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>   <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="2019-12-08-state-taxes-it-s-not-just-about-income_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>No big surprises here. Florida, good. California, bad. Seeing Vermont at the high tax end while New Hampshire is at the low end is interesting. The two states are about the same size and have the same climate. The low tax state has over twice the population and a 33% higher median income. Just sayin’….</p>
+<p>We would like to visualize the interplay of the three tax vectors and a 3D scatterplot is ideal for this. Further, the <code>plotly</code> package lets us interactively rotate the plot, which is critical for perceiving the 3D volume on a 2D surface. There are a lot of gratuitous uses of 3D visualization out there. This is one instance where 3D really adds to our understanding.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create 3d animated plot of 3 state tax rate dimensions,</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># income, property and sales</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_ly</span>(state_rates_adj,<span class="at">x =</span> <span class="sc">~</span>income_tax,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">y=</span> <span class="sc">~</span>sales_tax,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">z=</span> <span class="sc">~</span>property_tax,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">type=</span><span class="st">"scatter3d"</span>, </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">mode=</span><span class="st">"markers"</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">color =</span> <span class="sc">~</span>tax_pain,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">hoverinfo =</span> <span class="st">"text"</span>,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">text=</span> <span class="sc">~</span>state) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>   <span class="fu">layout</span>(<span class="at">title =</span> <span class="st">"Major Tax Rates by State"</span>,</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>          <span class="at">scene =</span> <span class="fu">list</span>(<span class="at">xaxis =</span> <span class="fu">list</span>(<span class="at">title =</span> <span class="st">'Income Tax'</span>),</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>                       <span class="at">yaxis =</span> <span class="fu">list</span>(<span class="at">title =</span> <span class="st">'Sales Tax'</span>),</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>                       <span class="at">zaxis =</span> <span class="fu">list</span>(<span class="at">title =</span> <span class="st">'Property Tax'</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-a8065310d181dc352fa5" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-a8065310d181dc352fa5">{"x":{"visdat":{"2cd852b63b7e":["function () ","plotlyVisDat"]},"cur_data":"2cd852b63b7e","attrs":{"2cd852b63b7e":{"x":{},"y":{},"z":{},"mode":"markers","hoverinfo":"text","text":{},"color":{},"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter3d"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"title":"Major Tax Rates by State","scene":{"xaxis":{"title":"Income Tax"},"yaxis":{"title":"Sales Tax"},"zaxis":{"title":"Property Tax"}},"hovermode":"closest","showlegend":false,"legend":{"yanchor":"top","y":0.5}},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":[13.3,11.25,10.69,9.85,11,8.75,8.75,8.6,10.28,8.95,7.65,6.99,7.5,6.84,7.15,5.99,7.08,6.9,6.93,5.95,6.01,7,4.95,5.7,6.5,5.9,5.05,5,5.75,6,5.75,7.23,4.79,6.9,5.25,5,4.9,5,5.5,4.95,4.54,4.63,2.9,2,0,0,0,0,0,0,0],"y":[7.25,6.63,4,6.88,4,6,6,6,0,6,5,6.35,5.75,5.5,5.5,7,6,6.5,6,6,6,6,6.25,6.5,6,4.23,6.25,7,4,4.45,4.3,0,7,0,4.75,4.5,5.13,0,4,4.85,5.6,2.9,5,7,6.25,6.5,6,6.85,4.5,4,0],"z":[0.77,2.44,1.68,1.15,0.27,1.83,1.53,1.1,1.04,0.55,1.94,2.07,1.57,1.8,1.35,1.66,0.86,0.63,0.75,1.64,1.58,0.57,2.31,1.4,0.59,0.99,1.22,0.8,0.91,0.52,0.8,0.56,0.87,0.84,0.86,0.9,0.78,2.2,0.42,0.66,0.72,0.55,1.01,0.74,1.83,1.03,0.98,0.69,1.32,0.61,1.19],"mode":"markers","hoverinfo":["text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text","text"],"text":["California","New Jersey","New York","Minnesota","Hawaii","Vermont","Iowa","Maryland","Oregon","District of Columbia","Wisconsin","Connecticuit","Ohio","Nebraska","Maine","Rhode Island","Kentucky","Arkansas","Idaho","Michigan","Pennsylvania","South Carolina","Illinois","Kansas","West Virginia","Missouri","Massachussetts","Mississippi","Georgia","Louisiana","Virginia","Delaware","Indiana","Montana","North Carolina","Oklahoma","New Mexico","New Hampshire","Alabama","Utah","Arizona","Colorado","North Dakota","Tennessee","Texas","Washington","Florida","Nevada","South Dakota","Wyoming","Alaska"],"type":"scatter3d","marker":{"colorbar":{"title":"tax_pain","ticklen":2},"cmin":1.19,"cmax":16.245,"colorscale":[["0","rgba(68,1,84,1)"],["0.0416666666666667","rgba(70,19,97,1)"],["0.0833333333333333","rgba(72,32,111,1)"],["0.125","rgba(71,45,122,1)"],["0.166666666666667","rgba(68,58,128,1)"],["0.208333333333333","rgba(64,70,135,1)"],["0.25","rgba(60,82,138,1)"],["0.291666666666667","rgba(56,93,140,1)"],["0.333333333333333","rgba(49,104,142,1)"],["0.375","rgba(46,114,142,1)"],["0.416666666666667","rgba(42,123,142,1)"],["0.458333333333333","rgba(38,133,141,1)"],["0.5","rgba(37,144,140,1)"],["0.541666666666667","rgba(33,154,138,1)"],["0.583333333333333","rgba(39,164,133,1)"],["0.625","rgba(47,174,127,1)"],["0.666666666666667","rgba(53,183,121,1)"],["0.708333333333333","rgba(79,191,110,1)"],["0.75","rgba(98,199,98,1)"],["0.791666666666667","rgba(119,207,85,1)"],["0.833333333333333","rgba(147,214,70,1)"],["0.875","rgba(172,220,52,1)"],["0.916666666666667","rgba(199,225,42,1)"],["0.958333333333333","rgba(226,228,40,1)"],["1","rgba(253,231,37,1)"]],"showscale":false,"color":[16.245,15.679,13.57,13.064,12.47,12.38,12.08,11.5,11.32,11.3,11.09,10.965,10.795,10.29,10.15,9.75,9.74,9.48,9.48,9.39,9.39,9.37,9.135,9.05,8.89,8.159,8.145,7.9,7.86,7.855,7.84,7.79,7.76,7.74,7.535,7.25,7.219,7.2,7.12,7.065,6.94,6.05,5.41,4.84,3.705,2.98,2.78,2.745,2.67,1.81,1.19],"line":{"colorbar":{"title":"","ticklen":2},"cmin":1.19,"cmax":16.245,"colorscale":[["0","rgba(68,1,84,1)"],["0.0416666666666667","rgba(70,19,97,1)"],["0.0833333333333333","rgba(72,32,111,1)"],["0.125","rgba(71,45,122,1)"],["0.166666666666667","rgba(68,58,128,1)"],["0.208333333333333","rgba(64,70,135,1)"],["0.25","rgba(60,82,138,1)"],["0.291666666666667","rgba(56,93,140,1)"],["0.333333333333333","rgba(49,104,142,1)"],["0.375","rgba(46,114,142,1)"],["0.416666666666667","rgba(42,123,142,1)"],["0.458333333333333","rgba(38,133,141,1)"],["0.5","rgba(37,144,140,1)"],["0.541666666666667","rgba(33,154,138,1)"],["0.583333333333333","rgba(39,164,133,1)"],["0.625","rgba(47,174,127,1)"],["0.666666666666667","rgba(53,183,121,1)"],["0.708333333333333","rgba(79,191,110,1)"],["0.75","rgba(98,199,98,1)"],["0.791666666666667","rgba(119,207,85,1)"],["0.833333333333333","rgba(147,214,70,1)"],["0.875","rgba(172,220,52,1)"],["0.916666666666667","rgba(199,225,42,1)"],["0.958333333333333","rgba(226,228,40,1)"],["1","rgba(253,231,37,1)"]],"showscale":false,"color":[16.245,15.679,13.57,13.064,12.47,12.38,12.08,11.5,11.32,11.3,11.09,10.965,10.795,10.29,10.15,9.75,9.74,9.48,9.48,9.39,9.39,9.37,9.135,9.05,8.89,8.159,8.145,7.9,7.86,7.855,7.84,7.79,7.76,7.74,7.535,7.25,7.219,7.2,7.12,7.065,6.94,6.05,5.41,4.84,3.705,2.98,2.78,2.745,2.67,1.81,1.19]}},"frame":null},{"x":[0,13.3],"y":[0,7.25],"type":"scatter3d","mode":"markers","opacity":0,"hoverinfo":"none","showlegend":false,"marker":{"colorbar":{"title":"tax_pain","ticklen":2,"len":0.5,"lenmode":"fraction","y":1,"yanchor":"top"},"cmin":1.19,"cmax":16.245,"colorscale":[["0","rgba(68,1,84,1)"],["0.0416666666666667","rgba(70,19,97,1)"],["0.0833333333333333","rgba(72,32,111,1)"],["0.125","rgba(71,45,122,1)"],["0.166666666666667","rgba(68,58,128,1)"],["0.208333333333333","rgba(64,70,135,1)"],["0.25","rgba(60,82,138,1)"],["0.291666666666667","rgba(56,93,140,1)"],["0.333333333333333","rgba(49,104,142,1)"],["0.375","rgba(46,114,142,1)"],["0.416666666666667","rgba(42,123,142,1)"],["0.458333333333333","rgba(38,133,141,1)"],["0.5","rgba(37,144,140,1)"],["0.541666666666667","rgba(33,154,138,1)"],["0.583333333333333","rgba(39,164,133,1)"],["0.625","rgba(47,174,127,1)"],["0.666666666666667","rgba(53,183,121,1)"],["0.708333333333333","rgba(79,191,110,1)"],["0.75","rgba(98,199,98,1)"],["0.791666666666667","rgba(119,207,85,1)"],["0.833333333333333","rgba(147,214,70,1)"],["0.875","rgba(172,220,52,1)"],["0.916666666666667","rgba(199,225,42,1)"],["0.958333333333333","rgba(226,228,40,1)"],["1","rgba(253,231,37,1)"]],"showscale":true,"color":[1.19,16.245],"line":{"color":"rgba(255,127,14,1)"}},"z":[0.27,2.44],"frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>Play around with dragging the image and you start to appreciate the volume. Each piece of the tax picture gets an axis. The tax pain index is represented by color of the markers. You can quickly see that income tax is still the big driver of tax pain across the nation. New Jersey applies high taxes in all dimensions. California is heavily skewed to income tax but is comparatively low in the property tax dimension.</p>
+<p>Nevada is a great state to live in if you have income and property. The state gets about a third of its revenue from out-of-state tourists who are spending liberally. Gambling is big, obviously, but a high sales tax is a way to get revenue from visitors while making the tax burden lighter on residents. As we know, sales taxes are regressive so, at first glance, the poor residents of Nevada might be the unintended losers from this scheme. Fortunately, Nevada lightens the relative burden on the poor by exempting drugs and groceries from sales tax.</p>
+<p>Another great place to live if you hate taxes is in Washington State, on the Oregon border. Washington levies no income tax and Oregon levies no sales tax. I was surprised to see, in a quick Google maps search, no evidence that big box retailers shun the Washington side of the border. In theory, if an Oregon business knows you live in Washington they are supposed to charge taxes (Ha!). Across the border, Oregon residents could avoid paying sales tax in Washington by flashing an Oregon ID but that ended in the summer of 2019.</p>
+<p>Finally, Alaska is the most tax-friendly state overall with low taxes in all dimensions. The state goes even further, though. Oil revenues go into a fund which pays a cash dividend to every resident, every year. Most recently it was $1,600 so some residents, in effect, receive taxes from the state. So, move there.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'alternate';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

@@ -1,0 +1,385 @@
+---
+title: Solving the Letterboxed Puzzle in the New York Times
+author: Arthur Steinmetz
+date: '2019-04-16'
+image: 'img/sample_board.png'
+slug: solving-the-letterboxed-puzzle-in-the-new-york-times
+categories:
+  - puzzle
+  - recursion
+description: ''
+topics: []
+---
+
+
+
+<p>What is the difference between “computer programming” and “data science?” To someone not invovled in either they look much the same. Most data scientists are also coders, though they don’t need to be. Data scientists (especially amateurs like me) don’t need to be concerned with pointers, stacks, heaps, recursion, etc., but this is not a data science post.</p>
+<p>For this post, I go back to my roots in the 1980s as an amateur computer scientist to solve a new <em>New York Times</em> puzzle called “Letterboxed.” In particular I employ recursion to build a tree of possible solutions. This exercise reminded me how languages like R allow such easy plug-ins to high-powered algorithms written by “real” computer scientists in “real” languages like C++. Data scientists stand on the shoulders of giants who wrote the low-level code.</p>
+<p>I’ll confess, I don’t like playing games and doing puzzles much. I also take the fun out of it for other people. When someone gave my kids “Cards Against Humanity” as a gift, I went through the deck and removed all the really filthy cards (the kids were relieved to see I left in plenty of poop references). When I see a puzzle I immediately think about an algorithm to play or solve it.</p>
+<div class="figure">
+<img src="img\sample_board.png" alt="Sample board from The Times" />
+<p class="caption">Sample board from <em>The Times</em></p>
+</div>
+<p>In “Letterboxed” the object is to string words together that use all the letters in the square using as few words as possible by tracing the spelling of each word in the square. You must start each new word with the last letter of the previous word and you may not use any consecutive letters that lie on the same side of the square. In the example above, “NIL” and “LAP” would not be permitted. “TORN” followed by “NEAR” would be fine.</p>
+<p>Today we will forsake the usual data science workflow of: ask a question, source data, clean data, explore data and, finally, analyze data. Those proceed in a linear (in practice, circular) fashion but here we’ll go over the functions that do specific subroutines to generate and solve these puzzles.</p>
+<p>The steps we’ll take are</p>
+<ol style="list-style-type: decimal">
+<li>Generate the puzzle with random letters.</li>
+<li>Draw the board.</li>
+<li>Solve the puzzle.</li>
+<li>Print the answer that solves the puzzle in the fewest words.</li>
+</ol>
+<p>Generating the puzzle is the easy part.</p>
+<p>The first task is to generate the puzzle with random letters. It would be cruel to place no requirement to use vowels so we also specify a minimum number of vowels. We sample the required number of consonants and vowels and assign them to each segment of the polygon. The default is four sides with two consonants and one vowel per side.</p>
+<p>Just to be cute, let’s write the function so we can optionally expand the geometry of the puzzle to an arbitrary number of sides and number of letters per side, not just a square as we see in <em>The Times</em>.</p>
+<p>If you are playing along at home, delete the <code>set.seed()</code> line in the code below after you have established you get the same results I do or you will get the same puzzle every time you call <code>generate_puzzle</code>.</p>
+<pre class="sourceCode r"><code># letterboxed game
+library(tidyverse)
+library(wfindr)
+library(gtools)
+
+sides &lt;- 4
+letters_per_side &lt;- 3
+vowels &lt;- c(&quot;a&quot;,&quot;e&quot;,&quot;i&quot;,&quot;o&quot;,&quot;u&quot;)
+consonants &lt;- letters[!(letters %in% vowels)]
+
+# scrabble dictionary from wfinder. You can subsitute any list
+# you desire, in any language.
+word_list &lt;- words.eng
+
+# ------------------------------------------------------------
+generate_puzzle &lt;- function(sides=4,letters_per_side=3,
+                            vowel_count=4,replacement = FALSE){
+  set.seed(1234567) # DELETE THIS LINE OR YOU WILL GET THE SAME PUZZLE EVERY TIME
+  if(sides &lt; 4){
+    print(&quot;Minimum Side is 4, changing to 4&quot;)
+    sides = 4
+  }
+  if (vowel_count &lt; sides) replacement=TRUE
+  if (vowel_count &gt; length(vowels)) replacement=TRUE
+  use_vowels &lt;- sample(vowels,vowel_count,replace = replacement)
+  use_consonants &lt;- sample(consonants,letters_per_side*sides-vowel_count,replace = replacement)
+  # deal out the letters
+  letter = NULL
+  vowels_used = 1
+  consonants_used = 1
+  spot = 1
+  for (i in 1:letters_per_side){
+    for(j in 1:sides){
+      # don&#39;t put vowel at edge of side but it&#39;s just cosmetic
+      if (i == 2 &amp; vowels_used &lt;= vowel_count){
+        letter[spot] &lt;- use_vowels[vowels_used]
+        vowels_used &lt;- vowels_used + 1
+        spot &lt;- spot + 1
+      } else{
+        letter[spot] &lt;- use_consonants[consonants_used]
+        consonants_used &lt;- consonants_used + 1      
+        spot &lt;- spot + 1
+        
+      }
+    }
+  }
+  puzzle &lt;- tibble(side=rep(1:sides,letters_per_side),
+                   spot=unlist(map(1:letters_per_side,rep,sides)), 
+                   letter=letter) %&gt;% arrange(side,spot)
+  return(puzzle)
+}
+
+# let&#39;s see what this does
+generate_puzzle()</code></pre>
+<pre><code>## # A tibble: 12 x 3
+##     side  spot letter
+##    &lt;int&gt; &lt;int&gt; &lt;chr&gt; 
+##  1     1     1 v     
+##  2     1     2 i     
+##  3     1     3 l     
+##  4     2     1 m     
+##  5     2     2 u     
+##  6     2     3 r     
+##  7     3     1 c     
+##  8     3     2 o     
+##  9     3     3 y     
+## 10     4     1 t     
+## 11     4     2 a     
+## 12     4     3 f</code></pre>
+<p>Now we have a data frame with twelve random letters, including four vowels, assigned to one of three spots on four sides.</p>
+<p>It’s not necessary to solve the puzzle, but it would be nice to draw the puzzle in the style that appears in <em>The Times</em>. If all we needed to do was make a square the task of drawing it would be trivial but, as noted above, I can’t leave well enough alone. If we want to make polygons of arbitrary sizes we need to do a bit of trigonometry. First we generate the vertices of our polygon, then the points on each segment where the letters will go (as an aside, I say “vertices,” the proper Latin plural. The “newspaper of record” abandoned Latin plurals a decade ago. It grinds my gears to see the Times printing “vertexes”).</p>
+<pre class="sourceCode r"><code># -------------------------------------------------------------
+get_polygon &lt;- function(sides=4){
+  x_center &lt;- 0
+  y_center &lt;- 0
+  radius &lt;- 5
+  y &lt;- NULL
+  x &lt;- NULL
+  angle = 3.925
+  angle_increment &lt;-  2 * pi / sides
+  for (i in 1:sides){
+    x[i] = x_center + radius * cos(angle)
+    y[i] = y_center + radius * sin(angle)
+    angle = angle + angle_increment
+  }
+  #close figure
+  x[i+1] &lt;- x[1]
+  y[i+1] &lt;- y[1]
+  return(data.frame(x=x,y=y))
+}
+# -------------------------------------------------------------
+get_points_on_segment &lt;- function(end_points,num_points){
+  # poin tdistance is fraction of segment length
+  a &lt;- as.numeric(end_points[1,])
+  b &lt;- as.numeric(end_points[2,])
+  # Use atan2!
+  th = atan2( b[2]-a[2] , b[1]-a[1] )
+  # length of segment AB
+  AB = sqrt( (b[2]-a[2])^2 + (b[1]-a[1])^2 )
+  AB_fraction &lt;- AB / (num_points +1 )
+  # points equidistant on the line
+  AP = sapply(1:(num_points),function(x) x * AB_fraction)
+  # The points of interest
+  c = sapply(AP,function(d) c(x = a[1] + d*cos( th ),
+                              y = a[2] + d*sin( th ))) %&gt;% 
+    t() %&gt;%
+    as.data.frame()
+  return(c)
+}
+# -----------------------------------------------------
+get_letter_coords &lt;- function(puzzle,sides=4,letters_per_side=3){
+  
+  puzzle_shape &lt;- get_polygon(sides)
+  puzzle&lt;-lapply(1:(nrow(puzzle_shape)-1),
+                     function(p) get_points_on_segment(puzzle_shape[p:(p+1),],
+                                                       letters_per_side)) %&gt;% 
+    bind_rows() %&gt;% 
+    bind_cols(puzzle)
+  return(puzzle)
+}
+# -------------------------------------------------------------
+draw_puzzle &lt;-function(puzzle,sides=4,letters_per_side=3){
+  puzzle_shape &lt;- get_polygon(sides)
+  gg &lt;- puzzle_shape %&gt;% ggplot(aes(x,y)) + geom_path() + coord_fixed() +
+    geom_point(data = puzzle,aes(x,y),size=20,color=&quot;white&quot;) + 
+    geom_text(data = puzzle,aes(x,y,label = letter),size=10) + 
+    theme_void() + 
+    theme(panel.background = element_rect(fill=&quot;pink&quot;)) + 
+    NULL 
+return(gg)
+}
+
+# Draw puzzle sample
+generate_puzzle() %&gt;%
+  get_letter_coords(sides=sides,letters_per_side = letters_per_side) %&gt;% 
+  draw_puzzle()</code></pre>
+<p><img src="img/unnamed-chunk-2-1.png" width="672" /></p>
+<p>Remember we designed the generator to work with arbitrary dimensions. Let’s try five sides with two letters per side.</p>
+<pre class="sourceCode r"><code>generate_puzzle(5,2) %&gt;%
+  get_letter_coords(5,2) %&gt;% 
+  draw_puzzle(5,2)</code></pre>
+<p><img src="img/unnamed-chunk-3-1.png" width="672" /></p>
+<p>Fun!</p>
+<div id="solve-the-puzzle" class="section level1">
+<h1>Solve the Puzzle</h1>
+<p>Much of the grunt work is done by the <code>wfinder</code> package, which generates a word list from an aribtrary set of letters, as in Scrabble. Unlike Scrabble, we CAN reuse the same letter more than once. This package also contains a list of English words we use. You can substitute any word list you like, in any language. My Mom, whose native language was German, was the champion in our family. I always struggled even though I liked to brag about my high SAT verbal score. I am grateful to Mom for knocking me down a peg. Anyhoo, I am really in awe of the power of the <code>grep</code> function. Regexes are a dark art to me. The idea that a short line could find every possible word in an instant boggles (don’t like that game either) the mind. Suppose you pull the Scrabble tiles “ABAHRTY”.</p>
+<pre class="sourceCode r"><code>grep(&quot;^[abahrty]*$&quot;,word_list,value = T)</code></pre>
+<pre><code>##   [1] &quot;aa&quot;       &quot;aah&quot;      &quot;ab&quot;       &quot;aba&quot;      &quot;abaya&quot;    &quot;abb&quot;     
+##   [7] &quot;abba&quot;     &quot;abray&quot;    &quot;aby&quot;      &quot;ah&quot;       &quot;aha&quot;      &quot;ahh&quot;     
+##  [13] &quot;ar&quot;       &quot;araba&quot;    &quot;arar&quot;     &quot;arb&quot;      &quot;arba&quot;     &quot;arhat&quot;   
+##  [19] &quot;arrah&quot;    &quot;array&quot;    &quot;art&quot;      &quot;arty&quot;     &quot;ary&quot;      &quot;at&quot;      
+##  [25] &quot;atar&quot;     &quot;att&quot;      &quot;attar&quot;    &quot;ay&quot;       &quot;ayah&quot;     &quot;ba&quot;      
+##  [31] &quot;baa&quot;      &quot;baba&quot;     &quot;baby&quot;     &quot;bah&quot;      &quot;baht&quot;     &quot;bar&quot;     
+##  [37] &quot;barb&quot;     &quot;barra&quot;    &quot;barrat&quot;   &quot;barratry&quot; &quot;baryta&quot;   &quot;bat&quot;     
+##  [43] &quot;batata&quot;   &quot;bath&quot;     &quot;batt&quot;     &quot;batta&quot;    &quot;batty&quot;    &quot;bay&quot;     
+##  [49] &quot;bayt&quot;     &quot;bra&quot;      &quot;brat&quot;     &quot;bratty&quot;   &quot;bray&quot;     &quot;brr&quot;     
+##  [55] &quot;brrr&quot;     &quot;by&quot;       &quot;ha&quot;       &quot;haar&quot;     &quot;hah&quot;      &quot;haha&quot;    
+##  [61] &quot;harry&quot;    &quot;hart&quot;     &quot;hat&quot;      &quot;hath&quot;     &quot;hay&quot;      &quot;rabat&quot;   
+##  [67] &quot;rah&quot;      &quot;rat&quot;      &quot;rata&quot;     &quot;ratatat&quot;  &quot;rath&quot;     &quot;ratty&quot;   
+##  [73] &quot;ray&quot;      &quot;raya&quot;     &quot;rayah&quot;    &quot;rhy&quot;      &quot;rhyta&quot;    &quot;rya&quot;     
+##  [79] &quot;rybat&quot;    &quot;ta&quot;       &quot;tab&quot;      &quot;tabby&quot;    &quot;taha&quot;     &quot;tahr&quot;    
+##  [85] &quot;tar&quot;      &quot;tara&quot;     &quot;tarry&quot;    &quot;tart&quot;     &quot;tartar&quot;   &quot;tarty&quot;   
+##  [91] &quot;tat&quot;      &quot;tatar&quot;    &quot;tath&quot;     &quot;tatt&quot;     &quot;tatty&quot;    &quot;tay&quot;     
+##  [97] &quot;tayra&quot;    &quot;thar&quot;     &quot;that&quot;     &quot;thy&quot;      &quot;trat&quot;     &quot;tratt&quot;   
+## [103] &quot;tray&quot;     &quot;try&quot;      &quot;ya&quot;       &quot;yabby&quot;    &quot;yah&quot;      &quot;yar&quot;     
+## [109] &quot;yarr&quot;     &quot;yarta&quot;    &quot;yatra&quot;    &quot;yay&quot;</code></pre>
+<p>112 words out of a corpus of over 260 thousand. Instantly. That’s all the code it takes? That’s nuts! That’s efficient low-level coding. <code>wfindr</code> wraps that bit of magic with some bells and whistles to aid with word puzzles. In particular it crafts regexes that conform to the rules of scrabble. The example above creates a word list that might use more of a letter than we have in our tiles. To fix that, the simple regex I show above gets converted to a much fancier one.</p>
+<pre class="sourceCode r"><code>model_to_regex(allow=&quot;abahrty&quot;,type=&quot;scrabble&quot;)</code></pre>
+<pre><code>## [1] &quot;(?=^((([^a]*a[^a]*){1,2})|([^a]*))$)(?=^((([^b]*b[^b]*){1,1})|([^b]*))$)(?=^((([^h]*h[^h]*){1,1})|([^h]*))$)(?=^((([^r]*r[^r]*){1,1})|([^r]*))$)(?=^((([^t]*t[^t]*){1,1})|([^t]*))$)(?=^((([^y]*y[^y]*){1,1})|([^y]*))$)^[abhrty]*$&quot;</code></pre>
+<p>Whoa! Like I said. It’s regex is a dark art.</p>
+<p>Now we have all the possible words to use in the puzzle. Just throwing random words around from the solution set would eventually find some answers but we can do much better than that. To find the “best” next word, we can pick the word that has the most yet-unused letters. By default, the function below returns one word but it could return more. In practice, I found iterating through more words was rarely necessary to get a solution but drastically increased computation time and memory usage of the recursive function that calls it.</p>
+<pre class="sourceCode r"><code>find_next_best_words &lt;- function(w,needed_letters,max_return=1){
+  # the higher max_return is the more words will be traversed.  Careful,
+  # computation times will geometrically increase.
+  # puzzle_words is global
+  # find words that start with last letter of w
+  next_words&lt;-puzzle_words[str_starts(puzzle_words,str_sub(w,-1))]
+  # prioritize words by greatest overlap with unused letters
+  next_word_chars &lt;-  map(next_words,strsplit,split=&quot;&quot;) %&gt;% unlist(recursive = F)
+  temp &lt;- map(next_word_chars,function(x) length(setdiff(needed_letters,x))) %&gt;% unlist()
+  if (is.vector(temp)){
+    next_words &lt;- next_words[order(temp)]
+    max_return &lt;- min(length(next_words),max_return)
+    return(next_words[1:max_return])  
+  } else{
+    return()
+  }
+}
+# -----------------------------------------------------
+# check if we have used all the letters yet
+test_needed_letters &lt;- function(word_chain){
+  word_chain_chars &lt;-  paste0(word_chain,collapse = &quot;&quot;) %&gt;% 
+    strsplit(split=&quot;&quot;) %&gt;%
+    unlist() %&gt;% 
+    unique()
+  return(setdiff(all_puzzle_letters,
+                     word_chain_chars))
+}</code></pre>
+<p>Now we come to the workhorse recursive function. “Recursive” just means it calls itself. I’ve learned the trick to recursive functions is getting out of them, otherwise you get deeper and deeper into the “Beyond” section of “Bed, Bath and Beyond” and run out of memory pretty quickly. At least nowadays you kids don’t have to worry about the whole machine crashing. You can just nuke the process that’s stuck.</p>
+<p>We start by preparing to iterate <code>make_chain</code> over the full list of valid words. Naturally we expect to find a solution before traversing much of the list. We build the solution chain by choosing a word that ends with a letter that has not been an ending letter yet. Otherwise we might chase our tail forever if a solution doesn’t lie on that path. Then we pick the best next word as described above. Then we call <code>make_chain</code> again and again and again.</p>
+<p>Here we limit the solution chain to a maximum of five words. Each time <code>make_chain</code> is called we run some tests and climb back out of the recursive stack if one of these conditions has been met:</p>
+<ol style="list-style-type: decimal">
+<li>The chain is more than five words with no solution.</li>
+<li>A solution is found.</li>
+<li>We run out of last letter/first letter possibilities</li>
+<li>The are no next words found.</li>
+</ol>
+<pre class="sourceCode r"><code>make_chain &lt;- function(word_chain,used_last_letters){
+  needed_letters &lt;- test_needed_letters(word_chain)
+  if (length(word_chain)&gt;6){
+    # Come on, if you can&#39;t solve in 5 words, you suck!
+    return()
+  }
+  if (length(needed_letters)==0) {
+    # Yay! We have a solution.
+    return(list(word_chain))
+  }
+  else {
+    last_word &lt;- tail(word_chain,1)
+    last_letter &lt;-str_sub(last_word,-1L)
+    if (str_detect(used_last_letters,last_letter,negate=T)){
+      used_last_letters &lt;- paste0(last_letter,used_last_letters,collapse = &quot;&quot;)
+      next_word&lt;-find_next_best_words(last_word,needed_letters,max_return=1)
+       if (length(next_word)&gt;0){
+        word_chain &lt;- make_chain(c(word_chain,next_word),used_last_letters)
+        } else {
+          # no next word found
+          return()
+        }
+    } else{
+      # start of next word would be a letter that has already been used
+      return()
+    }
+  }
+} </code></pre>
+<p>The function <code>solve_puzzle</code> is a wrapper around <code>make_chain</code> that first gets all the possible words that our letters allow, removing words that violate the rule of no consecutive letters from the same line. Note the use of the <code>&lt;&lt;--</code> assignment operator that accesses global variables from within functions. This practice is frowned upon in some circles but, since we are using nested recursion, I didn’t want to make new copies of every variable each time <code>make_chain</code> is called.</p>
+<pre class="sourceCode r"><code># dplyr chain-friendly permuatations
+d_permute &lt;- function(v, n, r,  set, repeats.allowed){
+  return(permutations(n, r, v, set, repeats.allowed))
+}
+
+get_line_combos &lt;- function(a_side,puzzle){
+  combos &lt;- puzzle %&gt;% filter(side==a_side) %&gt;% 
+    pull(letter) %&gt;% 
+    as.character() %&gt;% 
+    d_permute(n=3,r=2,set=F,repeats.allowed = T) %&gt;% 
+    apply(1,paste0,collapse=&quot;&quot;)
+  return(combos)
+}
+
+
+solve_puzzle &lt;- function (puzzle) {
+  # get all letter combos that are invalid because they lie on the same line segment
+  bans &lt;- map(1:sides,get_line_combos,puzzle=puzzle) %&gt;% unlist()
+  #get all possible words
+  puzzle_words &lt;&lt;- scrabble(paste0(puzzle$letter,collapse = &quot;&quot;),words=word_list)
+  length(puzzle_words)
+  #winnow out illegal ones
+  banned_words &lt;- map(bans,function(x) puzzle_words[str_which(puzzle_words,x)]) %&gt;% 
+    unlist()
+  puzzle_words &lt;&lt;- puzzle_words[!(puzzle_words %in% banned_words)]
+  length(puzzle_words)
+  puzzle_words &lt;&lt;-puzzle_words[order(nchar(puzzle_words),decreasing = TRUE, puzzle_words)]
+  
+  
+  all_puzzle_letters &lt;&lt;- puzzle$letter %&gt;% as.vector()
+  
+  solutions &lt;- map(puzzle_words,make_chain,&quot;&quot;) %&gt;% unlist(recursive = F)
+  return(solutions)
+}</code></pre>
+<p>Whew! Now let’s actually solve a puzzle. The <code>solve_puzzle</code> function returns a list of lists with all the found solutions.</p>
+<pre class="sourceCode r"><code>vowel_count &lt;- sides
+# global variables
+all_puzzle_letters &lt;- NULL
+puzzle_words &lt;- NULL
+puzzle &lt;- generate_puzzle(sides=sides,
+                          letters_per_side = letters_per_side,
+                          vowel_count = vowel_count)
+# add letter coordinates for plot
+puzzle &lt;- get_letter_coords(puzzle,
+                            sides=sides,
+                            letters_per_side = letters_per_side)
+#draw_puzzle(puzzle)
+solutions &lt;- solve_puzzle(puzzle)
+
+solutions %&gt;% head()</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;vortical&quot; &quot;loamy&quot;    &quot;yuca&quot;     &quot;aimful&quot;  
+## 
+## [[2]]
+## [1] &quot;voracity&quot; &quot;ymolt&quot;    &quot;trayful&quot; 
+## 
+## [[3]]
+## [1] &quot;foulmart&quot; &quot;trifoly&quot;  &quot;yuca&quot;     &quot;avoutry&quot; 
+## 
+## [[4]]
+## [1] &quot;vacuity&quot; &quot;ymolt&quot;   &quot;trifoly&quot;
+## 
+## [[5]]
+## [1] &quot;trayful&quot; &quot;lorica&quot;  &quot;avoutry&quot; &quot;ymolt&quot;  
+## 
+## [[6]]
+## [1] &quot;flavory&quot; &quot;ymolt&quot;   &quot;toluic&quot;</code></pre>
+<p>We may have hundreds of solutions or none. You can look at the <code>solutions</code> variable to see all we found. The goal of <em>The Times</em> puzzle is to solve in the minimum number of words so we’ll take the solution with the least number of words (there may be many) and print that on the puzzle.</p>
+<pre class="sourceCode r"><code># ---------------------------------------------------------
+draw_solution &lt;- function(puzzle, solutions){
+  if (is.null(solutions)) {
+    solution &lt;- &quot;No Solution&quot;
+  } else {
+    ideal &lt;- map(solutions,length) %&gt;% unlist() %&gt;% which.min()
+    solution &lt;- c(solutions[[ideal]],paste(length(solutions)-1,&quot;other solutions&quot;)) 
+  }
+  gg &lt;- draw_puzzle(puzzle)
+  gg &lt;- gg + annotate(&quot;text&quot;,x=0,y=0.9,label=paste(solution, collapse = &quot;\n&quot;), size = 6)
+  print (gg)
+}
+
+draw_solution(puzzle, solutions)</code></pre>
+<p><img src="img/unnamed-chunk-10-1.png" width="672" /></p>
+<p>Let’s go back to the image at the top of this post which is from <em>The Times</em>. We’ll use those letters to solve an actual puzzle. Do the puzzle authors generate the puzzles randomly or do they work backword from a selected word list? I have no idea.</p>
+<pre class="sourceCode r"><code>sample_letters &lt;- &quot;taperdnilyco&quot;
+puzzle &lt;- generate_puzzle() %&gt;% get_letter_coords()
+#replace random letters with the one in the known puzzle
+puzzle$letter &lt;- strsplit(sample_letters,split = NULL) %&gt;% unlist()
+solutions &lt;- solve_puzzle(puzzle)
+solutions %&gt;% head()</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;lectionary&quot; &quot;yealdon&quot;    &quot;noplace&quot;   
+## 
+## [[2]]
+## [1] &quot;centroidal&quot; &quot;lectionary&quot; &quot;yipe&quot;      
+## 
+## [[3]]
+## [1] &quot;rantipole&quot; &quot;etypical&quot;  &quot;leporid&quot;  
+## 
+## [[4]]
+## [1] &quot;planetoid&quot; &quot;dielytra&quot;  &quot;article&quot;  
+## 
+## [[5]]
+## [1] &quot;placitory&quot; &quot;yealdon&quot;  
+## 
+## [[6]]
+## [1] &quot;clarionet&quot; &quot;torpidly&quot;</code></pre>
+<p>We found 851 solutions to this particular puzzle, quite a few. Furthermore, If you are really good, you could solve this puzzle with two words!</p>
+<pre class="sourceCode r"><code>draw_solution(puzzle, solutions)</code></pre>
+<p><img src="img/unnamed-chunk-12-1.png" width="672" /></p>
+<p>There you have it. You might grumble that too many of the words in the scrabble dictionary are not in your vocabulary. They certainly aren’t in mine. Feel free to use a shorter word list with more common words. <a href="https://norvig.com/ngrams/">Here are a bunch</a>. That will increase the liklihood that no solution is found, though.</p>
+<p>Further work that might be done would be to filter for completely unique solutions, with no overlapping words. Also we might create a Shiny application that does pretty animation drawing lines across the puzzle of the solution.</p>
+<p>Naturally, you should only use this code to check your answer. No cheating!</p>
+</div>

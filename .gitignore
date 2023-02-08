@@ -2,6 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
-public/
-.Rhistory (1)
-.hugo_build.lock
+
+/.quarto/
+.Rdata
+.httr-oauth
+.DS_Store

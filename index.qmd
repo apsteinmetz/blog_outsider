@@ -1,0 +1,14 @@
+---
+title: "Outsider Data Science"
+listing: 
+  contents: posts
+  sort-ui: true
+  sort: 
+    - "date desc"
+    - "title desc"
+  type: default
+  categories: true
+---
+![](img/R_logo.svg.png){width=20%}
+Putting what's in there, out there. With R!
+

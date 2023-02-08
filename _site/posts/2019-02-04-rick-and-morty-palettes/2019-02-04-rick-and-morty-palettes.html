@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Art Steinmetz">
+<meta name="dcterms.date" content="2019-02-04">
+
+<title>Outsider Data Science - Rick and Morty Palettes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Outsider Data Science</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html">
+ <span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">
+ <span class="menu-text">About</span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Rick and Morty Palettes</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">clustering</div>
+    <div class="quarto-category">rick and morty</div>
+    <div class="quarto-category">palettes</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Art Steinmetz </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">February 4, 2019</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<p>
+This was just a fun morning exercise. Let’s mix multiple images to make a palette of their principal colors using k-means. We’ll also use the totally awesome list-columns concept to put each image’s jpeg data into a data frame of lists that we can <code>map</code> to a function that turns the jpeg data into a list of palette colors in a new data frame.
+</p>
+<p>
+This more-or-less copies <a href="http://www.milanor.net/blog/build-color-palette-from-image-with-paletter/" class="uri">http://www.milanor.net/blog/build-color-palette-from-image-with-paletter/</a> with the added twist of using multiple images before creating the palette. We’ll also get into the weeds a bit more with dissecting the images. I wanted to see if some cartoon show palettes using this method matched those in the <a href="https://cran.r-project.org/web/packages/ggsci/vignettes/ggsci.html"><code>ggsci</code></a> package. Did the authors use the algorithmic approach I will use here? Will my approach look any better? Don’t know. I decided to use “Rick and Morty” because my kids like it. I would certainly never watch such drivel. I’m a scientist.
+</p>
+<p>
+For the record, the one pop culture derived palette I really like is the <a href="https://github.com/karthik/wesanderson">Wes Anderson palette</a> and on CRAN. These are presumably lovingly curated and created, not like the ones created by the stupid robot I use here.
+</p>
+<p>
+The drawback to using K-means to create palettes from images is that it’s likely that <em>none</em> of the colors created are actually in the image. They just represent the mathematical centers of the clusters of colors.
+</p>
+<p>
+Load libraries.
+</p>
+<pre class="sourceCode r code-with-copy"><code>library(tidyverse)
+library(jpeg) #import images
+library(scales) #just for for the show_col() function
+library(ggsci) #to compare my palettes to its palettes
+library(ggfortify) #to support kmeans plots
+library(gridExtra) #multiple plots on a page</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+Load mulitple images. They are all Google image search thumbnails so the size is the same. This matters since we are combining images. A larger image would have a disproportional weight in our analysis.
+</p>
+<p>
+I first thought that, since I am combining multiple images to get one palette, I needed to tile the images then process. No.&nbsp;We just care about the pixel color values so it really doesn’t matter what position they are in. The most efficient approach is to just chain all the RGB values together. Duh. Still we want to do some work with the individual images so let’s label them.
+</p>
+<pre class="sourceCode r code-with-copy"><code>rm_list&lt;-list()
+for (n in 1:6){
+  img&lt;-jpeg::readJPEG(paste0("img/rm",n,".jpg"))
+  R&lt;-as.vector(img[,,1])
+  G&lt;-as.vector(img[,,2])
+  B&lt;-as.vector(img[,,3])
+  rm_list&lt;-bind_rows(data_frame(img=n,R,G,B),rm_list) %&gt;% 
+    arrange(img)
+}
+
+rm_list &lt;- left_join(rm_list,
+                     data_frame(
+                     img = c(1, 2, 3, 4, 5, 6),
+                     name = c("Schwifty","Portal","Cable",
+                     "Family", "Outdoor", "Wedding")
+                     ))</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<section id="show-me-what-you-got" class="level1">
+<h1>
+Show Me What You Got
+</h1>
+<p>
+I chose the images from Google image search to be representative of varying but typical scenes.
+</p>
+<p>
+<img src="img/rm3.jpg" alt="Cable"> Cable
+</p>
+<p>
+<img src="img/rm4.jpg" alt="Family"> Family
+</p>
+<p>
+<img src="img/rm6.jpg" alt="Wedding"> Wedding
+</p>
+<p>
+<img src="img/rm5.jpg" alt="Outdoor"> Outdoor
+</p>
+<p>
+<img src="img/rm2.jpg" alt="Portal"> Portal
+</p>
+<p>
+<img src="img/rm1.jpg" alt="Schwifty"> Schwifty
+</p>
+<p>
+For fun let’s do some density plots of the color values.
+</p>
+<pre class="sourceCode r code-with-copy"><code>#make data tidy first
+rm_tidy &lt;- rm_list %&gt;% gather("color","level",-img,-name)
+ggplot(rm_tidy,aes(x=level,fill=color))+
+  geom_density(alpha=0.7) + 
+  scale_fill_manual(values=c("blue","green","red")) + 
+  theme_void()</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-3-1.png" width="672">
+</p>
+<p>
+We can see some evidence of bimodality, a preference for very bright and very dark hues. Red is more often cranked to the max, while blue is much more evenly distributed. Perhaps that is typical of the limited palette of cartoons or just a function of the small number of frames I chose.
+</p>
+<pre class="sourceCode r code-with-copy"><code>ggplot(rm_tidy,aes(x=level,fill=color))+
+  geom_density(alpha=0.7) + 
+  scale_fill_manual(values=c("blue","green","red")) + 
+  facet_wrap(~name)+
+  theme_void()</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-4-1.png" width="672">
+</p>
+<p>
+It’s interesting to compare “Cable” with “Family.” Both images share the same backdrop but “Family” is much darker.
+</p>
+</section>
+<section id="make-the-palettes" class="level1">
+<h1>
+Make the Palettes
+</h1>
+<p>
+When I was a kid with watercolors I wanted to come up with a name for the filthy color that resulted when I mixed all the colors together. I called it (trigger warning) “Hitler” (but, really, brown). What is the color that results when we average all the RGB values? What named R colors resemble it? It looks to me like it’s between “cornsilk4”" and “darkkhaki.”"
+</p>
+<pre class="sourceCode r code-with-copy"><code>blend_color&lt;-rm_list %&gt;% 
+  summarise(R=mean(R),G=mean(G),B=mean(B)) %&gt;% 
+  rgb()
+
+show_col(c("cornsilk4",blend_color,"darkkhaki"))</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-5-1.png" width="672">
+</p>
+<p>
+Let’s call it “desertkhaki” which, hopefully, is not a trigger word.
+</p>
+<p>
+Now, for the fun part. In the Wes Anderson palette set, each movie get’s a different palette. Let’s make palettes for each of the images, which I chose for their distinctiveness.
+</p>
+<p>
+For me, the good thing about open source is that I can stand on the shoulders of giants in the community. R also makes very muscular analysis trivally simple. On the other hand, it makes “script kiddies” like me potentially dangerous. I can only describe k-means in the most general terms but can run it in a snap.
+</p>
+<pre class="sourceCode r code-with-copy"><code>num_colors = 16
+pal_schwifty &lt;- rm_list %&gt;% 
+  filter(name=="Schwifty") %&gt;% 
+  select(R,G,B) %&gt;% 
+  kmeans(centers = num_colors, iter.max = 30) %&gt;% 
+  .$centers %&gt;% 
+  rgb()
+
+show_col(pal_schwifty)</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-6-1.png" width="672">
+</p>
+<p>
+For data plotting the separation between some of these colors is too small. I think 9 colors will suffice.
+</p>
+<pre class="sourceCode r code-with-copy"><code>num_colors = 9
+pal_schwifty &lt;- rm_list %&gt;% 
+  filter(name=="Schwifty") %&gt;% 
+  select(R,G,B) %&gt;% 
+  kmeans(centers = num_colors, iter.max = 30) %&gt;% 
+  .$centers %&gt;% 
+  as.tibble() %&gt;% 
+  {.}</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<pre><code>## Warning: `as.tibble()` is deprecated, use `as_tibble()` (but mind the new semantics).
+## This warning is displayed once per session.</code></pre>
+<pre class="sourceCode r code-with-copy"><code>show_col(rgb(pal_schwifty))</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-7-1.png" width="672">
+</p>
+<p>
+For plotting purposes I would like use these colors in order of intensity. Sorting colors is a <a href="http://www.alanzucconi.com/2015/09/30/colour-sorting/">topic in itself</a> but here we’ll do it quick and simple.
+</p>
+<pre class="sourceCode r code-with-copy"><code>pal_schwifty %&gt;% 
+  mutate(saturation=rowSums(.[1:3])) %&gt;% 
+  arrange(saturation) %&gt;% 
+  rgb() %&gt;% 
+  show_col()</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-8-1.png" width="672">
+</p>
+<p>
+That’s about right. Let’s put it all together. Go through all the images to create a series of palettes.
+</p>
+
+<pre class="sourceCode r code-with-copy"><code>#function to turn a table of RGB values to an ordered list of colors
+gen_pal &lt;- function(rgb_table) {
+  num_colors = 9
+  pal &lt;- rgb_table %&gt;%
+  select(R, G, B) %&gt;%
+  kmeans(centers = num_colors, iter.max = 30) %&gt;%
+  .$centers %&gt;%
+  as.tibble() %&gt;%
+  mutate(saturation = rowSums(.[1:3])) %&gt;%
+  arrange(saturation) %&gt;%
+  rgb()
+  return(pal)
+}</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<pre class="sourceCode r code-with-copy"><code>#now make list columns, which are totally awesome, for each palette
+palette_rick&lt;-rm_list %&gt;% 
+  group_by(name) %&gt;% 
+  select(-img) %&gt;% 
+  nest(.key="rgb") %&gt;% 
+  transmute(name=name,pal= map(rgb,gen_pal))
+palette_rick</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<pre><code>## # A tibble: 6 x 2
+##   name     pal      
+##   &lt;chr&gt;    &lt;list&gt;   
+## 1 Schwifty &lt;chr [9]&gt;
+## 2 Portal   &lt;chr [9]&gt;
+## 3 Cable    &lt;chr [9]&gt;
+## 4 Family   &lt;chr [9]&gt;
+## 5 Outdoor  &lt;chr [9]&gt;
+## 6 Wedding  &lt;chr [9]&gt;</code></pre>
+<pre class="sourceCode r code-with-copy"><code>#a function to extract the individual palettes, given a name.
+
+extract_pal&lt;-function(palette_list,pal_name){
+  pal&lt;-palette_list %&gt;% filter(name==pal_name) %&gt;% 
+    select(pal) %&gt;% 
+    unlist() %&gt;% 
+    as.vector()
+  return(pal)
+}</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<pre class="sourceCode r code-with-copy"><code>plot_one&lt;-function(pal_name){
+  tmp &lt;- palette_rick %&gt;% unnest() %&gt;% filter(name==pal_name)
+  g&lt;- ggplot(tmp,aes(pal,fill=pal)) + geom_bar() + 
+  scale_fill_manual(values=tmp$pal,guide=F) +
+  theme_void()+ggtitle(pal_name)
+  return (g)
+  
+}
+
+lapply(palette_rick$name,plot_one) %&gt;% 
+  grid.arrange(grobs=.)</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-11-1.png" width="672">
+</p>
+<p>
+Finally, let’s do what we said we’d do at the beginning, put all these images together and add it to our list column of palettes.
+</p>
+<pre class="sourceCode r code-with-copy"><code>multi_img_pal &lt;- gen_pal(rm_list)
+palette_rick&lt;-data_frame(name="all",pal=list(multi_img_pal)) %&gt;% bind_rows(palette_rick)
+show_col(multi_img_pal)</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-12-1.png" width="672">
+</p>
+<p>
+Not too bad. I’m glad something resembling Rick’s hair makes it into the list. Compare it to the ggsci package Rick and Morty palette. Here we see the weaknesses of an algorithmic approach. ggsci is more interesting since it has more color diversity and vividness. I assume they were hand selected. You can see Rick’s hair and Morty’s shirt color.
+</p>
+<pre class="sourceCode r code-with-copy"><code>show_col(ggsci::pal_rickandmorty()(9))</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-13-1.png" width="672">
+</p>
+<p>
+Since the (rather flimsy) point of this excercise is to make palettes for data graphics, let’s make some plots.
+</p>
+<pre class="sourceCode r code-with-copy"><code>#use the example in help for dplyr::gather
+stocks &lt;- data.frame(
+  time = as.Date('2009-01-01') + 0:9,
+  W = rnorm(10, 0, 1),
+  X = rnorm(10, 0, 1),
+  Y = rnorm(10, 0, 2),
+  Z = rnorm(10, 0, 4)
+)
+stocksm &lt;- stocks %&gt;% gather(stock, price, -time)
+
+ggplot(stocksm,aes(time,price,color=stock))+geom_line(size=2)+
+  scale_color_manual(values = multi_img_pal) + theme_minimal()</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-14-1.png" width="672">
+</p>
+<pre class="sourceCode r code-with-copy"><code>ggplot(stocksm,aes(time,price,color=stock))+geom_line(size=2) +
+  theme_minimal() +
+  scale_color_manual(values = extract_pal(palette_rick,"Wedding"))</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-15-1.png" width="672"> Arguably, the perceptual differnces among the colors are less than ideal, even if the colors are pleasing. We might take the additional step of hand-selecting colors from a larger generated palette that are more suitable for plots.
+</p>
+</section>
+<section id="one-more-thing" class="level1">
+<h1>
+One more thing…
+</h1>
+<p>
+Back to the k-means analysis. When we created these palettes we were really assigning colors to the centers of the clusters of near neigbors in the a 2D space. This is a form of principal components analysis (PCA). Let’s visualize those clusters. The <code>ggplot::autoplot()</code> function makes this trivally easy. While we are at it, let’s crank up the number of colors to 20.
+</p>
+<pre class="sourceCode r code-with-copy"><code>num_colors = 20
+#assign each pixel to a cluster
+km &lt;-  rm_list[c("R","G","B")] %&gt;% kmeans(centers = num_colors, iter.max = 30)
+rm_PCA&lt;-prcomp(rm_list[c("R","G","B")])
+
+rm_list &lt;- rm_list %&gt;% mutate(cluster=as.factor(km$cluster))
+autoplot(rm_PCA, x=1,y=2,data = rm_list, colour = "cluster",
+         loadings = TRUE, loadings.colour = 'blue',
+         loadings.label = TRUE, loadings.label.size = 10) +
+  scale_color_manual(values=rgb(km$centers),guide=FALSE)+
+  theme_classic()</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-16-1.png" width="672"> This is every pixel colored by it’s cluster assignment and plotted. It’s clear that the x-dimension, which happens to explain 74% of the color variance, is luminosity, with darker shades on the right. The other dimension seems to be related to hue.
+</p>
+<p>
+We can make it clear by plotting the second and third principal component.
+</p>
+<pre class="sourceCode r code-with-copy"><code>rm_list &lt;- rm_list %&gt;% mutate(cluster=as.factor(km$cluster))
+autoplot(rm_PCA, x=2,y=3,data = rm_list, colour = "cluster",
+         loadings = TRUE, loadings.colour = 'blue',
+         loadings.label = TRUE, loadings.label.size = 10) +
+  scale_color_manual(values=rgb(km$centers),guide=F)+
+  theme_classic()</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-17-1.png" width="672">
+</p>
+<p>
+Now it’s quite clear that the second and third principal components map to the color space even though this explains only about 25% of the variation in the data.
+</p>
+<p>
+Feel free to get schwifty with these palettes!
+</p>
+</section>
+
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

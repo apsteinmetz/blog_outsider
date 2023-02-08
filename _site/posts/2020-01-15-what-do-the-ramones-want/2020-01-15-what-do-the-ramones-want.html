@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Art Steinmetz">
+<meta name="dcterms.date" content="2020-01-15">
+
+<title>Outsider Data Science - What Do The Ramones Want?</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Outsider Data Science</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html">
+ <span class="menu-text">Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">
+ <span class="menu-text">About</span></a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">What Do The Ramones Want?</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">ggplot2</div>
+    <div class="quarto-category">tidytext</div>
+    <div class="quarto-category">music</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Art Steinmetz </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 15, 2020</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<p>
+Recently I saw a tweet that shared this hilarious poster of Ramones “wants”. <img src="img/Wants4thEdition.jpg" alt="Ramones Want What?"> Dan Gneiding (aka Grayhood) is the graphic designer who created this. You can buy it <a href="http://grayhood.com/shop/ramones-vs-misfits-1-2-3-4th-edition">here</a>
+</p>
+<p>
+Very cool, but how accurate is it? I asked Dan and says he took some artistic license, as he should! You may accuse me of being that pedantic “Comic Book Guy” from “The Simpsons” but, when I saw it, I immediately wondered how I could tally these Ramones lyrics myself or, rather, get R to do it for me. The <code>tidytext</code> mining package makes short work of the project, as we’ll see.
+</p>
+<iframe src="https://giphy.com/embed/26tk0Emxz61hdKEog" width="480" height="360" frameborder="0" class="giphy-embed">
+</iframe>
+<section id="why-the-ramones" class="level2">
+<h2 class="anchored" data-anchor-id="why-the-ramones">
+Why the RAMONES?
+</h2>
+<p>
+The Ramones hold a special place in my heart. As a college student in central Ohio, in the late 70s, my frat brothers and I were huge fans. We were completely ridiculous of course. Preppy nerds bobbing to “Beat on the Brat” The Sigma Chis thought we were idiots (Lynrd Skynrd? Come on! History has judged). I never saw the Ramones at CBGBs but when we heard they were coming to a cowboy bar on notorious High St.&nbsp;across from Ohio State, we were thrilled. I blew off studying for a Poly-Sci mid-term the next day. I got my worst college grade ever but it was totally worth it. I said my future self would thank me and I was right!
+</p>
+<p>
+Without any further adieu, hey, ho, let’s go!
+</p>
+</section>
+<section id="load-packages" class="level2">
+<h2 class="anchored" data-anchor-id="load-packages">
+Load Packages
+</h2>
+<p>
+First, load packages.
+</p>
+<pre class="sourceCode r code-with-copy"><code>library(tidyverse)
+library(tidytext)
+library(rvest)
+library(reshape2)
+library(wordcloud)
+library(scales)
+library(genius)
+library(ggthemr)
+library(ggrepel)
+
+ggthemr("earth",type="outer")</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+</section>
+<section id="get-lyrics-from-genius-api" class="level2">
+<h2 class="anchored" data-anchor-id="get-lyrics-from-genius-api">
+Get Lyrics from Genius API
+</h2>
+<p>
+Have you ever spent an enormous amount of time on something, only to discover there was a much simpler way? Yes, yes you have. For this project we need a source of Ramones lyrics. Originally, I built a very finicky web scraping routine to get lyrics from a site I commonly use in my browser. I coaxed it to get all of the lyrics but I didn’t want to share it in this post because you would likely not be able to get it to work smoothly. Months passed then it occurred to me to Google “lyrics api” and, “viola!”, I found <a href="http://genius.com" class="uri">http://genius.com</a> and the genius R package by Josiah Parry, available on CRAN. Access to the lyric API does require a free application access token. You can <a href="https://docs.genius.com/#/getting-started-h1">generate one here</a>. I will leave installing the token called GENIUS_API_TOKEN into your R environment as an exercise for the reader. There are numerous tutorials on this subject around.
+</p>
+<p>
+As always, we will be working in the <code>tidyverse</code> veracular. First we build a data frame of album names and the year of release. This gets fed into a single function <code>genius::add_genius</code> which returns all the lyrics. I’m embarressed to think about the tangled mess of web scraping code I was previously using.
+</p>
+<p>
+As usual, we check to see if the file with all the downloaded data is already available so, as we iterate versions of our project, we don’t hit the API over and over.
+</p>
+<pre class="sourceCode r code-with-copy"><code>#make sure you have a Genius API token
+# my token is in the .Reviron file
+
+# All the studio albums
+ramones_albums &lt;- tribble(
+  ~album, ~year,
+  "Ramones", 1976,
+  "Leave Home", 1977,
+  "Rocket To Russia", 1977,
+  "Road To Ruin", 1978,
+  "End Of The Century", 1980,
+  "Pleasant Dreams", 1981,
+  "Subterranean Jungle", 1983,
+  "Too Tough To Die", 1984,
+  "Animal Boy", 1986,
+  "Halfway To Sanity",1987,
+  "Brain Drain",1989,
+  "Mondo Bizarro",1992,
+  "Acid Eaters",1993,
+  "¡Adios Amigos!",1995
+)
+artist_albums &lt;- ramones_albums %&gt;% 
+  mutate(artist="Ramones") %&gt;% 
+  select(artist,album) %&gt;%
+  {.}
+
+if (file.exists("data/ramones_lyrics_genius.rdata")){
+  load("data/ramones_lyrics_genius.rdata")
+} else {
+  ramones_lyrics_genius &lt;- genius::add_genius(artist_albums,artist,album)
+  save(ramones_lyrics_genius,file="data/ramones_lyrics_genius.rdata")
+}</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+</section>
+<section id="put-lyics-in-tidytext-form" class="level2">
+<h2 class="anchored" data-anchor-id="put-lyics-in-tidytext-form">
+Put Lyics in Tidytext Form
+</h2>
+<p>
+Most projects require a huge amount of data wrangling before we can get any real analysis done. This project is pretty clean. We are already nearly good to go. Further, <code>tidytext</code> makes the remaining manipulation of the data soooo easy! To wit, let’s tokenize the data into individual words.
+</p>
+<pre class="sourceCode r code-with-copy"><code>ramones_lyrics &lt;- ramones_lyrics_genius
+#make factor to keep albums in order of issue date
+ramones_lyrics$album &lt;- as_factor(ramones_lyrics$album)
+ramones_albums$album &lt;- as_factor(ramones_albums$album)
+ramones_lyrics &lt;- right_join(ramones_lyrics,ramones_albums,by="album")
+lyric_words &lt;- ramones_lyrics  %&gt;% 
+  unnest_tokens(word,lyric) %&gt;%
+  rename(song_name=track_title)</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+See, I said it was easy.
+</p>
+</section>
+<section id="how-needy-are-the-ramones" class="level2">
+<h2 class="anchored" data-anchor-id="how-needy-are-the-ramones">
+How Needy Are The Ramones?
+</h2>
+<p>
+Out of 193 songs on all their studio albums, 16 mention wanting or not wanting in the title. “I Wanna” songs are a thing with the Ramones.
+</p>
+<pre class="sourceCode r code-with-copy"><code>want_phrases &lt;- "Wanna|Want"
+ramones_lyrics %&gt;% 
+  select(album, track_title) %&gt;% 
+  distinct() %&gt;%
+  filter(str_detect(track_title,want_phrases)) %&gt;% 
+  {.}</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<pre><code>## # A tibble: 16 x 2
+##    album             track_title                                    
+##    &lt;fct&gt;             &lt;chr&gt;                                          
+##  1 Ramones           I Wanna Be Your Boyfriend                      
+##  2 Ramones           Now I Wanna Sniff Some Glue                    
+##  3 Ramones           I Don't Wanna Go Down to the Basement          
+##  4 Ramones           I Don't Wanna Walk Around with You             
+##  5 Leave Home        Now I Wanna Be a Good Boy                      
+##  6 Rocket To Russia  Do You Wanna Dance?                            
+##  7 Rocket To Russia  I Wanna Be Well                                
+##  8 Road To Ruin      I Just Want To Have Something To Do            
+##  9 Road To Ruin      I Wanted Everything                            
+## 10 Road To Ruin      I Don't Want You                               
+## 11 Road To Ruin      I Wanna Be Sedated                             
+## 12 Road To Ruin      I Want You Around (Ed Stasium Version)         
+## 13 Pleasant Dreams   We Want the Airwaves                           
+## 14 Halfway To Sanity I Wanna Live                                   
+## 15 Brain Drain       Merry Christmas (I Don't Want To Fight Tonight)
+## 16 ¡Adios Amigos!    I Don't Want to Grow Up</code></pre>
+</section>
+<section id="do-some-sentiment-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="do-some-sentiment-analysis">
+Do Some Sentiment Analysis
+</h2>
+<p>
+Before we look at the what the Ramones want we might as well run the, now routine, sentiment analysis you may have learned about from Julia Silge and David Robinson <a href="https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html">here</a>. The Ramones are no Jane Austen but, hey, they have feelings, ya know? SAD NOTE: They “had” feelings. All the original four are dead.
+</p>
+<p>
+To start our sentiment analysis let’s pull out stop words that don’t provide much context and label all the words in the “bing” sentiment database as either positive or negative.
+</p>
+<pre class="sourceCode r code-with-copy"><code>lyric_words_cleaned &lt;- lyric_words %&gt;% anti_join(get_stopwords(),by="word")
+
+#quick sentiment analysis
+positive &lt;- get_sentiments("bing") %&gt;%
+  filter(sentiment == "positive")
+
+negative &lt;- get_sentiments("bing") %&gt;%
+  filter(sentiment == "negative")
+
+lyric_words_cleaned %&gt;%
+  semi_join(positive,by="word") %&gt;%
+  group_by(song_name) %&gt;% 
+  count(word) %&gt;% 
+  group_by(song_name) %&gt;% 
+  tally(sort = TRUE,name="Happy Words")</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<pre><code>## # A tibble: 162 x 2
+##    song_name                   `Happy Words`
+##    &lt;chr&gt;                               &lt;int&gt;
+##  1 The Crusher                            10
+##  2 It's Gonna Be Alright                   9
+##  3 Palisades Park                          9
+##  4 Too Tough to Die                        9
+##  5 Censorshit                              8
+##  6 I Don't Want to Grow Up                 8
+##  7 In the Park                             8
+##  8 My Back Pages                           8
+##  9 Gimme Gimme Shock Treatment             7
+## 10 Glad to See You Go                      7
+## # ... with 152 more rows</code></pre>
+<pre class="sourceCode r code-with-copy"><code>lyric_words_cleaned %&gt;%
+  semi_join(negative,by="word") %&gt;%
+  group_by(song_name) %&gt;% 
+  count(word) %&gt;% 
+  group_by(song_name) %&gt;% 
+  tally(sort = TRUE,name="Sad Words")</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<pre><code>## # A tibble: 156 x 2
+##    song_name                       `Sad Words`
+##    &lt;chr&gt;                                 &lt;int&gt;
+##  1 I'm Not Afraid of Life                   21
+##  2 Endless Vacation                         17
+##  3 Don't Bust My Chops                      16
+##  4 Love Kills                               15
+##  5 Wart Hog                                 13
+##  6 My Back Pages                            12
+##  7 Cretin Family                            10
+##  8 Something to Believe In                  10
+##  9 Anxiety                                   9
+## 10 Howling at the Moon (Sha-La-La)           9
+## # ... with 146 more rows</code></pre>
+<p>
+Now we change the sign of the count of negative words so we can get the net balance of happy vs.&nbsp;sad words.
+</p>
+<pre class="sourceCode r code-with-copy"><code>lyric_words_cleaned %&gt;%
+  inner_join(get_sentiments("bing"),by="word") %&gt;%
+  group_by(song_name) %&gt;% 
+  count(sentiment,sort=TRUE) %&gt;% 
+  mutate(n = ifelse(sentiment == "negative", -n, n)) %&gt;%
+  group_by(song_name) %&gt;% 
+  summarise(net_sentiment=sum(n)) %&gt;% 
+  filter(abs(net_sentiment) &gt; 10) %&gt;%
+  mutate(song_name = reorder(song_name, net_sentiment)) %&gt;%
+  mutate(sentiment=ifelse(net_sentiment&lt;0,"Negative","Positive")) %&gt;% 
+  ggplot(aes(song_name, net_sentiment, fill = sentiment)) +
+  geom_col() +
+  coord_flip() +
+  labs(title="How Happy are RAMONES Songs?",
+       y = "Very Sad &lt;---   ---&gt; Very Happy",
+       x= "") +
+  scale_fill_manual(values = c("red","darkgrey"))+
+  theme(axis.text.y =  element_text(size=7,hjust=1)) </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-6-1.png" width="672">
+</p>
+</section>
+<section id="sentiment-over-time" class="level2">
+<h2 class="anchored" data-anchor-id="sentiment-over-time">
+Sentiment Over Time
+</h2>
+<p>
+The average sentiment over the whole lyric corpus is about evenly split between positive and negative words but if we look at sentiment by album we see a gyrating trend with an intersting dip in their middle years.
+</p>
+<pre class="sourceCode r code-with-copy"><code>lyric_words_cleaned %&gt;%
+  inner_join(get_sentiments("bing"),by="word") %&gt;%
+  group_by(album, year) %&gt;% 
+  count(sentiment,sort=TRUE) %&gt;% 
+  arrange(album) %&gt;% 
+  pivot_wider(values_from = n,names_from = sentiment) %&gt;% 
+  mutate(fraction_happy = positive/(negative+positive)) %&gt;%
+  ggplot(aes(year,fraction_happy)) + geom_line(color="red") + geom_point(color="red") +
+  labs(title = "RAMONES Mood Over Time",
+       y= "Fraction of Happy Words",
+       x= "Album Release Year") + 
+    scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
+    geom_text_repel(aes(label=album),
+                    color="white",
+                    segment.color = "white")</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-7-1.png" width="672">
+</p>
+<p>
+We can generate word clouds for any album. Their “happiest” album is “Road to Ruin.”
+</p>
+<pre class="sourceCode r code-with-copy"><code>{par(bg="black")
+  lyric_words_cleaned %&gt;%
+    filter(album == "Road To Ruin") %&gt;% 
+    inner_join(get_sentiments("bing"),by="word") %&gt;%
+    count(word, sentiment, sort = TRUE) %&gt;%
+    acast(word ~ sentiment, value.var = "n", fill = 0) %&gt;%
+    #  comparison.cloud(colors = c("#F8766D", "#00BFC4"),
+    #                   max.words = 100)
+    comparison.cloud(colors = c("red", "grey60"),
+                     max.words = 100,
+                     title.bg.colors="grey60")
+    text(x=1.1,y=0.5,"RAMONES",col="red",cex=4,srt=270)
+    text(x=-0.1,y=0.5,"Road To Ruin",col="grey60",cex=4,srt=90)
+}</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-8-1.png" width="672">
+</p>
+<p>
+… and their angriest, “Animal Boy.” You start to think there is something to this sentiment analysis stuff when you read the opening of this album’s review at <a href="http://allmusic.com" class="uri">http://allmusic.com</a>:
+</p>
+<blockquote class="blockquote">
+<p>
+<em>Animal Boy wasn’t a very happy record for the Ramones. Since the release of Too Tough to Die (a slight return to form) nearly two years earlier, the band’s fortunes had gone from bad to worse; interest in the band kept dwindling with every release and the “bruthas” were constantly at each other’s throat.</em>
+</p>
+</blockquote>
+<pre class="sourceCode r code-with-copy"><code>{par(bg="black")
+  lyric_words_cleaned %&gt;%
+    filter(album == "Animal Boy") %&gt;% 
+    inner_join(get_sentiments("bing"),by="word") %&gt;%
+    count(word, sentiment, sort = TRUE) %&gt;%
+    acast(word ~ sentiment, value.var = "n", fill = 0) %&gt;%
+    #  comparison.cloud(colors = c("#F8766D", "#00BFC4"),
+    #                   max.words = 100)
+    comparison.cloud(colors = c("red", "grey60"),
+                     max.words = 100,
+                     title.bg.colors="grey60")
+    text(x=1.1,y=0.5,"RAMONES",col="red",cex=4,srt=270)
+    text(x=-0.1,y=0.5,"Animal Boy",col="grey60",cex=4,srt=90)
+}</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-9-1.png" width="672">
+</p>
+</section>
+<section id="what-do-the-ramones-want-and-not-want" class="level2">
+<h2 class="anchored" data-anchor-id="what-do-the-ramones-want-and-not-want">
+What do the RAMONES want… and not want?
+</h2>
+<p>
+Now lets find what the Ramones Want. An n-gram is simply a cluster of words of length n.&nbsp;Let’s look at the most common n-grams, which would include the phrases like “I want” and “I wanna.”
+</p>
+<p>
+Start with shortest n-gram that is a complete thought and work up to longer phrases. We take the the shortest phrase that makes sense unless appending more words doesn’t change the frequency. Then we take the longer phrase. For instance if “I wanna steal some money” and “I wanna steal from the rich” both exist we take “I wanna steal” since it would have a higher frequency than either longer phrase. In this case, the only phrase starting with “I wanna steal” is “I wanna steal from the rich” so we use that.
+</p>
+<pre class="sourceCode r code-with-copy"><code>want_phrases &lt;- "^(i wanna |i want |we want |we wanna |i wanted |i just want |i just wanna )"
+
+get_ngrams &lt;- function(lyrics,n,prefixes=""){
+  min_instance = 0
+  lyric_ngram &lt;- lyrics %&gt;% 
+    unnest_tokens(ngram,lyric,token = "ngrams",n=n) %&gt;% 
+    group_by(ngram) %&gt;% 
+    filter(str_detect(ngram,prefixes)) %&gt;% 
+    count() %&gt;% 
+    arrange(desc(n)) %&gt;% 
+    filter(n&gt;min_instance) %&gt;% 
+    mutate(want=str_remove(ngram,prefixes)) %&gt;% 
+   rowid_to_column()
+  return(lyric_ngram)
+  
+}
+
+want &lt;- ramones_lyrics %&gt;% get_ngrams(5,want_phrases)
+want</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<pre><code>## # A tibble: 43 x 4
+## # Groups:   ngram [43]
+##    rowid ngram                         n want             
+##    &lt;int&gt; &lt;chr&gt;                     &lt;int&gt; &lt;chr&gt;            
+##  1     1 i want i want i              14 i want i         
+##  2     2 i want to be your            13 to be your       
+##  3     3 i just want to walk           7 to walk          
+##  4     4 i just want to have           6 to have          
+##  5     5 i just want to be             4 to be            
+##  6     6 i wanna be your boyfriend     4 be your boyfriend
+##  7     7 i want to live my             4 to live my       
+##  8     8 i want to run away            4 to run away      
+##  9     9 i want to be a                3 to be a          
+## 10    10 i want you by my              3 you by my        
+## # ... with 33 more rows</code></pre>
+<p>
+What a human needs to do is decide which phrases are complete thoughts. We manually select the row numbers to build our ultimate table.
+</p>
+<p>
+Remember what I said before about data wrangling? Well, sure, getting the words was easy. Determining meaningful phrases not (for a computer). If this was Spotify, our AI could figure these out, but this is not Spotify. This is an iterative process of manually inspecting tables of ever-longer n-grams and noting which rows have complete thoughts until we don’t see any sensible new phrases. We run through twice, first for “want” then “don’t want.” We flip the sign on the count of “don’t wants” to negative. I won’t bore you with every iteration so let’s skip ahead. Think of this as the cinematic training montage.
+</p>
+<pre class="sourceCode r code-with-copy"><code># WANT
+# make "wanna" in to "want to" which also frequently appears so we get a good count.
+ramones_lyrics &lt;- ramones_lyrics %&gt;% mutate(lyric=str_replace_all(lyric,"wanna","want to"))
+do_want &lt;- tibble()
+all_wants &lt;- tibble() # for debugging
+# why make the code below a function, if we only call it once?
+# Since we cumulatively modify all_wants each step is dependent on the prior one executing first
+# this organizes the code into a block that tells future self to execute as a block
+build_wants &lt;- function(all_wants) {
+  want_phrases &lt;- "^(i wanna |i want |we want |we wanna |i wanted |i just want |i just wanna )"
+  #select the 3-gram phrases that are complete thoughts using manual inspection
+  want &lt;- ramones_lyrics %&gt;% get_ngrams(3,want_phrases)
+  # visually inspect the want variable and select which lines to add to all_wants
+  # pause after each instance of get_ngrams to do this.
+  all_wants &lt;- bind_rows(all_wants,want[c(2,8,11,13),])
+  # move to the 4-gram phrases, etc
+  want &lt;- ramones_lyrics %&gt;% get_ngrams(4,want_phrases)
+  all_wants &lt;- bind_rows(all_wants,want[c(5,6,9,13,14,17,24,28,30,31,37),])
+  want &lt;- ramones_lyrics %&gt;% get_ngrams(5,want_phrases)
+  all_wants &lt;- bind_rows(all_wants,want[c(3,4,6,9,21,22),])
+  want &lt;- ramones_lyrics %&gt;% get_ngrams(6,want_phrases)
+  all_wants &lt;- bind_rows(all_wants,want[c(1,11,12,22,25,28),])
+  want &lt;- ramones_lyrics %&gt;% get_ngrams(7,want_phrases)
+  all_wants &lt;- bind_rows(all_wants,want[c(5,6,7,9,10,12,21),])
+  want &lt;- ramones_lyrics %&gt;% get_ngrams(8,want_phrases)
+  all_wants &lt;- bind_rows(all_wants,want[c(7,3),])
+  return (all_wants)
+}
+
+do_want &lt;- build_wants(do_want)
+do_want &lt;- do_want %&gt;% 
+  mutate(want=str_to_title(want)) %&gt;% 
+  group_by(want) %&gt;% 
+  summarise(n=sum(n)) %&gt;% 
+  arrange(desc(n))
+
+# DONT'T WANT
+dont_want &lt;- tibble()
+all_wants &lt;- tibble() # for debugging only
+ramones_lyrics &lt;- ramones_lyrics %&gt;% mutate(lyric=str_replace_all(lyric,"wanna","want to"))
+want_phrases &lt;- "^(i don't want |we don't want |i didn't want )"
+build_dont_wants &lt;- function(all_wants) {
+  want &lt;- ramones_lyrics %&gt;% get_ngrams(4,want_phrases)
+  all_wants &lt;- bind_rows(all_wants,want[c(2),])
+  want &lt;- ramones_lyrics %&gt;% get_ngrams(5,want_phrases)
+  all_wants &lt;- bind_rows(all_wants,want[c(3,5,6,7,9,11,15),])
+  want &lt;- ramones_lyrics %&gt;% get_ngrams(6,want_phrases)
+  all_wants &lt;- bind_rows(all_wants,want[c(1,7),])
+  want &lt;- ramones_lyrics %&gt;% get_ngrams(7,want_phrases)
+  all_wants &lt;- bind_rows(all_wants,want[c(2,17),])
+  want &lt;- ramones_lyrics %&gt;% get_ngrams(8,want_phrases)
+  all_wants &lt;- bind_rows(all_wants,want[c(7,8,9,16),])
+  want &lt;- ramones_lyrics %&gt;% get_ngrams(9,want_phrases)
+  all_wants &lt;- bind_rows(all_wants,want[c(3,10,12),])
+  want &lt;- ramones_lyrics %&gt;% get_ngrams(10,want_phrases)
+  #there it is - Pet Sematary!
+  all_wants &lt;- bind_rows(all_wants,want[c(1),])
+}
+dont_want &lt;- build_dont_wants(dont_want)
+dont_want &lt;- dont_want %&gt;%
+  mutate(n = -n) %&gt;% 
+  mutate(want=str_to_title(want)) %&gt;% 
+  group_by(want) %&gt;%
+  summarise(n=sum(n)) %&gt;% 
+  arrange(n)</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+Finally we put it all together to get what we’re after.
+</p>
+<pre class="sourceCode r code-with-copy"><code>ultimate_want &lt;- bind_rows(do_want,dont_want) %&gt;% 
+  group_by(want) %&gt;%
+  summarise(n=sum(n)) %&gt;%   
+  mutate(Sentiment = ifelse(n &gt; 0,"Want","Don't Want")) %&gt;% 
+  arrange(n) %&gt;% 
+  {.}
+
+p &lt;- ultimate_want %&gt;% mutate(want=reorder(want,n)) %&gt;% 
+  filter(abs(n) &gt; 1) %&gt;% 
+  ggplot(aes(want,n,fill=Sentiment)) + geom_col()+coord_flip()+
+  labs(title="What Do The RAMONES Want?",
+       y="How Much Do The RAMONES Want It?",
+       x="")
+p + 
+  scale_fill_manual(values = c("red","darkgrey"))+
+  theme(axis.text.y =  element_text(size=7,hjust=1)) </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-12-1.png" width="672">
+</p>
+</section>
+<section id="bringing-it-full-circle" class="level2">
+<h2 class="anchored" data-anchor-id="bringing-it-full-circle">
+Bringing It Full Circle
+</h2>
+<p>
+Sometimes, late at night, after everyone else is asleep, I hide under the covers, open my laptop and look at… pie charts. <a href="https://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=00018S ">Ed Tufte</a> says I will go blind if I keep doing it. Still, for the sake of bringing this full circle (ahem) back to the chart that inspired it, let’s make a version of Grayhood’s poster with our data. So it’s not a complete mess, we lump any phrases that occur less than 4 times in “Other.” That takes some of the fun out of things since we lose memorable phrases like “I wanna sniff some glue” which the poster above includes. This is data science, not art. It’s not supposed to be fun! While I use ggplot2 pretty much exclusively, the base R <code>pie</code> plot produces pretty clean results that approximate the style of the poster with no embellishment.
+</p>
+<pre class="sourceCode r code-with-copy"><code>collapsed_want &lt;- ultimate_want %&gt;%
+  filter(Sentiment=="Want") %&gt;%
+  mutate(want = ifelse(n&lt;4,"Other",want)) %&gt;%
+  group_by(want) %&gt;% 
+  summarise(n=sum(n)) %&gt;% 
+  arrange(desc(n)) %&gt;% 
+  {.}
+
+ with(collapsed_want,
+      pie(n, 
+          labels=paste0(as.character(want), " ", n, "%"),
+          col=c("brown","red","black","darkblue","pink","purple"),
+          radius=1,
+          density=30,
+          bg="sienna",
+          main="The Ramones Want..."))</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-13-1.png" width="672">
+</p>
+<pre class="sourceCode r code-with-copy"><code>collapsed_want &lt;- ultimate_want %&gt;%
+  filter(Sentiment=="Don't Want") %&gt;%
+  mutate(n = -n) %&gt;% 
+  mutate(want = ifelse(n&lt;2,"Other",want)) %&gt;%
+  group_by(want) %&gt;% 
+  summarise(n=sum(n)) %&gt;% 
+  arrange(desc(n)) %&gt;% 
+  {.}
+
+ with(collapsed_want,
+      pie(n, 
+          labels=paste0(as.character(want), " ", n, "%"),
+          col=c("brown","red","black","darkblue","pink","purple"),
+          radius=1,
+          density=30,
+          bg="sienna",
+          main="The RAMONES Don't Want..."))</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre>
+<p>
+<img src="img/unnamed-chunk-14-1.png" width="672">
+</p>
+<p>
+It must be comforting to know the Ramones want you more than anything but they aren’t going down to the basement with you. Okay, so maybe this was a little fun. Thanks for reading!
+</p>
+</section>
+
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
