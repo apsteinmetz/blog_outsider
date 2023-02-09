@@ -188,7 +188,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#publishing-your-blog-on-netlify" id="toc-publishing-your-blog-on-netlify" class="nav-link active" data-scroll-target="#publishing-your-blog-on-netlify">Publishing Your Blog on Netlify</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -227,9 +233,23 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </header>
 
 <p>It all started when I decided to change up my Hugo theme. Up until that point I was happily using the Blogdown add-in for RStudio to initiate new blog posts. At some point the default directory structure for Hugo blogs changed and when I tried to update my theme the whole web site got impossibly messy and finally broke. I managed to cobble it back together but I really had no idea what I was doing and became afraid of messing with it any more. This led to bloggers block.</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This post assumes you want to change your Hugo website that you already built on Netlify to use Quarto. If you are looking to a basic tutorial on building a Quarto web site <a href="https://quarto.org/docs/websites/website-blog.html">look here</a>.</p>
+</div>
+</div>
+<p><img src="img/quarto.png" class="img-fluid"></p>
 <p>When Quarto came on the scene I was attracted to the idea of starting fresh but also intimidated by the thought of porting all my old content from R Markdown to Quarto. Plenty of people told me that R Markdown was not going away and there was no big need to switch. It is the big improvement over Blogdown/Hugo for blogging that has made me a convert. Quarto is simpler.</p>
 <p>Ideally you should just be able to render the R Markdown code in Quarto and it will just work. For me, the problem was that many of my posts would no longer render in R because of package updates or out-of-date web links. Quarto solves that problem with the <code>freeze</code> option but it only works for content that has been rendered at least once with Quarto.</p>
-<p>I needn’t have fretted. It turns out porting old blog or web content is ridiculously easy, though the existing Quarto guides don’t discuss this <strong>one simple trick.</strong> Here’s the TL;DR version: all you have to do is change the file extension of your fully rendered HTML files from <code>.html</code> to <code>.qmd</code> and Quarto will happily render them, wrapping its own HTML code around the old HTML but not otherwise messing with it. Any theming or subsequent changes in theming will be properly rendered. You can get rid of your old R Markdown files (though they will live in GitHub forever, right?).</p>
+<p>I needn’t have fretted. It turns out porting old blog or web content is ridiculously easy, though the existing Quarto guides don’t discuss this <strong><em>one simple trick</em>.</strong> Here’s the TL;DR version: all you have to do is change the file extension of your fully rendered HTML files from <code>.html</code> to <code>.qmd</code> and Quarto will happily render them, wrapping its own HTML code around the old HTML but not otherwise messing with it. Any theming or subsequent changes in theming will be properly rendered. You can get rid of your old R Markdown files (though they will live in GitHub forever, right?).</p>
 <p>I never did figure out the directory structure of a Hugo web site. Fortunately, Quarto is much simpler. The main directory and subdirectories of your blog contain all the Quarto files. You can name them as you like. One special directory called <code>_site</code> contains the rendered HTML files. It will be created the first time you <code>render</code> your site. There are a few more things to do to bring it all together. Let’s go through them step-by-step.</p>
 <ol type="1">
 <li><p>Assuming you <strong>Create New Project</strong> in RStudio a subdirectory will be created called <code>posts</code>. Create a sub-folder in your <code>posts</code> folder to hold the converted file. Use any name but I like the form <strong><em>yyyy-mm-dd_name-of-post</em></strong>. This will allow displaying the posts in date order.</p></li>
@@ -274,7 +294,32 @@ Old Man Yelling at Cloud
 <li><p>Does your blog use any Javascript HTML widgets? In my case a post that used the the <code>Plotly</code> package created some. These will be found in your old site in the <code>rmarkdown-libs</code> folder. Copy this folder over to the base directory of your new blog. Back in the editor make sure any lines of HTML that contain <code>rmarkdown-libs</code> have a valid path to new location. As a side note, if you render the file as R code, Quarto will put those widgets in a directory called <code>site-libs</code>.</p></li>
 <li><p>Save and Render. Done!</p></li>
 </ol>
-<p>From this point you can go down the rabbit hole and play with all the theming and formatting options that Quarto allows. You’ll make most of these changes in your <code>index.qmd</code> and <code>_quarto.yml</code> files. Any changes you make will be reflected in you old posts. Easy peasy!</p>
+<p>From this point you can go down the rabbit hole and play with all the theming and formatting options that Quarto allows. You’ll make most of these changes in your <code>index.qmd</code> and <code>_quarto.yml</code> files. Any changes you make will be reflected in your old posts. Easy peasy!</p>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>I really liked the Blogdown add-in for R Studio as it made initiating a new post very easy. <a href="https://themockup.blog/about.html">Thomas Mock</a> has made a start on this with a <a href="https://themockup.blog/posts/2022-11-08-use-r-to-generate-a-quarto-blogpost/">quick function to start a new Quarto post</a>. Check it out.</p>
+</div>
+</div>
+<section id="publishing-your-blog-on-netlify" class="level2">
+<h2 class="anchored" data-anchor-id="publishing-your-blog-on-netlify">Publishing Your Blog on Netlify</h2>
+<p>You will have to make some tiny changes before Netfliy will re-publish your sparkling remodeled blog.</p>
+<ol type="1">
+<li><p>Once you are happy with the finished port, delete everything in the old blog’s directory EXCEPT the <code>.git</code> file. Copy everything from the new blog EXCEPT the <code>.git</code> file over to the old directory. It’s scary but you are just burning the old site down.</p></li>
+<li><p>Git should show all the deletions and additions to be made to the repo. Commit them all and push to GitHub.</p></li>
+<li><p>Now visit your deploy settings at Netlify.com. You’ll find them at <em>https://app.netlify.com/sites/&lt;yoursitename&gt;/settings/deploys.</em></p></li>
+<li><p>Click on <button class="btn btn-dark">Edit settings</button></p></li>
+<li><p>You’ll change the build command from “Hugo” to nothing and change the publish directory to “_site.” Then save.</p></li>
+</ol>
+<p><img src="img/netlify_deploy.jpg" class="img-fluid" width="326"></p>
+<p>That’s it! Netlfiy should regenerate your site in a few seconds and you are back in business. Have fun!</p>
 <div class="callout-note callout callout-style-default callout-captioned">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -288,21 +333,9 @@ Thank you!
 <p>Thanks to <a href="https://hookedondata.org/">Emily Robinson</a> for jump starting me on this project. She pointed me to great resources on writing a Quarto blog and convinced me that “you can do it!”</p>
 </div>
 </div>
-<div class="callout-tip callout callout-style-default callout-captioned">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-caption-container flex-fill">
-Tip
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>I really liked the Blogdown add-in for R Studio as it made initiating a new post very easy. Thomas Mock has made a start on this with a <a href="https://themockup.blog/posts/2022-11-08-use-r-to-generate-a-quarto-blogpost/">quick function to start a new Quarto post</a>. Check it out.</p>
-</div>
-</div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
