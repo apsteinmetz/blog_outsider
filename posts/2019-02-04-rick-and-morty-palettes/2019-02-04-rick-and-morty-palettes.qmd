@@ -106,10 +106,8 @@ pal_schwifty &lt;- rm_list %&gt;%
   select(R,G,B) %&gt;% 
   kmeans(centers = num_colors, iter.max = 30) %&gt;% 
   .$centers %&gt;% 
-  as.tibble() %&gt;% 
+  as_tibble() %&gt;% 
   {.}</code></pre>
-<pre><code>## Warning: `as.tibble()` is deprecated, use `as_tibble()` (but mind the new semantics).
-## This warning is displayed once per session.</code></pre>
 <pre class="sourceCode r"><code>show_col(rgb(pal_schwifty))</code></pre>
 <p><img src="img/unnamed-chunk-7-1.png" width="672" /></p>
 <p>For plotting purposes I would like use these colors in order of intensity. Sorting colors is a <a href="http://www.alanzucconi.com/2015/09/30/colour-sorting/">topic in itself</a> but here we’ll do it quick and simple.</p>
@@ -127,7 +125,7 @@ gen_pal &lt;- function(rgb_table) {
   select(R, G, B) %&gt;%
   kmeans(centers = num_colors, iter.max = 30) %&gt;%
   .$centers %&gt;%
-  as.tibble() %&gt;%
+  as_tibble() %&gt;%
   mutate(saturation = rowSums(.[1:3])) %&gt;%
   arrange(saturation) %&gt;%
   rgb()

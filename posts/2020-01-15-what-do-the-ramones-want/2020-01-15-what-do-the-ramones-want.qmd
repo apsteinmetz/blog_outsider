@@ -12,23 +12,31 @@ topics: []
 image: 'img/Wants4thEdition.jpg'
 ---
 
+<p>Recently I saw a tweet that shared this hilarious poster of Ramones "wants". Very cool, but how accurate is it? I asked the graphic designer and he says he took some artistic license, as he should! You may accuse me of being that pedantic "Comic Book Guy" from "The Simpsons" but, when I saw it, I immediately wondered how I could tally these Ramones lyrics myself or, rather, get R to do it for me. The <code>tidytext</code> mining package makes short work of the project, as we'll see.</p>
 
+ <img src="img/Wants4thEdition.jpg" alt="Ramones Want What?"/>
+ 
+::: callout-note
+Dan Gneiding (aka Grayhood) created the poster above. You can buy it <a href="http://grayhood.com/shop/ramones-vs-misfits-1-2-3-4th-edition">here</a>
+:::
 
-<p>Recently I saw a tweet that shared this hilarious poster of Ramones “wants”.
-<img src="img/Wants4thEdition.jpg" alt="Ramones Want What?" />
-Dan Gneiding (aka Grayhood) is the graphic designer who created this. You can buy it <a href="http://grayhood.com/shop/ramones-vs-misfits-1-2-3-4th-edition">here</a></p>
-<p>Very cool, but how accurate is it? I asked Dan and says he took some artistic license, as he should! You may accuse me of being that pedantic “Comic Book Guy” from “The Simpsons” but, when I saw it, I immediately wondered how I could tally these Ramones lyrics myself or, rather, get R to do it for me. The <code>tidytext</code> mining package makes short work of the project, as we’ll see.</p>
+<iframe src="https://giphy.com/embed/26tk0Emxz61hdKEog" width="480" height="360" frameBorder="0" class="giphy-embed">
+</iframe>
 
-<iframe src="https://giphy.com/embed/26tk0Emxz61hdKEog" width="480" height="360" frameBorder="0" class="giphy-embed"></iframe>
-
-<div id="why-the-ramones" class="section level2">
+::: {#why-the-ramones .section .level2}
 <h2>Why the RAMONES?</h2>
-<p>The Ramones hold a special place in my heart. As a college student in central Ohio, in the late 70s, my frat brothers and I were huge fans. We were completely ridiculous of course. Preppy nerds bobbing to “Beat on the Brat” The Sigma Chis thought we were idiots (Lynrd Skynrd? Come on! History has judged). I never saw the Ramones at CBGBs but when we heard they were coming to a cowboy bar on notorious High St. across from Ohio State, we were thrilled. I blew off studying for a Poly-Sci mid-term the next day. I got my worst college grade ever but it was totally worth it. I said my future self would thank me and I was right!</p>
-<p>Without any further adieu, hey, ho, let’s go!</p>
-</div>
-<div id="load-packages" class="section level2">
+
+<p>The Ramones hold a special place in my heart. As a college student in central Ohio, in the late 70s, my frat brothers and I were huge fans. We were completely ridiculous of course. Preppy nerds bobbing to "Beat on the Brat" The Sigma Chis thought we were idiots (Lynrd Skynrd? Come on! History has judged). I never saw the Ramones at CBGBs but when we heard they were coming to a cowboy bar on notorious High St. across from Ohio State, we were thrilled. I blew off studying for a Poly-Sci mid-term the next day. I got my worst college grade ever but it was totally worth it. I said my future self would thank me and I was right!</p>
+
+<p>Without any further adieu, hey, ho, let's go!</p>
+:::
+
+::: {#load-packages .section .level2}
 <h2>Load Packages</h2>
+
 <p>First, load packages.</p>
+
+```{=html}
 <pre class="sourceCode r"><code>library(tidyverse)
 library(tidytext)
 library(rvest)
@@ -40,12 +48,19 @@ library(ggthemr)
 library(ggrepel)
 
 ggthemr(&quot;earth&quot;,type=&quot;outer&quot;)</code></pre>
-</div>
-<div id="get-lyrics-from-genius-api" class="section level2">
+```
+:::
+
+::: {#get-lyrics-from-genius-api .section .level2}
 <h2>Get Lyrics from Genius API</h2>
-<p>Have you ever spent an enormous amount of time on something, only to discover there was a much simpler way? Yes, yes you have. For this project we need a source of Ramones lyrics. Originally, I built a very finicky web scraping routine to get lyrics from a site I commonly use in my browser. I coaxed it to get all of the lyrics but I didn’t want to share it in this post because you would likely not be able to get it to work smoothly. Months passed then it occurred to me to Google “lyrics api” and, “viola!”, I found <a href="http://genius.com" class="uri">http://genius.com</a> and the genius R package by Josiah Parry, available on CRAN. Access to the lyric API does require a free application access token. You can <a href="https://docs.genius.com/#/getting-started-h1">generate one here</a>. I will leave installing the token called GENIUS_API_TOKEN into your R environment as an exercise for the reader. There are numerous tutorials on this subject around.</p>
-<p>As always, we will be working in the <code>tidyverse</code> veracular. First we build a data frame of album names and the year of release. This gets fed into a single function <code>genius::add_genius</code> which returns all the lyrics. I’m embarressed to think about the tangled mess of web scraping code I was previously using.</p>
-<p>As usual, we check to see if the file with all the downloaded data is already available so, as we iterate versions of our project, we don’t hit the API over and over.</p>
+
+<p>Have you ever spent an enormous amount of time on something, only to discover there was a much simpler way? Yes, yes you have. For this project we need a source of Ramones lyrics. Originally, I built a very finicky web scraping routine to get lyrics from a site I commonly use in my browser. I coaxed it to get all of the lyrics but I didn't want to share it in this post because you would likely not be able to get it to work smoothly. Months passed then it occurred to me to Google "lyrics api" and, "viola!", I found <a href="http://genius.com" class="uri">http://genius.com</a> and the genius R package by Josiah Parry, available on CRAN. Access to the lyric API does require a free application access token. You can <a href="https://docs.genius.com/#/getting-started-h1">generate one here</a>. I will leave installing the token called GENIUS_API_TOKEN into your R environment as an exercise for the reader. There are numerous tutorials on this subject around.</p>
+
+<p>As always, we will be working in the <code>tidyverse</code> veracular. First we build a data frame of album names and the year of release. This gets fed into a single function <code>genius::add_genius</code> which returns all the lyrics. I'm embarressed to think about the tangled mess of web scraping code I was previously using.</p>
+
+<p>As usual, we check to see if the file with all the downloaded data is already available so, as we iterate versions of our project, we don't hit the API over and over.</p>
+
+```{=html}
 <pre class="sourceCode r"><code>#make sure you have a Genius API token
 # my token is in the .Reviron file
 
@@ -78,10 +93,15 @@ if (file.exists(&quot;data/ramones_lyrics_genius.rdata&quot;)){
   ramones_lyrics_genius &lt;- genius::add_genius(artist_albums,artist,album)
   save(ramones_lyrics_genius,file=&quot;data/ramones_lyrics_genius.rdata&quot;)
 }</code></pre>
-</div>
-<div id="put-lyics-in-tidytext-form" class="section level2">
+```
+:::
+
+::: {#put-lyics-in-tidytext-form .section .level2}
 <h2>Put Lyics in Tidytext Form</h2>
-<p>Most projects require a huge amount of data wrangling before we can get any real analysis done. This project is pretty clean. We are already nearly good to go. Further, <code>tidytext</code> makes the remaining manipulation of the data soooo easy! To wit, let’s tokenize the data into individual words.</p>
+
+<p>Most projects require a huge amount of data wrangling before we can get any real analysis done. This project is pretty clean. We are already nearly good to go. Further, <code>tidytext</code> makes the remaining manipulation of the data soooo easy! To wit, let's tokenize the data into individual words.</p>
+
+```{=html}
 <pre class="sourceCode r"><code>ramones_lyrics &lt;- ramones_lyrics_genius
 #make factor to keep albums in order of issue date
 ramones_lyrics$album &lt;- as_factor(ramones_lyrics$album)
@@ -90,17 +110,24 @@ ramones_lyrics &lt;- right_join(ramones_lyrics,ramones_albums,by=&quot;album&quo
 lyric_words &lt;- ramones_lyrics  %&gt;% 
   unnest_tokens(word,lyric) %&gt;%
   rename(song_name=track_title)</code></pre>
+```
 <p>See, I said it was easy.</p>
-</div>
-<div id="how-needy-are-the-ramones" class="section level2">
+:::
+
+::: {#how-needy-are-the-ramones .section .level2}
 <h2>How Needy Are The Ramones?</h2>
-<p>Out of 193 songs on all their studio albums, 16 mention wanting or not wanting in the title. “I Wanna” songs are a thing with the Ramones.</p>
+
+<p>Out of 193 songs on all their studio albums, 16 mention wanting or not wanting in the title. "I Wanna" songs are a thing with the Ramones.</p>
+
+```{=html}
 <pre class="sourceCode r"><code>want_phrases &lt;- &quot;Wanna|Want&quot;
 ramones_lyrics %&gt;% 
   select(album, track_title) %&gt;% 
   distinct() %&gt;%
   filter(str_detect(track_title,want_phrases)) %&gt;% 
   {.}</code></pre>
+```
+```{=html}
 <pre><code>## # A tibble: 16 x 2
 ##    album             track_title                                    
 ##    &lt;fct&gt;             &lt;chr&gt;                                          
@@ -120,11 +147,17 @@ ramones_lyrics %&gt;%
 ## 14 Halfway To Sanity I Wanna Live                                   
 ## 15 Brain Drain       Merry Christmas (I Don&#39;t Want To Fight Tonight)
 ## 16 ¡Adios Amigos!    I Don&#39;t Want to Grow Up</code></pre>
-</div>
-<div id="do-some-sentiment-analysis" class="section level2">
+```
+:::
+
+::: {#do-some-sentiment-analysis .section .level2}
 <h2>Do Some Sentiment Analysis</h2>
-<p>Before we look at the what the Ramones want we might as well run the, now routine, sentiment analysis you may have learned about from Julia Silge and David Robinson <a href="https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html">here</a>. The Ramones are no Jane Austen but, hey, they have feelings, ya know? SAD NOTE: They “had” feelings. All the original four are dead.</p>
-<p>To start our sentiment analysis let’s pull out stop words that don’t provide much context and label all the words in the “bing” sentiment database as either positive or negative.</p>
+
+<p>Before we look at the what the Ramones want we might as well run the, now routine, sentiment analysis you may have learned about from Julia Silge and David Robinson <a href="https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html">here</a>. The Ramones are no Jane Austen but, hey, they have feelings, ya know? SAD NOTE: They "had" feelings. All the original four are dead.</p>
+
+<p>To start our sentiment analysis let's pull out stop words that don't provide much context and label all the words in the "bing" sentiment database as either positive or negative.</p>
+
+```{=html}
 <pre class="sourceCode r"><code>lyric_words_cleaned &lt;- lyric_words %&gt;% anti_join(get_stopwords(),by=&quot;word&quot;)
 
 #quick sentiment analysis
@@ -140,6 +173,8 @@ lyric_words_cleaned %&gt;%
   count(word) %&gt;% 
   group_by(song_name) %&gt;% 
   tally(sort = TRUE,name=&quot;Happy Words&quot;)</code></pre>
+```
+```{=html}
 <pre><code>## # A tibble: 162 x 2
 ##    song_name                   `Happy Words`
 ##    &lt;chr&gt;                               &lt;int&gt;
@@ -154,12 +189,16 @@ lyric_words_cleaned %&gt;%
 ##  9 Gimme Gimme Shock Treatment             7
 ## 10 Glad to See You Go                      7
 ## # ... with 152 more rows</code></pre>
+```
+```{=html}
 <pre class="sourceCode r"><code>lyric_words_cleaned %&gt;%
   semi_join(negative,by=&quot;word&quot;) %&gt;%
   group_by(song_name) %&gt;% 
   count(word) %&gt;% 
   group_by(song_name) %&gt;% 
   tally(sort = TRUE,name=&quot;Sad Words&quot;)</code></pre>
+```
+```{=html}
 <pre><code>## # A tibble: 156 x 2
 ##    song_name                       `Sad Words`
 ##    &lt;chr&gt;                                 &lt;int&gt;
@@ -174,7 +213,10 @@ lyric_words_cleaned %&gt;%
 ##  9 Anxiety                                   9
 ## 10 Howling at the Moon (Sha-La-La)           9
 ## # ... with 146 more rows</code></pre>
+```
 <p>Now we change the sign of the count of negative words so we can get the net balance of happy vs. sad words.</p>
+
+```{=html}
 <pre class="sourceCode r"><code>lyric_words_cleaned %&gt;%
   inner_join(get_sentiments(&quot;bing&quot;),by=&quot;word&quot;) %&gt;%
   group_by(song_name) %&gt;% 
@@ -193,12 +235,16 @@ lyric_words_cleaned %&gt;%
        x= &quot;&quot;) +
   scale_fill_manual(values = c(&quot;red&quot;,&quot;darkgrey&quot;))+
   theme(axis.text.y =  element_text(size=7,hjust=1)) </code></pre>
-<p><img src="img/unnamed-chunk-6-1.png" width="672" /></p>
-</div>
-<div id="sentiment-over-time" class="section level2">
+```
+<p><img src="img/unnamed-chunk-6-1.png" width="672"/></p>
+:::
+
+::: {#sentiment-over-time .section .level2}
 <h2>Sentiment Over Time</h2>
-<p>The average sentiment over the whole lyric corpus is about evenly split between positive and negative words but
-if we look at sentiment by album we see a gyrating trend with an intersting dip in their middle years.</p>
+
+<p>The average sentiment over the whole lyric corpus is about evenly split between positive and negative words but if we look at sentiment by album we see a gyrating trend with an intersting dip in their middle years.</p>
+
+```{=html}
 <pre class="sourceCode r"><code>lyric_words_cleaned %&gt;%
   inner_join(get_sentiments(&quot;bing&quot;),by=&quot;word&quot;) %&gt;%
   group_by(album, year) %&gt;% 
@@ -214,8 +260,12 @@ if we look at sentiment by album we see a gyrating trend with an intersting dip 
     geom_text_repel(aes(label=album),
                     color=&quot;white&quot;,
                     segment.color = &quot;white&quot;)</code></pre>
-<p><img src="img/unnamed-chunk-7-1.png" width="672" /></p>
-<p>We can generate word clouds for any album. Their “happiest” album is “Road to Ruin.”</p>
+```
+<p><img src="img/unnamed-chunk-7-1.png" width="672"/></p>
+
+<p>We can generate word clouds for any album. Their "happiest" album is "Road to Ruin."</p>
+
+```{=html}
 <pre class="sourceCode r"><code>{par(bg=&quot;black&quot;)
   lyric_words_cleaned %&gt;%
     filter(album == &quot;Road To Ruin&quot;) %&gt;% 
@@ -230,11 +280,18 @@ if we look at sentiment by album we see a gyrating trend with an intersting dip 
     text(x=1.1,y=0.5,&quot;RAMONES&quot;,col=&quot;red&quot;,cex=4,srt=270)
     text(x=-0.1,y=0.5,&quot;Road To Ruin&quot;,col=&quot;grey60&quot;,cex=4,srt=90)
 }</code></pre>
-<p><img src="img/unnamed-chunk-8-1.png" width="672" /></p>
-<p>… and their angriest, “Animal Boy.” You start to think there is something to this sentiment analysis stuff when you read the opening of this album’s review at <a href="http://allmusic.com" class="uri">http://allmusic.com</a>:</p>
+```
+<p><img src="img/unnamed-chunk-8-1.png" width="672"/></p>
+
+<p>... and their angriest, "Animal Boy." You start to think there is something to this sentiment analysis stuff when you read the opening of this album's review at <a href="http://allmusic.com" class="uri">http://allmusic.com</a>:</p>
+
 <blockquote>
-<p><em>Animal Boy wasn’t a very happy record for the Ramones. Since the release of Too Tough to Die (a slight return to form) nearly two years earlier, the band’s fortunes had gone from bad to worse; interest in the band kept dwindling with every release and the “bruthas” were constantly at each other’s throat.</em></p>
+
+<p><em>Animal Boy wasn't a very happy record for the Ramones. Since the release of Too Tough to Die (a slight return to form) nearly two years earlier, the band's fortunes had gone from bad to worse; interest in the band kept dwindling with every release and the "bruthas" were constantly at each other's throat.</em></p>
+
 </blockquote>
+
+```{=html}
 <pre class="sourceCode r"><code>{par(bg=&quot;black&quot;)
   lyric_words_cleaned %&gt;%
     filter(album == &quot;Animal Boy&quot;) %&gt;% 
@@ -249,12 +306,18 @@ if we look at sentiment by album we see a gyrating trend with an intersting dip 
     text(x=1.1,y=0.5,&quot;RAMONES&quot;,col=&quot;red&quot;,cex=4,srt=270)
     text(x=-0.1,y=0.5,&quot;Animal Boy&quot;,col=&quot;grey60&quot;,cex=4,srt=90)
 }</code></pre>
-<p><img src="img/unnamed-chunk-9-1.png" width="672" /></p>
-</div>
-<div id="what-do-the-ramones-want-and-not-want" class="section level2">
-<h2>What do the RAMONES want… and not want?</h2>
-<p>Now lets find what the Ramones Want. An n-gram is simply a cluster of words of length n. Let’s look at the most common n-grams, which would include the phrases like “I want” and “I wanna.”</p>
-<p>Start with shortest n-gram that is a complete thought and work up to longer phrases. We take the the shortest phrase that makes sense unless appending more words doesn’t change the frequency. Then we take the longer phrase. For instance if “I wanna steal some money” and “I wanna steal from the rich” both exist we take “I wanna steal” since it would have a higher frequency than either longer phrase. In this case, the only phrase starting with “I wanna steal” is “I wanna steal from the rich” so we use that.</p>
+```
+<p><img src="img/unnamed-chunk-9-1.png" width="672"/></p>
+:::
+
+::: {#what-do-the-ramones-want-and-not-want .section .level2}
+<h2>What do the RAMONES want... and not want?</h2>
+
+<p>Now lets find what the Ramones Want. An n-gram is simply a cluster of words of length n. Let's look at the most common n-grams, which would include the phrases like "I want" and "I wanna."</p>
+
+<p>Start with shortest n-gram that is a complete thought and work up to longer phrases. We take the the shortest phrase that makes sense unless appending more words doesn't change the frequency. Then we take the longer phrase. For instance if "I wanna steal some money" and "I wanna steal from the rich" both exist we take "I wanna steal" since it would have a higher frequency than either longer phrase. In this case, the only phrase starting with "I wanna steal" is "I wanna steal from the rich" so we use that.</p>
+
+```{=html}
 <pre class="sourceCode r"><code>want_phrases &lt;- &quot;^(i wanna |i want |we want |we wanna |i wanted |i just want |i just wanna )&quot;
 
 get_ngrams &lt;- function(lyrics,n,prefixes=&quot;&quot;){
@@ -274,6 +337,8 @@ get_ngrams &lt;- function(lyrics,n,prefixes=&quot;&quot;){
 
 want &lt;- ramones_lyrics %&gt;% get_ngrams(5,want_phrases)
 want</code></pre>
+```
+```{=html}
 <pre><code>## # A tibble: 43 x 4
 ## # Groups:   ngram [43]
 ##    rowid ngram                         n want             
@@ -289,8 +354,12 @@ want</code></pre>
 ##  9     9 i want to be a                3 to be a          
 ## 10    10 i want you by my              3 you by my        
 ## # ... with 33 more rows</code></pre>
+```
 <p>What a human needs to do is decide which phrases are complete thoughts. We manually select the row numbers to build our ultimate table.</p>
-<p>Remember what I said before about data wrangling? Well, sure, getting the words was easy. Determining meaningful phrases not (for a computer). If this was Spotify, our AI could figure these out, but this is not Spotify. This is an iterative process of manually inspecting tables of ever-longer n-grams and noting which rows have complete thoughts until we don’t see any sensible new phrases. We run through twice, first for “want” then “don’t want.” We flip the sign on the count of “don’t wants” to negative. I won’t bore you with every iteration so let’s skip ahead. Think of this as the cinematic training montage.</p>
+
+<p>Remember what I said before about data wrangling? Well, sure, getting the words was easy. Determining meaningful phrases not (for a computer). If this was Spotify, our AI could figure these out, but this is not Spotify. This is an iterative process of manually inspecting tables of ever-longer n-grams and noting which rows have complete thoughts until we don't see any sensible new phrases. We run through twice, first for "want" then "don't want." We flip the sign on the count of "don't wants" to negative. I won't bore you with every iteration so let's skip ahead. Think of this as the cinematic training montage.</p>
+
+```{=html}
 <pre class="sourceCode r"><code># WANT
 # make &quot;wanna&quot; in to &quot;want to&quot; which also frequently appears so we get a good count.
 ramones_lyrics &lt;- ramones_lyrics %&gt;% mutate(lyric=str_replace_all(lyric,&quot;wanna&quot;,&quot;want to&quot;))
@@ -356,7 +425,10 @@ dont_want &lt;- dont_want %&gt;%
   group_by(want) %&gt;%
   summarise(n=sum(n)) %&gt;% 
   arrange(n)</code></pre>
-<p>Finally we put it all together to get what we’re after.</p>
+```
+<p>Finally we put it all together to get what we're after.</p>
+
+```{=html}
 <pre class="sourceCode r"><code>ultimate_want &lt;- bind_rows(do_want,dont_want) %&gt;% 
   group_by(want) %&gt;%
   summarise(n=sum(n)) %&gt;%   
@@ -373,11 +445,16 @@ p &lt;- ultimate_want %&gt;% mutate(want=reorder(want,n)) %&gt;%
 p + 
   scale_fill_manual(values = c(&quot;red&quot;,&quot;darkgrey&quot;))+
   theme(axis.text.y =  element_text(size=7,hjust=1)) </code></pre>
-<p><img src="img/unnamed-chunk-12-1.png" width="672" /></p>
-</div>
-<div id="bringing-it-full-circle" class="section level2">
+```
+<p><img src="img/unnamed-chunk-12-1.png" width="672"/></p>
+:::
+
+::: {#bringing-it-full-circle .section .level2}
 <h2>Bringing It Full Circle</h2>
-<p>Sometimes, late at night, after everyone else is asleep, I hide under the covers, open my laptop and look at… pie charts. <a href="https://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=00018S ">Ed Tufte</a> says I will go blind if I keep doing it. Still, for the sake of bringing this full circle (ahem) back to the chart that inspired it, let’s make a version of Grayhood’s poster with our data. So it’s not a complete mess, we lump any phrases that occur less than 4 times in “Other.” That takes some of the fun out of things since we lose memorable phrases like “I wanna sniff some glue” which the poster above includes. This is data science, not art. It’s not supposed to be fun! While I use ggplot2 pretty much exclusively, the base R <code>pie</code> plot produces pretty clean results that approximate the style of the poster with no embellishment.</p>
+
+<p>Sometimes, late at night, after everyone else is asleep, I hide under the covers, open my laptop and look at... pie charts. <a href="https://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=00018S ">Ed Tufte</a> says I will go blind if I keep doing it. Still, for the sake of bringing this full circle (ahem) back to the chart that inspired it, let's make a version of Grayhood's poster with our data. So it's not a complete mess, we lump any phrases that occur less than 4 times in "Other." That takes some of the fun out of things since we lose memorable phrases like "I wanna sniff some glue" which the poster above includes. This is data science, not art. It's not supposed to be fun! While I use ggplot2 pretty much exclusively, the base R <code>pie</code> plot produces pretty clean results that approximate the style of the poster with no embellishment.</p>
+
+```{=html}
 <pre class="sourceCode r"><code>collapsed_want &lt;- ultimate_want %&gt;%
   filter(Sentiment==&quot;Want&quot;) %&gt;%
   mutate(want = ifelse(n&lt;4,&quot;Other&quot;,want)) %&gt;%
@@ -394,7 +471,10 @@ p +
           density=30,
           bg=&quot;sienna&quot;,
           main=&quot;The Ramones Want...&quot;))</code></pre>
-<p><img src="img/unnamed-chunk-13-1.png" width="672" /></p>
+```
+<p><img src="img/unnamed-chunk-13-1.png" width="672"/></p>
+
+```{=html}
 <pre class="sourceCode r"><code>collapsed_want &lt;- ultimate_want %&gt;%
   filter(Sentiment==&quot;Don&#39;t Want&quot;) %&gt;%
   mutate(n = -n) %&gt;% 
@@ -412,6 +492,8 @@ p +
           density=30,
           bg=&quot;sienna&quot;,
           main=&quot;The RAMONES Don&#39;t Want...&quot;))</code></pre>
-<p><img src="img/unnamed-chunk-14-1.png" width="672" /></p>
-<p>It must be comforting to know the Ramones want you more than anything but they aren’t going down to the basement with you. Okay, so maybe this was a little fun. Thanks for reading!</p>
-</div>
+```
+<p><img src="img/unnamed-chunk-14-1.png" width="672"/></p>
+
+<p>It must be comforting to know the Ramones want you more than anything but they aren't going down to the basement with you. Okay, so maybe this was a little fun. Thanks for reading!</p>
+:::
