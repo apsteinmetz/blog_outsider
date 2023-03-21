@@ -7,3 +7,6 @@ title: "Blogroll"
 [Quarto - Publishing Tool for this Blog](https://quarto.org/ "Publishing Tool for this Blog")
 
 [Posit - The Open Source Data Science Company](https://posit.co/)
+
+
+
