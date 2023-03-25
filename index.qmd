@@ -15,6 +15,6 @@ listing:
 ![](img/R_logo.svg.png){width="20%"} Putting what's in there, out there. With R!
 
 ::: callout-note
-This blog is for showing my experiments in R coding. If you are interested in my musings on investments, my [LinkedIn posts](https://www.linkedin.com/in/asteinmetz/) are the place to find them.
+This blog is for showing my experiments in R coding. If you are interested in my musings on investments, my [LinkedIn posts](https://www.linkedin.com/in/asteinmetz/) are the place to find them.  You can also visit [artsteinmetz.com](https://artsteinmetz.com) for more info.
 :::
 
