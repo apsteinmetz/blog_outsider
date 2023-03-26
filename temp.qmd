@@ -1,0 +1,7 @@
+---
+title: "example of broken link"
+---
+
+![](http://r-statistics.co/screenshots/ggplot_masterlist_2.png){width="488"} [SOURCE](http://r-statistics.co/Top50-Ggplot2-Visualizations-MasterList-R-Code.html)
+
+
