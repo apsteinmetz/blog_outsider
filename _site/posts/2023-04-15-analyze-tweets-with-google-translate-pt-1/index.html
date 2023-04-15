@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.475">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Art Steinmetz">
+<meta name="dcterms.date" content="2023-04-15">
+
+<title>Outsider Data Science - Sentiment Analysis Using Google Translate (Pt. 1)</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/quarto-contrib/fontawesome6-0.1.0/all.css" rel="stylesheet">
+<link href="../../site_libs/quarto-contrib/fontawesome6-0.1.0/latex-fontsize.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Outsider Data Science</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html">
+ <span class="menu-text">Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/asteinmetz/"><i class="bi bi-linkedin" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/adababbage"><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://fosstodon.org/@adababbage"><i class="bi bi-mastodon" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/apsteinmetz"><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"><i class="bi bi-rss" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../blogroll.html">
+ <span class="menu-text"><i class="fa-solid fa-blog" aria-label="blog"></i></span></a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#inspired-by-tidytuesday" id="toc-inspired-by-tidytuesday" class="nav-link active" data-scroll-target="#inspired-by-tidytuesday">Inspired by TidyTuesday</a></li>
+  <li><a href="#african-tweets-and-sentiment" id="toc-african-tweets-and-sentiment" class="nav-link" data-scroll-target="#african-tweets-and-sentiment">African Tweets and Sentiment</a></li>
+  <li><a href="#get-the-data" id="toc-get-the-data" class="nav-link" data-scroll-target="#get-the-data">Get the Data</a></li>
+  <li><a href="#translate-the-tweets" id="toc-translate-the-tweets" class="nav-link" data-scroll-target="#translate-the-tweets">Translate the Tweets</a></li>
+  <li><a href="#save-some-money" id="toc-save-some-money" class="nav-link" data-scroll-target="#save-some-money">Save Some Money</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Sentiment Analysis Using Google Translate (Pt. 1)</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Art Steinmetz </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">April 15, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="inspired-by-tidytuesday" class="level2">
+<h2 class="anchored" data-anchor-id="inspired-by-tidytuesday">Inspired by TidyTuesday</h2>
+<p>Some of the the R data science community participate in a weekly challenge called “Tidy Tuesday,” where an interesting data set is presented for analysis but mostly visualization. There are some tremendous examples of beautiful work posted on <a href="twitter.com">Twitter</a> with the hashtag #tidytuesday.</p>
+</section>
+<section id="african-tweets-and-sentiment" class="level2">
+<h2 class="anchored" data-anchor-id="african-tweets-and-sentiment">African Tweets and Sentiment</h2>
+<p>Recently, the weekly dataset was a collection of over 100,000 tweets, apparently from 2022, in 14 African languages, with sentiment labels. The paper describing the set and methods is <a href="https://arxiv.org/pdf/2302.08956.pdf">here</a> <span class="citation" data-cites="muhammad-etal-2023-semeval">(<a href="#ref-muhammad-etal-2023-semeval" role="doc-biblioref">Muhammad et al. 2023</a>)</span>. The TidyTuesday project and raw data are <a href="https://github.com/rfordatascience/tidytuesday/blob/master/data/2023/2023-02-28/readme.md">here</a>. This is quite a diverse data set including many tweets in English, tweets in languages which, like English, use the Latin character set and tweets in other character sets, including Arabic.</p>
+<p>I saw this as an avenue to ask a couple interesting questions.</p>
+<ol type="1">
+<li>Can we apply sentiment analysis techniques to a translated version of this dataset? How good is Google Translate, anyway?</li>
+<li>Over the past year there has been much talk about the differences in attitudes of the “global north” vs.&nbsp;the “global south.” Does this data set reveal anything about that?</li>
+</ol>
+<p>I saw an opportunity to sharpen my skills in a couple areas, using the Google API for batch translation and using RStudio’s Tidytext and Tidymodels toolsets.</p>
+<p>I split these explorations into four snack-able posts.</p>
+<ol type="1">
+<li>In this post we show how to use Google Cloud Translate to batch translate the entire data set.</li>
+<li>Here we use the Tidytext framework to do sentiment analysis with word valences.</li>
+<li>Next, we’ll compare machine learning approaches in the TidyModels framework to do sentiment analysis on both the native and translated tweets.</li>
+<li>Finally, let’s use the already assigned sentiment tags to explore African attitudes to the “global north.”</li>
+</ol>
+<div class="callout-caution callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Disclaimer
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The usual caveats apply. I am not a social scientist. I am a hobbyist. This is an exercise in R coding so I make no claim that my conclusions about any of this data are valid.</p>
+</div>
+</div>
+</section>
+<section id="get-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="get-the-data">Get the Data</h2>
+<p>Here are the packages we’ll need for this project.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>({</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(googleLanguageR)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(future)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(furrr)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(rvest)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The TidyTuesday github repo has the Afrisenti dataset with all the languages combined. Let’s load it.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>afrisenti <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(<span class="st">'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-02-28/afrisenti.csv'</span>,</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                             <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>afrisenti</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 111,720 × 4
+   language_iso_code tweet                                         label inten…¹
+   &lt;chr&gt;             &lt;chr&gt;                                         &lt;chr&gt; &lt;chr&gt;  
+ 1 amh               አማራ ክልል ፈልቶበታል ልኩን ማስገባት ነው!!! ሙስሊሞችን ጠልቶ 85… nega… dev    
+ 2 amh               ሰውን አንገት በሚያስደፋ መልኩ ዝም ብሎ ሙድ መያዝ....ስልህ ያ ሰው… nega… dev    
+ 3 amh               የቤት ውስጥ ጥቃት – ያለሰሚ – ያለተመልካች                  nega… dev    
+ 4 amh               Ethiopia ወያኔን ለመጣል ምን ድርሻ ነበራችሁ ? ከወደቀ በኋላ ጉ… nega… dev    
+ 5 amh               ኦሮሞ ምንም ቢማር ከብት ነዉ አያስተዉልም ጥንብ ዘረኛ ናቸዉ        nega… dev    
+ 6 amh               ቲሽ ጨለምተኛ ዱቄት 97 ላይ ቆመሃል እንዴ ጊዜው ነጉዷል 2012 ነው… nega… dev    
+ 7 amh               በምዕራብ ኦሮሚያ በሚገኙ በሁለቱ የወለጋ ዞኖች (ምስራቅ ወለጋና ሆሮ … nega… dev    
+ 8 amh               ያየሰው ሺመልስ ላይ የደረሰው ነገር ያሳዝናል። በቃል ኣላምረውም ላይም… nega… dev    
+ 9 amh               ያልተረጋጋች ሀገር ምርጫ አያስፈልጋትም                      nega… dev    
+10 amh               ደደቡ እና አረፋው የኢትዮጵያው ጠ/ሚ አብዪ ከኤርትራው ኣያቶላህ ኢሰያ… nega… dev    
+# … with 111,710 more rows, and abbreviated variable name ¹​intended_use</code></pre>
+</div>
+</div>
+</section>
+<section id="translate-the-tweets" class="level2">
+<h2 class="anchored" data-anchor-id="translate-the-tweets">Translate the Tweets</h2>
+<p>To use Google translate in batch mode we’ll need an API key. I don’t understand Google. For some of their services, like Maps, a single API key is needed. Instead, for Translate, we need a JSON file with the key. Once you get the key, store the file name in your <code>.Renviron</code> file with the key name “GL_AUTH” then the googlelanguageR package will automatically authenticate when it loads.</p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Getting the Google Language API key is a complicated procedure and I won’t detail it here but you can find complete instructions in the <a href="https://cran.r-project.org/web/packages/googleLanguageR/vignettes/setup.html">googlelanguageR package introduction</a>.</p>
+</div>
+</div>
+<p>Once once your key is created you can start translating with R. <em>This isn’t free.</em> Translating over 100,000 tweets cost me about US$15. A couple bucks was wasted because I submitted all the tweets including those in English. You might choose to filter English tweets out first. If you just want to work with the same data set you can download my translations (see below) for FREE.</p>
+<p>I first tried shooting the whole data set into the translation routine but Google protested that I was sending too much. I divided the set into batches of 100 tweets at a time which fixed the problem.</p>
+<p>We can dramatically speed things up using the <code>furrr</code> and <code>future</code> packages to allow parallel processing using just three lines of code. <code>furrr</code> adapts the <code>purrr::map()</code> family of functions to allow parallel execution. Very simple. Amazing!</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>future<span class="sc">::</span><span class="fu">plan</span>(multicore) <span class="co"># will use all available cores</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>batch_size <span class="ot">=</span> <span class="fu">min</span>(<span class="dv">100</span>, <span class="fu">nrow</span>(afrisenti))</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>afrisenti_translated <span class="ot">&lt;-</span> </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fu">nrow</span>(afrisenti) <span class="sc">-</span> batch_size,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">by =</span> batch_size) <span class="sc">|&gt;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  furrr<span class="sc">::</span><span class="fu">future_map_dfr</span>(\(x) {</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">gl_translate</span>(afrisenti<span class="sc">$</span>tweet[(x <span class="sc">+</span> <span class="dv">1</span>)<span class="sc">:</span>(x <span class="sc">+</span> batch_size)])</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    }, <span class="at">.progress =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>future<span class="sc">::</span><span class="fu">plan</span>(sequential) <span class="co"># back to normal</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>It’s worth looking over the code above because it packs a lot of power in few lines and, to me, shows how cool R is. Basically, we identify the batches of rows from the data set we want to ship out to Google and translate them in as many parallel streams as our hardware allows.</p>
+<p>Let’s clean up the data a little.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># merge with source data and clean up a little</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>afrisenti_translated <span class="ot">&lt;-</span> afrisenti_translated <span class="sc">|&gt;</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">na.omit</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>text) <span class="sc">|&gt;</span> </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(afrisenti) <span class="sc">|&gt;</span> </span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rowid_to_column</span>(<span class="at">var =</span> <span class="st">"tweet_num"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tweet_num =</span> <span class="fu">as.numeric</span>(tweet_num))</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">intended_use =</span> <span class="fu">as_factor</span>(intended_use)) <span class="sc">|&gt;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">detectedSourceLanguage =</span> <span class="fu">as_factor</span>(detectedSourceLanguage)) <span class="sc">|&gt;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">language_iso_code =</span> <span class="fu">as_factor</span>(language_iso_code)) <span class="sc">|&gt;</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">label =</span> <span class="fu">as.factor</span>(label))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>While it’s not strictly necessary, I wanted to see the long names for the languages, rather than just 2-character ISO codes. Using Wikipedia I created a file that we can use for reference. The <code>rvest</code> package makes turning an HTML table into a data frame easy. At the same time, let’s make sure the language labels from the data set are consistent with the Google langauge labels.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get languages from wikipedia</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># take the second table on the page</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>iso_lang <span class="ot">&lt;-</span> <span class="fu">html_table</span>(<span class="fu">read_html</span>(<span class="st">"https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes#External_links"</span>))[[<span class="dv">2</span>]]</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># since Wikipedia is subject to frequent change, if the entry doesn't work</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co"># you can get the file here</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># iso_lang &lt;- readr::read_csv('https://raw.githubusercontent.com/apsteinmetz/tidytuesday/master/2023-02-28_african_language/data/iso_lang.csv',</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">#                              show_col_types = FALSE)</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>iso_lang <span class="ot">&lt;-</span> iso_lang <span class="sc">%&gt;%</span> </span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">assigned_language =</span> <span class="st">`</span><span class="at">639-2/T</span><span class="st">`</span>,</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">detected_language =</span> <span class="st">`</span><span class="at">639-1</span><span class="st">`</span>,</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">language =</span> <span class="st">`</span><span class="at">ISO language name</span><span class="st">`</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co"># clean up langauge names</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>afrisenti_translated <span class="ot">&lt;-</span> afrisenti_translated <span class="sc">%&gt;%</span> </span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">language_iso_code =</span> <span class="fu">str_replace_all</span>(language_iso_code,<span class="st">"pt-MZ"</span>,<span class="st">"por"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">language_iso_code =</span> <span class="fu">str_replace_all</span>(language_iso_code,<span class="st">"ary"</span>,<span class="st">"ara"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">language_iso_code =</span> <span class="fu">str_replace_all</span>(language_iso_code,<span class="st">"arq"</span>,<span class="st">"ara"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">language_iso_code =</span> <span class="fu">str_replace_all</span>(language_iso_code,<span class="st">"pcm"</span>,<span class="st">"eng"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">assigned_language =</span> language_iso_code,</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>         <span class="at">detected_language =</span> detectedSourceLanguage) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="fu">select</span>(iso_lang,<span class="sc">-</span>assigned_language)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">detected_long =</span> language) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="fu">select</span>(iso_lang,<span class="sc">-</span>detected_language)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">assigned_long =</span> language)</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a><span class="co"># save it for later use</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(afrisenti_translated,<span class="at">file=</span><span class="st">"data/afrisenti_translated.rdata"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="save-some-money" class="level2">
+<h2 class="anchored" data-anchor-id="save-some-money">Save Some Money</h2>
+<p>That done, YOU don’t want to pay $15 and you don’t have to. Let’s download the translated Afrisenti data set from my repo instead.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>afrisenti_translated <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(<span class="st">'https://raw.githubusercontent.com/apsteinmetz/tidytuesday/master/2023-02-28_african_language/data/afrisenti_translated.csv'</span>,</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                                        <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>afrisenti_translated</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 111,720 × 9
+   tweet_num translatedText  detec…¹ assig…² tweet label inten…³ detec…⁴ assig…⁵
+       &lt;dbl&gt; &lt;chr&gt;           &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  
+ 1         1 Amhara region … am      amh     አማራ … nega… dev     Amharic Amharic
+ 2         2 Having a mood … am      amh     ሰውን … nega… dev     Amharic Amharic
+ 3         3 Domestic viole… am      amh     የቤት … nega… dev     Amharic Amharic
+ 4         4 Ethiopia, what… am      amh     Ethi… nega… dev     Amharic Amharic
+ 5         5 No matter how … am      amh     ኦሮሞ … nega… dev     Amharic Amharic
+ 6         6 Tish, dark pow… am      amh     ቲሽ ጨ… nega… dev     Amharic Amharic
+ 7         7 Local resident… am      amh     በምዕራ… nega… dev     Amharic Amharic
+ 8         8 What happened … am      amh     ያየሰው… nega… dev     Amharic Amharic
+ 9         9 An unstable co… am      amh     ያልተረ… nega… dev     Amharic Amharic
+10        10 The idiot and … am      amh     ደደቡ … nega… dev     Amharic Amharic
+# … with 111,710 more rows, and abbreviated variable names ¹​detected_language,
+#   ²​assigned_language, ³​intended_use, ⁴​detected_long, ⁵​assigned_long</code></pre>
+</div>
+</div>
+<p>Now that the hard work is done let’s do some preliminary checks, Let’s see if the language that Google detects agrees with the assigned language in the data set. First we convert the language long names to factors and see how many levels there are. These are the 13 assigned languages.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>afrisenti_translated <span class="ot">&lt;-</span> afrisenti_translated <span class="sc">|&gt;</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">contains</span>(<span class="st">"long"</span>),\(x) <span class="fu">as.factor</span>(x)))</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(afrisenti_translated<span class="sc">$</span>assigned_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "Amharic"     "Arabic"      "English"     "Hausa"       "Igbo"       
+ [6] "Kinyarwanda" "Oromo"       "Portuguese"  "Swahili"     "Tigrinya"   
+[11] "Tsonga"      "Twi"         "Yoruba"     </code></pre>
+</div>
+</div>
+<p>Here are the languages that Google detects.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(afrisenti_translated<span class="sc">$</span>detected_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "Afrikaans"                     "Akan"                         
+ [3] "Amharic"                       "Arabic"                       
+ [5] "Aymara"                        "Bambara"                      
+ [7] "Basque"                        "Bengali"                      
+ [9] "Bosnian"                       "Bulgarian"                    
+[11] "Catalan, Valencian"            "Chichewa, Chewa, Nyanja"      
+[13] "Chinese"                       "Corsican"                     
+[15] "Croatian"                      "Czech"                        
+[17] "Danish"                        "Dutch, Flemish"               
+[19] "English"                       "Esperanto"                    
+[21] "Estonian"                      "Ewe"                          
+[23] "Finnish"                       "French"                       
+[25] "Gaelic, Scottish Gaelic"       "Galician"                     
+[27] "Ganda"                         "German"                       
+[29] "Greek, Modern (1453–)"         "Guarani"                      
+[31] "Gujarati"                      "Haitian, Haitian Creole"      
+[33] "Hausa"                         "Hindi"                        
+[35] "Hungarian"                     "Igbo"                         
+[37] "Indonesian"                    "Irish"                        
+[39] "Italian"                       "Japanese"                     
+[41] "Javanese"                      "Kannada"                      
+[43] "Kinyarwanda"                   "Korean"                       
+[45] "Kurdish"                       "Latin"                        
+[47] "Latvian"                       "Lingala"                      
+[49] "Luxembourgish, Letzeburgesch"  "Malagasy"                     
+[51] "Malay"                         "Malayalam"                    
+[53] "Maltese"                       "Maori"                        
+[55] "Marathi"                       "Norwegian"                    
+[57] "Oromo"                         "Pashto, Pushto"               
+[59] "Persian"                       "Polish"                       
+[61] "Portuguese"                    "Quechua"                      
+[63] "Romanian, Moldavian, Moldovan" "Russian"                      
+[65] "Samoan"                        "Shona"                        
+[67] "Sindhi"                        "Slovak"                       
+[69] "Slovenian"                     "Somali"                       
+[71] "Southern Sotho"                "Spanish, Castilian"           
+[73] "Sundanese"                     "Swahili"                      
+[75] "Swedish"                       "Tamil"                        
+[77] "Telugu"                        "Tigrinya"                     
+[79] "Tsonga"                        "Turkish"                      
+[81] "Turkmen"                       "Ukrainian"                    
+[83] "Urdu"                          "Uzbek"                        
+[85] "Vietnamese"                    "Welsh"                        
+[87] "Western Frisian"               "Xhosa"                        
+[89] "Yoruba"                        "Zulu"                         </code></pre>
+</div>
+</div>
+<p>Uh, oh. 90 detected languages vs.&nbsp;13 assigned languages. Is this a problem? What fraction of tweets are in languages not mentioned in the original set?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>alt_count <span class="ot">&lt;-</span> afrisenti_translated <span class="sc">|&gt;</span> </span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>(detected_long <span class="sc">%in%</span> <span class="fu">levels</span>(assigned_long))) <span class="sc">|&gt;</span> </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nrow</span>()<span class="sc">/</span><span class="fu">nrow</span>(afrisenti_translated)<span class="sc">*</span><span class="dv">100</span> </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">paste0</span>(<span class="fu">round</span>(alt_count,<span class="dv">1</span>),<span class="st">"%"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "6.9%"</code></pre>
+</div>
+</div>
+<p>Not a big number. Let’s collapse all but the top 15 languages into an “other” category.</p>
+<p>How frequently does Google disagree with the assigned language?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>afrisenti_translated <span class="ot">&lt;-</span> afrisenti_translated <span class="sc">|&gt;</span> </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">detected_long =</span> <span class="fu">replace_na</span>(<span class="fu">as.character</span>(detected_long,<span class="st">"Unknown"</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">detected_long =</span> <span class="fu">fct_lump_n</span>(detected_long,<span class="dv">15</span>))</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>xt <span class="ot">&lt;-</span> <span class="fu">xtabs</span>(<span class="sc">~</span>afrisenti_translated<span class="sc">$</span>assigned_long <span class="sc">+</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>        afrisenti_translated<span class="sc">$</span>detected_long) <span class="sc">|&gt;</span> </span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">assigned =</span> <span class="dv">1</span>,<span class="at">google =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(assigned) <span class="sc">|&gt;</span> </span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Proportion =</span> n<span class="sc">/</span><span class="fu">sum</span>(n))</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>xt <span class="sc">|&gt;</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(assigned, google,<span class="at">fill=</span>Proportion)) <span class="sc">+</span> <span class="fu">geom_tile</span>() <span class="sc">+</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">"#FFBF00"</span>, <span class="at">high =</span> <span class="st">"#007000"</span>) <span class="sc">+</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="st">"#FDECCD"</span>, <span class="at">color =</span> <span class="cn">NA</span>),</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.ticks =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>,<span class="at">vjust =</span> .<span class="dv">7</span>,<span class="at">hjust =</span> .<span class="dv">6</span>), </span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.background =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid =</span> <span class="fu">element_blank</span>()</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"African Languages Tweets</span><span class="sc">\n</span><span class="st">Q: Does Google Detect The Same Language?"</span>,</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"A: Almost Entirely"</span>,</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Afrisenti Assigned Language"</span>,</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Google Translate Detected Language"</span>,</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"source: Afrisenti Data Set"</span></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The fact that disagreement about the tweet language is so rare gives us some confidence that we are on the right track.</p>
+<p>Then look at the first row.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>afrisenti_translated<span class="sc">$</span>tweet[<span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "አማራ ክልል ፈልቶበታል ልኩን ማስገባት ነው!!! ሙስሊሞችን ጠልቶ 85% ሙስሊሞች በሚኖርባት ኦሮምያ ጋር ግንኙነትን አትሰበው !!!"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>afrisenti_translated<span class="sc">$</span>translatedText[<span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Amhara region needs moderation!!! He hates Muslims and does not think of relations with Oromia, where 85% of Muslims live!!!"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>afrisenti_translated<span class="sc">$</span>label[<span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "negative"</code></pre>
+</div>
+</div>
+<p>A quick glance at the translation shows obviously negative sentiment. We are off to a promising start. In the next post we’ll use the tidytext framework to measure the net balance of sentiment for each tweet.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
+<div id="ref-muhammad-etal-2023-semeval" class="csl-entry" role="doc-biblioentry">
+Muhammad, Shamsuddeen Hassan, Seid Yimam, Idris Abdulmumin, Ibrahim Sa’id Ahmad, Ousidhoum Nedjma, Ayele Abinew, David Adelani, et al. 2023. <span>“<span>S</span>em<span>E</span>val-2023 Task 12: Sentiment Analysis for African Languages (<span>A</span>fri<span>S</span>enti-<span>S</span>em<span>E</span>val).”</span> In <em>Proceedings of the 17th International Workshop on Semantic Evaluation (SemEval-2023)</em>.
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'alternate';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

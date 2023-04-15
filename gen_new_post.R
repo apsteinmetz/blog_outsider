@@ -7,7 +7,7 @@ new_post <- function(
     description = "",
     author = "Art Steinmetz",
     date = Sys.Date(),
-    draft = FALSE,
+    draft = TRUE,
     title_limit = 40,
     open_file = TRUE
 ){
@@ -91,3 +91,4 @@ new_post <- function(
   }
 
 }
+
