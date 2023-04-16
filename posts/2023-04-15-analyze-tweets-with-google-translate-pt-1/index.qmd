@@ -22,13 +22,13 @@ I saw this as an avenue to ask a couple interesting questions.
 1.  Can we apply sentiment analysis techniques to a translated version of this dataset? How good is Google Translate, anyway?
 2.  Over the past year there has been much talk about the differences in attitudes of the "global north" vs. the "global south." Does this data set reveal anything about that?
 
-I saw an opportunity to sharpen my skills in a couple areas, using the Google API for batch translation and using RStudio's Tidytext and Tidymodels toolsets.
+I also saw an opportunity to sharpen my skills in a couple areas, using the Google API for batch translation and using RStudio's Tidytext and Tidymodels toolsets.
 
 I split these explorations into four snack-able posts.
 
 1.  In this post we show how to use Google Cloud Translate to batch translate the entire data set.
-2.  Here we use the Tidytext framework to do sentiment analysis with word valences.
-3.  Next, we'll compare machine learning approaches in the TidyModels framework to do sentiment analysis on both the native and translated tweets.
+2.  Here we use the tidytext framework to do sentiment analysis with word valences.
+3.  Next, we'll compare machine learning approaches in the tidymodels framework to do sentiment analysis on both the native and translated tweets.
 4.  Finally, let's use the already assigned sentiment tags to explore African attitudes to the "global north."
 
 ::: callout-caution
@@ -108,7 +108,7 @@ afrisenti_translated <- afrisenti_translated |>
   mutate(label = as.factor(label))
 ```
 
-While it's not strictly necessary, I wanted to see the long names for the languages, rather than just 2-character ISO codes. Using Wikipedia I created a file that we can use for reference. The `rvest` package makes turning an HTML table into a data frame easy. At the same time, let's make sure the language labels from the data set are consistent with the Google langauge labels.
+While it's not strictly necessary, I wanted to see the long names for the languages, rather than just 2-character ISO codes. Using Wikipedia I created a file that we can use for reference. The `rvest` package makes turning an HTML table into a data frame easy. At the same time, let's make sure the language labels from the data set are consistent with the Google language labels.
 
 ```{r}
 #| eval: false
@@ -155,6 +155,8 @@ afrisenti_translated <- readr::read_csv('https://raw.githubusercontent.com/apste
                                         show_col_types = FALSE)
 afrisenti_translated
 ```
+
+## Do a Reality Check
 
 Now that the hard work is done let's do some preliminary checks, Let's see if the language that Google detects agrees with the assigned language in the data set. First we convert the language long names to factors and see how many levels there are. These are the 13 assigned languages.
 
@@ -226,9 +228,10 @@ The fact that disagreement about the tweet language is so rare gives us some con
 Then look at the first row.
 
 ```{r}
-afrisenti_translated$tweet[1]
-afrisenti_translated$translatedText[1]
-afrisenti_translated$label[1]
+print(cat(
+afrisenti_translated$tweet[1],"\n",
+afrisenti_translated$translatedText[1],"\n",
+afrisenti_translated$label[1]))
 
 ```
 

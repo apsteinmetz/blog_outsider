@@ -31,12 +31,12 @@
 <li>Can we apply sentiment analysis techniques to a translated version of this dataset? How good is Google Translate, anyway?</li>
 <li>Over the past year there has been much talk about the differences in attitudes of the “global north” vs.&nbsp;the “global south.” Does this data set reveal anything about that?</li>
 </ol>
-<p>I saw an opportunity to sharpen my skills in a couple areas, using the Google API for batch translation and using RStudio’s Tidytext and Tidymodels toolsets.</p>
+<p>I also saw an opportunity to sharpen my skills in a couple areas, using the Google API for batch translation and using RStudio’s Tidytext and Tidymodels toolsets.</p>
 <p>I split these explorations into four snack-able posts.</p>
 <ol type="1">
 <li>In this post we show how to use Google Cloud Translate to batch translate the entire data set.</li>
-<li>Here we use the Tidytext framework to do sentiment analysis with word valences.</li>
-<li>Next, we’ll compare machine learning approaches in the TidyModels framework to do sentiment analysis on both the native and translated tweets.</li>
+<li>Here we use the tidytext framework to do sentiment analysis with word valences.</li>
+<li>Next, we’ll compare machine learning approaches in the tidymodels framework to do sentiment analysis on both the native and translated tweets.</li>
 <li>Finally, let’s use the already assigned sentiment tags to explore African attitudes to the “global north.”</li>
 </ol>
 <div class="callout-caution callout callout-style-default callout-captioned">
@@ -134,7 +134,7 @@ Note
 <span id="cb5-10">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">language_iso_code =</span> <span class="fu" style="color: #4758AB;">as_factor</span>(language_iso_code)) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
 <span id="cb5-11">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">label =</span> <span class="fu" style="color: #4758AB;">as.factor</span>(label))</span></code></pre></div>
 </div>
-<p>While it’s not strictly necessary, I wanted to see the long names for the languages, rather than just 2-character ISO codes. Using Wikipedia I created a file that we can use for reference. The <code>rvest</code> package makes turning an HTML table into a data frame easy. At the same time, let’s make sure the language labels from the data set are consistent with the Google langauge labels.</p>
+<p>While it’s not strictly necessary, I wanted to see the long names for the languages, rather than just 2-character ISO codes. Using Wikipedia I created a file that we can use for reference. The <code>rvest</code> package makes turning an HTML table into a data frame easy. At the same time, let’s make sure the language labels from the data set are consistent with the Google language labels.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><span class="co" style="color: #5E5E5E;"># get languages from wikipedia</span></span>
 <span id="cb6-2"><span class="co" style="color: #5E5E5E;"># take the second table on the page</span></span>
@@ -193,6 +193,9 @@ Note
 #   ²​assigned_language, ³​intended_use, ⁴​detected_long, ⁵​assigned_long</code></pre>
 </div>
 </div>
+</section>
+<section id="do-a-reality-check" class="level2">
+<h2 class="anchored" data-anchor-id="do-a-reality-check">Do a Reality Check</h2>
 <p>Now that the hard work is done let’s do some preliminary checks, Let’s see if the language that Google detects agrees with the assigned language in the data set. First we convert the language long names to factors and see how many levels there are. These are the 13 assigned languages.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">afrisenti_translated <span class="ot" style="color: #003B4F;">&lt;-</span> afrisenti_translated <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
@@ -306,17 +309,14 @@ Note
 <p>The fact that disagreement about the tweet language is so rare gives us some confidence that we are on the right track.</p>
 <p>Then look at the first row.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1">afrisenti_translated<span class="sc" style="color: #5E5E5E;">$</span>tweet[<span class="dv" style="color: #AD0000;">1</span>]</span></code></pre></div>
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><span class="fu" style="color: #4758AB;">print</span>(<span class="fu" style="color: #4758AB;">cat</span>(</span>
+<span id="cb16-2">afrisenti_translated<span class="sc" style="color: #5E5E5E;">$</span>tweet[<span class="dv" style="color: #AD0000;">1</span>],<span class="st" style="color: #20794D;">"</span><span class="sc" style="color: #5E5E5E;">\n</span><span class="st" style="color: #20794D;">"</span>,</span>
+<span id="cb16-3">afrisenti_translated<span class="sc" style="color: #5E5E5E;">$</span>translatedText[<span class="dv" style="color: #AD0000;">1</span>],<span class="st" style="color: #20794D;">"</span><span class="sc" style="color: #5E5E5E;">\n</span><span class="st" style="color: #20794D;">"</span>,</span>
+<span id="cb16-4">afrisenti_translated<span class="sc" style="color: #5E5E5E;">$</span>label[<span class="dv" style="color: #AD0000;">1</span>]))</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "አማራ ክልል ፈልቶበታል ልኩን ማስገባት ነው!!! ሙስሊሞችን ጠልቶ 85% ሙስሊሞች በሚኖርባት ኦሮምያ ጋር ግንኙነትን አትሰበው !!!"</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1">afrisenti_translated<span class="sc" style="color: #5E5E5E;">$</span>translatedText[<span class="dv" style="color: #AD0000;">1</span>]</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "Amhara region needs moderation!!! He hates Muslims and does not think of relations with Oromia, where 85% of Muslims live!!!"</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1">afrisenti_translated<span class="sc" style="color: #5E5E5E;">$</span>label[<span class="dv" style="color: #AD0000;">1</span>]</span></code></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "negative"</code></pre>
+<pre><code>አማራ ክልል ፈልቶበታል ልኩን ማስገባት ነው!!! ሙስሊሞችን ጠልቶ 85% ሙስሊሞች በሚኖርባት ኦሮምያ ጋር ግንኙነትን አትሰበው !!! 
+ Amhara region needs moderation!!! He hates Muslims and does not think of relations with Oromia, where 85% of Muslims live!!! 
+ negativeNULL</code></pre>
 </div>
 </div>
 <p>A quick glance at the translation shows obviously negative sentiment. We are off to a promising start. In the next post we’ll use the tidytext framework to measure the net balance of sentiment for each tweet.</p>
