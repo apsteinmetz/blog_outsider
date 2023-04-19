@@ -14,4 +14,111 @@ execute:
 
 ## In Our Last Episode...
 
-In part one of this series we translated the afrisenti dataset using the Google Cloud Translate API. This dataset contains a little over 100,000 tweets in 13 different African languages. We saw that , at first glance, Google Translate does a good job on these languages.
+In [part one of this series](https://outsiderdata.netlify.app/posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/) we translated the afrisenti dataset using the Google Cloud Translate API. This dataset contains a little over 100,000 tweets in 13 different African languages[@Muhammad2023AfriSentiAT]. We saw that , at first glance, Google Translate does a good job on these languages. Are the translations good enough to run sentiment analysis on?
+
+## Measuring Sentiment
+
+Now that we have all of the tweets translated into English we can use sentiment tools calibrated to the English language. We will try two different approaches. For both we'll compare the measured sentiment of the English tweet to the assigned sentiment in the dataset. How close can we get to 100% agreement?
+
+1.  Measure the sentiment "valence" of each word as either positive or negative and take the balance of positive vs. negative as the sentiment of the tweet.
+2.  Negation turns a positive sentiment into a negative one. "I do not like" has one positive word, "like," but is clearly a negative sentiment. Rather than measure each word, we can run a sentence-level model to see if we get a better result.
+
+## Sentiment Measurement at the Word Level
+
+We will be using the tidytext package in this project and following the approach shown in the ["Introduction to tidytext" by Julia Silge and Dave Robinson](https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html).
+
+First load the needed packages and the translated tweets from part one of this project.
+
+```{r}
+#load libaries
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(tidytext)
+  library(hunspell)
+  library(SnowballC)
+})
+afrisenti_translated <- readr::read_csv('https://raw.githubusercontent.com/apsteinmetz/tidytuesday/master/2023-02-28_african_language/data/afrisenti_translated.csv',
+                                        show_col_types = FALSE) |> 
+  mutate(tweet_sentiment = as.factor(label))
+afrisenti_translated
+```
+
+The `tidytext` package makes it easy to divide each tweet into separate words and measure the sentiment valence of each one. We decide the sentiment of each word using two of the sentiment databases included with `tidytext`, "afinn" and "bing. If a word is not in one of these databases we code it as"0" or neutral. Further, we need to use the stems of words. "Idiots" is not in our sentiment databases, "idiot" is. Word stemming will fix that. The `Hunspell` package using `hunspell_stem()` will do the trick. It returns a list of possible stems (usually just one) so we have to `unnest()` the list column. The tradeoff is that if the word is not in `hunspell`'s dictionary, it drops the word. Fortunately, there are over 49,000 words in the dictionary.
+
+```{r}
+tweet_word_sentiment <- afrisenti_translated %>%
+  select(tweet_num, translatedText, tweet_sentiment) %>%
+  unnest_tokens(word, translatedText) |>
+  anti_join(stop_words, by = join_by(word)) %>%
+  mutate(word = hunspell_stem(word)) |> 
+  unnest(word) |> 
+  left_join(get_sentiments("afinn"),
+            multiple = "all",
+            by = join_by(word)) %>%
+  mutate(value = replace_na(value, 0)) %>%
+  rename(sentiment_afinn = value) %>%
+  left_join(get_sentiments("bing"),
+            multiple = "all",
+            by = join_by(word)) %>%
+  mutate(sentiment = replace_na(sentiment, "neutral")) %>%
+  rowwise() %>%
+  mutate(sentiment_bing = switch(
+    sentiment,
+    "negative" = -1,
+    "neutral" = 0,
+    "positive" = 1
+  )) |> 
+  select(-sentiment)
+```
+
+There is an important difference between the two sentiment databases. "Bing" is just positive, negative or neutral. "Afinn" has degrees running from -5 to +5. I don't know who decided that "superb" gets a "5" and "euphoric" gets a "4," but there you are. We can see how the valences are distributed in our tweets.
+
+```{r}
+tweet_word_sentiment |> 
+  pivot_longer(cols = c("sentiment_afinn","sentiment_bing"),names_to = "database",values_to = "valence") |> 
+  ggplot(aes(valence,fill = database)) + 
+  geom_histogram(position = "dodge",bins = 10)
+```
+
+Let's look at just one example to see how this works.
+
+```{r}
+afrisenti_translated$translatedText[45]
+```
+
+```{r}
+tweet_word_sentiment |> 
+  filter(tweet_num == "45") |> 
+  select(-tweet_sentiment)
+```
+
+The benefits and drawbacks of stemming are apparent. We can find the stem of "idiots" and "cannibals" but "unforgivable" gets changed to "forgivable" which flips its sentiment. No matter because neither word is in either sentiment database. There are no positive words in this tweet so the sum of all the valences is negative, which matches with the assigned sentiment.
+
+We might expect that the finer granularity of the "afinn" database would yield a better result but we'll see.
+
+Add up the valences for each tweet to arrive at the net sentiment.
+
+```{r}
+tweet_sentiment <- tweet_word_sentiment %>% 
+  group_by(tweet_num) %>% 
+  summarise(sentiment_afinn = as.integer(sum(sentiment_afinn)),
+            sentiment_bing = as.integer(sum(sentiment_bing)),
+            .groups = "keep") %>% 
+  left_join(afrisenti_translated,by = join_by(tweet_num)) %>% 
+  mutate(label_afinn = cut(sentiment_afinn,breaks = c( -Inf,-1,0,Inf),
+                           labels=c("negative","neutral","positive"))) %>% 
+  mutate(label_bing = cut(sentiment_bing,breaks = c( -Inf,-1,0,Inf),
+                           labels=c("negative","neutral","positive"))) |> 
+  select(tweet_num,translatedText,label,label_afinn,label_bing)
+
+tweet_sentiment
+```
+
+Whew. So how did we do?
+
+```{r}
+caret::confusionMatrix(table(tweet_sentiment$label,tweet_sentiment$label_afinn))
+```
+```{r}
+caret::confusionMatrix(table(tweet_sentiment$label,tweet_sentiment$label_bing))
+```
