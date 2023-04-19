@@ -9,6 +9,8 @@ execute:
   freeze: true
 ---
 
+Can an English speaker use Google Cloud Translate to conduct experiments with natural language processing? Let's fund out.
+
 ## Inspired by TidyTuesday
 
 Some of the the R data science community participate in a weekly challenge called "Tidy Tuesday," where an interesting data set is presented for analysis but mostly visualization. There are some tremendous examples of beautiful work posted on [Twitter](twitter.com) with the hashtag #tidytuesday.

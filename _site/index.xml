@@ -9,7 +9,7 @@
 <link>outsiderdata.netlify.app/index.html</link>
 <atom:link href="outsiderdata.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Putting what&#39;s in there, out there. With R!</description>
-<generator>quarto-1.2.475</generator>
+<generator>quarto-1.2.335</generator>
 <lastBuildDate>Sat, 15 Apr 2023 04:00:00 GMT</lastBuildDate>
 <item>
   <title>Sentiment Analysis Using Google Translate (Pt. 1)</title>
@@ -19,6 +19,7 @@
 
 
 
+<p>Can an English speaker use Google Cloud Translate to conduct experiments with natural language processing? Let’s fund out.</p>
 <section id="inspired-by-tidytuesday" class="level2">
 <h2 class="anchored" data-anchor-id="inspired-by-tidytuesday">Inspired by TidyTuesday</h2>
 <p>Some of the the R data science community participate in a weekly challenge called “Tidy Tuesday,” where an interesting data set is presented for analysis but mostly visualization. There are some tremendous examples of beautiful work posted on <a href="twitter.com">Twitter</a> with the hashtag #tidytuesday.</p>
