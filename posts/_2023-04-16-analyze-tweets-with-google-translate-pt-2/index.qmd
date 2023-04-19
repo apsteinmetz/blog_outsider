@@ -29,25 +29,27 @@ We will be using the tidytext package in this project and following the approach
 
 First load the needed packages and the translated tweets from part one of this project.
 
-```{r}
+```{r load}
+#| warning: false
 #load libaries
 suppressPackageStartupMessages({
   library(tidyverse)
   library(tidytext)
   library(hunspell)
-  library(SnowballC)
+  library(sentimentr)
+  library(magrittr)
 })
 afrisenti_translated <- readr::read_csv('https://raw.githubusercontent.com/apsteinmetz/tidytuesday/master/2023-02-28_african_language/data/afrisenti_translated.csv',
                                         show_col_types = FALSE) |> 
-  mutate(tweet_sentiment = as.factor(label))
+  mutate(label = as.factor(label))
 afrisenti_translated
 ```
 
 The `tidytext` package makes it easy to divide each tweet into separate words and measure the sentiment valence of each one. We decide the sentiment of each word using two of the sentiment databases included with `tidytext`, "afinn" and "bing. If a word is not in one of these databases we code it as"0" or neutral. Further, we need to use the stems of words. "Idiots" is not in our sentiment databases, "idiot" is. Word stemming will fix that. The `Hunspell` package using `hunspell_stem()` will do the trick. It returns a list of possible stems (usually just one) so we have to `unnest()` the list column. The tradeoff is that if the word is not in `hunspell`'s dictionary, it drops the word. Fortunately, there are over 49,000 words in the dictionary.
 
-```{r}
+```{r tokenize}
 tweet_word_sentiment <- afrisenti_translated %>%
-  select(tweet_num, translatedText, tweet_sentiment) %>%
+  select(tweet_num, translatedText, label) %>%
   unnest_tokens(word, translatedText) |>
   anti_join(stop_words, by = join_by(word)) %>%
   mutate(word = hunspell_stem(word)) |> 
@@ -73,7 +75,7 @@ tweet_word_sentiment <- afrisenti_translated %>%
 
 There is an important difference between the two sentiment databases. "Bing" is just positive, negative or neutral. "Afinn" has degrees running from -5 to +5. I don't know who decided that "superb" gets a "5" and "euphoric" gets a "4," but there you are. We can see how the valences are distributed in our tweets.
 
-```{r}
+```{r distribution}
 tweet_word_sentiment |> 
   pivot_longer(cols = c("sentiment_afinn","sentiment_bing"),names_to = "database",values_to = "valence") |> 
   ggplot(aes(valence,fill = database)) + 
@@ -82,14 +84,13 @@ tweet_word_sentiment |>
 
 Let's look at just one example to see how this works.
 
-```{r}
+```{r one sample}
 afrisenti_translated$translatedText[45]
 ```
 
 ```{r}
 tweet_word_sentiment |> 
-  filter(tweet_num == "45") |> 
-  select(-tweet_sentiment)
+  filter(tweet_num == "45")
 ```
 
 The benefits and drawbacks of stemming are apparent. We can find the stem of "idiots" and "cannibals" but "unforgivable" gets changed to "forgivable" which flips its sentiment. No matter because neither word is in either sentiment database. There are no positive words in this tweet so the sum of all the valences is negative, which matches with the assigned sentiment.
@@ -98,27 +99,110 @@ We might expect that the finer granularity of the "afinn" database would yield a
 
 Add up the valences for each tweet to arrive at the net sentiment.
 
-```{r}
+```{r calc each tweet}
 tweet_sentiment <- tweet_word_sentiment %>% 
   group_by(tweet_num) %>% 
   summarise(sentiment_afinn = as.integer(sum(sentiment_afinn)),
             sentiment_bing = as.integer(sum(sentiment_bing)),
             .groups = "keep") %>% 
-  left_join(afrisenti_translated,by = join_by(tweet_num)) %>% 
-  mutate(label_afinn = cut(sentiment_afinn,breaks = c( -Inf,-1,0,Inf),
-                           labels=c("negative","neutral","positive"))) %>% 
-  mutate(label_bing = cut(sentiment_bing,breaks = c( -Inf,-1,0,Inf),
-                           labels=c("negative","neutral","positive"))) |> 
-  select(tweet_num,translatedText,label,label_afinn,label_bing)
+  ungroup() |> 
+  left_join(afrisenti_translated,by = join_by(tweet_num))
 
 tweet_sentiment
 ```
-
-Whew. So how did we do?
+We have numeric valences so we have to make a choice what to label each number.  Obviously, zero is neutral but should we expand the neutral range to, say -1 to +1?  Sadly, no.  The summary below shows that we assigned far more neutral labels than the original data set has.  This is not a good omen.  We wish we had more granularity.
 
 ```{r}
-caret::confusionMatrix(table(tweet_sentiment$label,tweet_sentiment$label_afinn))
+tweet_sentiment <- tweet_sentiment |> 
+  mutate(label_afinn = as.factor(cut(sentiment_afinn,
+                                     breaks = c( -Inf,-1,0,Inf),                         labels=c("negative","neutral","positive")))) %>% 
+  mutate(label_bing = as.factor(cut(sentiment_bing,
+                          breaks = c( -Inf,-1,0,Inf), labels=c("negative","neutral","positive")))) |> 
+  select(tweet_num,translatedText,label,label_afinn,label_bing)
+
+summary(tweet_sentiment)
 ```
+**Results**
+How did we do? We can generate a confusion matrix with some additional statistics to look at the agreement of our measurements vs. the human classifiers. Ideally all the observations would lie on the diagonal from top left to bottom right. First, we'll test the "afinn" sentiment.
+
+```{r evaluate}
+xt <- table(tweet_sentiment$label,tweet_sentiment$label_afinn)
+xt
+```
+
 ```{r}
-caret::confusionMatrix(table(tweet_sentiment$label,tweet_sentiment$label_bing))
+caret::confusionMatrix(xt) |> 
+  broom::tidy() |> 
+  slice_head(n=2)
+```
+
+Now we'll look at the "bing" measures.
+
+```{r}
+xt <- table(tweet_sentiment$label,tweet_sentiment$label_bing)
+xt
+```
+
+```{r}
+caret::confusionMatrix(xt) |> 
+  broom::tidy() |> 
+  slice_head(n=2)
+```
+
+As we look at the matrix there are many, many incorrect classifications. The accuracy for both of these measures is scarcely more that 50%. The "Kappa" statistic shows that we are only about 26% better than random chance. It's not zero but it's not good. Why the disappointing result? First of all, our valence measure isn't opinionated enough.  There are far too many neutral tweets.  Further we don't address negation, as mentioned above. The tweet below illustrates the problem.
+
+```{r illustrate error}
+afrisenti_translated$translatedText[28670]
+```
+
+```{r}
+tweet_word_sentiment |> 
+  filter(tweet_num == "28670")
+```
+
+Unless the negation is itself a negative valence word, many negative tweets will test as positive. In this example "peaceful" is positive but "don't want" clearly flips it.
+
+**A More Sophisticated Approach**
+
+There are a number of approaches to solve the negation problem. A simple one is to combine negation words like "no" and "not" with the subsequent one. We will use this approach in our next post attempting machine learning. Here we'll try sentence-level measurment using the `sentimentr` package. This package understands negation better.  Our test tweet from above is a challenge. This is since the negation of "peaceful" comes eight words before "not." Setting `n.before = Inf` captures this but comes at the expense of  slower processing speed and potentially more false negatives.
+
+```{r}
+mytweets <- "Why don't America want the world to be peaceful"
+
+sentimentr::sentiment(mytweets,n.before = Inf)
+```
+
+With that noted, lets forge ahead.
+
+We are using a less common pipe operator below, `%$%` from the `magrittr` package, which expands the list-column created by `get_sentences`. Normally I would use `tidyr::unnest()` to do this but it loses the special object class that `sentiment_by()` needs.
+
+```{r}
+tictoc::tic()
+tweet_sentence <- tweet_sentiment |>  
+  mutate(sentence = get_sentences(translatedText)) %$%
+  sentiment_by(sentence,list(tweet_num),n.before = Inf)
+tictoc::toc()
+
+hist(tweet_sentence$ave_sentiment,breaks = 50)
+
+tweet_sentiment |> group_by(label) |> 
+  count() |> 
+  ungroup() |> 
+  mutate(p = n/sum(n))
+```
+
+
+```{r}
+low = -0.01
+high = 0.12
+tweet_sentence <- tweet_sentence |> 
+  as_tibble() |> 
+  mutate(label_sentence = cut(ave_sentiment,breaks = c( -Inf,low,high,Inf), labels=c("negative","neutral","positive")))
+
+tweet_sentence |> group_by(label_sentence) |> 
+  count() |> 
+  ungroup() |> 
+  mutate(p = n/sum(n))
+
+
 ```

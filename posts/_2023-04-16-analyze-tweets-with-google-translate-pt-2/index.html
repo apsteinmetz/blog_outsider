@@ -239,7 +239,7 @@ div.csl-indent {
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(valence,<span class="at">fill =</span> database)) <span class="sc">+</span> </span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">position =</span> <span class="st">"dodge"</span>,<span class="at">bins =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+<p><img src="index_files/figure-html/distribution-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Let’s look at just one example to see how this works.</p>
@@ -301,77 +301,77 @@ div.csl-indent {
 #   ²​label_bing</code></pre>
 </div>
 </div>
-<p>Whew. So how did we do?</p>
+<p>Whew. So how did we do? We can generate a confusion matrix with some additional statistics to look at the agreement of our measurements vs.&nbsp;the human classifiers. Ideally all the observations would lie on the diagonal from top left to bottom right. First, we’ll test the “afinn” sentiment.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(<span class="fu">table</span>(tweet_sentiment<span class="sc">$</span>label,tweet_sentiment<span class="sc">$</span>label_afinn))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>xt <span class="ot">&lt;-</span> <span class="fu">table</span>(tweet_sentiment<span class="sc">$</span>label,tweet_sentiment<span class="sc">$</span>label_afinn)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>xt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Confusion Matrix and Statistics
-
-          
+<pre><code>          
            negative neutral positive
   negative    15083   13708     6862
   neutral      7761   22447     7469
-  positive     4721   12001    18134
-
-Overall Statistics
-                                          
-               Accuracy : 0.5145          
-                 95% CI : (0.5115, 0.5175)
-    No Information Rate : 0.4451          
-    P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
-                                          
-                  Kappa : 0.2692          
-                                          
- Mcnemar's Test P-Value : &lt; 2.2e-16       
-
-Statistics by Class:
-
-                     Class: negative Class: neutral Class: positive
-Sensitivity                   0.5472         0.4661          0.5586
-Specificity                   0.7449         0.7463          0.7792
-Pos Pred Value                0.4230         0.5958          0.5203
-Neg Pred Value                0.8279         0.6354          0.8046
-Prevalence                    0.2548         0.4451          0.3001
-Detection Rate                0.1394         0.2075          0.1676
-Detection Prevalence          0.3296         0.3483          0.3222
-Balanced Accuracy             0.6460         0.6062          0.6689</code></pre>
+  positive     4721   12001    18134</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(<span class="fu">table</span>(tweet_sentiment<span class="sc">$</span>label,tweet_sentiment<span class="sc">$</span>label_bing))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(xt) <span class="sc">|&gt;</span> </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Confusion Matrix and Statistics
-
-          
+<pre><code># A tibble: 2 × 6
+  term     class estimate conf.low conf.high p.value
+  &lt;chr&gt;    &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+1 accuracy &lt;NA&gt;     0.515    0.512     0.518       0
+2 kappa    &lt;NA&gt;     0.269   NA        NA          NA</code></pre>
+</div>
+</div>
+<p>Now we’ll look at the “bing” measures.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>xt <span class="ot">&lt;-</span> <span class="fu">table</span>(tweet_sentiment<span class="sc">$</span>label,tweet_sentiment<span class="sc">$</span>label_bing)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>xt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          
            negative neutral positive
   negative    16757   14568     4328
   neutral      8124   23878     5675
-  positive     5345   14940    14571
-
-Overall Statistics
-                                          
-               Accuracy : 0.5103          
-                 95% CI : (0.5073, 0.5133)
-    No Information Rate : 0.4935          
-    P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
-                                          
-                  Kappa : 0.2612          
-                                          
- Mcnemar's Test P-Value : &lt; 2.2e-16       
-
-Statistics by Class:
-
-                     Class: negative Class: neutral Class: positive
-Sensitivity                   0.5544         0.4473          0.5929
-Specificity                   0.7576         0.7482          0.7574
-Pos Pred Value                0.4700         0.6338          0.4180
-Neg Pred Value                0.8143         0.5815          0.8636
-Prevalence                    0.2794         0.4935          0.2271
-Detection Rate                0.1549         0.2207          0.1347
-Detection Prevalence          0.3296         0.3483          0.3222
-Balanced Accuracy             0.6560         0.5977          0.6752</code></pre>
+  positive     5345   14940    14571</code></pre>
 </div>
 </div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(xt) <span class="sc">|&gt;</span> </span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 6
+  term     class estimate conf.low conf.high   p.value
+  &lt;chr&gt;    &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+1 accuracy &lt;NA&gt;     0.510    0.507     0.513  9.38e-29
+2 kappa    &lt;NA&gt;     0.261   NA        NA     NA       </code></pre>
+</div>
+</div>
+<p>As we look at the matrix there are many, many incorrect classifications. The accuracy for both of these measures is scarcely more that 50%. The “Kappa” statistic shows that we are only about 26% better than random chance. It’s not zero but it’s not good. Why the disappointing result? The tweet below provides a clue.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>afrisenti_translated<span class="sc">$</span>translatedText[<span class="dv">28670</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "@user Why don't America want the world to be peaceful 🤔🤔🤔"</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>tweet_word_sentiment <span class="sc">|&gt;</span> </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(tweet_num <span class="sc">==</span> <span class="st">"28670"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>tweet_sentiment)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+# Rowwise: 
+  tweet_num word     sentiment_afinn sentiment_bing
+      &lt;dbl&gt; &lt;chr&gt;              &lt;dbl&gt;          &lt;dbl&gt;
+1     28670 user                   0              0
+2     28670 world                  0              0
+3     28670 peaceful               2              1</code></pre>
+</div>
+</div>
+<p>Our method doesn’t understand negation well. Unless the negation is itself a negative valence word, many negative tweets will test as positive. In this example “peaceful” is positive but “don’t want” clearly flips it.</p>
+<p><strong>A More Sophisticated Approach</strong></p>
 
 </section>
 
