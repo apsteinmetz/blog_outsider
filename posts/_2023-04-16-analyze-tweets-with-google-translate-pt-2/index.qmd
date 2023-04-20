@@ -110,7 +110,8 @@ tweet_sentiment <- tweet_word_sentiment %>%
 
 tweet_sentiment
 ```
-We have numeric valences so we have to make a choice what to label each number.  Obviously, zero is neutral but should we expand the neutral range to, say -1 to +1?  Sadly, no.  The summary below shows that we assigned far more neutral labels than the original data set has.  This is not a good omen.  We wish we had more granularity.
+
+We have numeric valences so we have to make a choice what to label each number. Obviously, zero is neutral but should we expand the neutral range to, say -1 to +1? Sadly, no. The summary below shows that we assigned far more neutral labels than the original data set has. This is not a good omen. We wish we had more granularity.
 
 ```{r}
 tweet_sentiment <- tweet_sentiment |> 
@@ -122,8 +123,8 @@ tweet_sentiment <- tweet_sentiment |>
 
 summary(tweet_sentiment)
 ```
-**Results**
-How did we do? We can generate a confusion matrix with some additional statistics to look at the agreement of our measurements vs. the human classifiers. Ideally all the observations would lie on the diagonal from top left to bottom right. First, we'll test the "afinn" sentiment.
+
+**Results** How did we do? We can generate a confusion matrix with some additional statistics to look at the agreement of our measurements vs. the human classifiers. Ideally all the observations would lie on the diagonal from top left to bottom right. First, we'll test the "afinn" sentiment.
 
 ```{r evaluate}
 xt <- table(tweet_sentiment$label,tweet_sentiment$label_afinn)
@@ -149,7 +150,7 @@ caret::confusionMatrix(xt) |>
   slice_head(n=2)
 ```
 
-As we look at the matrix there are many, many incorrect classifications. The accuracy for both of these measures is scarcely more that 50%. The "Kappa" statistic shows that we are only about 26% better than random chance. It's not zero but it's not good. Why the disappointing result? First of all, our valence measure isn't opinionated enough.  There are far too many neutral tweets.  Further we don't address negation, as mentioned above. The tweet below illustrates the problem.
+As we look at the matrix there are many, many incorrect classifications. The accuracy for both of these measures is scarcely more that 50%. The "Kappa" statistic shows that we are only about 26% better than random chance. It's not zero but it's not good. Why the disappointing result? First of all, our valence measure isn't opinionated enough. There are far too many neutral tweets. Further we don't address negation, as mentioned above. The tweet below illustrates the problem.
 
 ```{r illustrate error}
 afrisenti_translated$translatedText[28670]
@@ -164,35 +165,50 @@ Unless the negation is itself a negative valence word, many negative tweets will
 
 **A More Sophisticated Approach**
 
-There are a number of approaches to solve the negation problem. A simple one is to combine negation words like "no" and "not" with the subsequent one. We will use this approach in our next post attempting machine learning. Here we'll try sentence-level measurment using the `sentimentr` package. This package understands negation better.  Our test tweet from above is a challenge. This is since the negation of "peaceful" comes eight words before "not." Setting `n.before = Inf` captures this but comes at the expense of  slower processing speed and potentially more false negatives.
+There are a number of approaches to solve the negation problem. A simple one is to combine negation words like "no" and "not" with the subsequent one. We will use this approach in our next post attempting machine learning. Here we'll try sentence-level measurment using the `sentimentr` package. This package understands negation better. Our test tweet from above is a challenge. This is since the negation of "peaceful" comes eight words before "not." The default of `n.before = 5` doesn't give us the right answer.
 
 ```{r}
 mytweets <- "Why don't America want the world to be peaceful"
 
+sentimentr::sentiment(mytweets,n.before = 5)
+```
+
+Setting `n.before = Inf` captures this but comes at the expense of slower processing speed and potentially more false negatives.
+
+```{r}
 sentimentr::sentiment(mytweets,n.before = Inf)
 ```
 
 With that noted, lets forge ahead.
 
-We are using a less common pipe operator below, `%$%` from the `magrittr` package, which expands the list-column created by `get_sentences`. Normally I would use `tidyr::unnest()` to do this but it loses the special object class that `sentiment_by()` needs.
+As before, we start by breaking the tweets up into constituent parts, sentences in this case. Most tweets will be just one sentence of course. Again we compute a sentiment score, this time with the `sentiment_by()` function. It yields a finer grained sentiment score.
 
-```{r}
-tictoc::tic()
-tweet_sentence <- tweet_sentiment |>  
+::: callout-note
+I am using a less common pipe operator below, `%$%` from the `magrittr` package, which expands the list-column created by `get_sentences`. Normally I would use `tidyr::unnest()` to do this but it loses the special object class that `sentiment_by()` needs.
+:::
+
+Before we look at the tweet-level sentiment let's group by language.  This lets us see if the sentiment measure is consistent across languages.
+
+```{r sentences by language}
+tweet_sentence <- afrisenti_translated |>  
+  mutate(sentence = get_sentences(translatedText)) %$%
+  sentiment_by(sentence,list(assigned_long),n.before = Inf)
+
+# There is a built-in plot method for 'sentiment_by()' objects.
+plot(tweet_sentence)
+```
+The red diamond is the average sentiment across all tweets. It does look consistent.
+
+Now let's assign a valence to each tweet and look at the distribution of values.
+```{r sentences by tweetnum}
+tweet_sentence <- afrisenti_translated |>  
   mutate(sentence = get_sentences(translatedText)) %$%
   sentiment_by(sentence,list(tweet_num),n.before = Inf)
-tictoc::toc()
 
 hist(tweet_sentence$ave_sentiment,breaks = 50)
-
-tweet_sentiment |> group_by(label) |> 
-  count() |> 
-  ungroup() |> 
-  mutate(p = n/sum(n))
 ```
-
-
-```{r}
+The median of this distribution is zero but there are far fewer tweets that are of exactly zero valence so we can expand the range of neutral.  I tried to balance the data to match the distribution of sentiment in the original data as closely as possible.
+```{r cut sentence valence}
 low = -0.01
 high = 0.12
 tweet_sentence <- tweet_sentence |> 
@@ -203,6 +219,40 @@ tweet_sentence |> group_by(label_sentence) |>
   count() |> 
   ungroup() |> 
   mutate(p = n/sum(n))
+```
 
+Compare our distribution to the original.
+```{r compare distribution}
+orig <- tweet_sentiment |> 
+  group_by(label) |> 
+  count() |> 
+  ungroup() |> 
+  mutate(original = n/sum(n))
+trans <- tweet_sentence |> 
+  rename(label = label_sentence) |> 
+  group_by(label) |> 
+  count() |> 
+  ungroup() |> 
+  mutate(translation = n/sum(n))
+
+left_join(orig,trans,by="label") |> 
+  pivot_longer(c(original,translation),
+               names_to = "dataset",values_to = "proportion") |> 
+  group_by(label) |> 
+  ggplot(aes(label,proportion,fill=dataset)) + geom_col(position = "dodge")
+```
+As you can see, we are pretty balanced.  This is kind of cheating because we are calibrating the category breakpoints to the known data.  We should be calibrating to a training set and then see how it works on the test set.  Let's just see if the in-sample fit is any good first.
+```{r sentence results}
+combo <- left_join(tweet_sentiment,tweet_sentence,by="tweet_num")
+xt <- table(combo$label,combo$label_sentence)
+xt
+```
+
+```{r}
+caret::confusionMatrix(xt) |> 
+  broom::tidy() |> 
+  slice_head(n=2)
+```
 
 ```
+
