@@ -268,117 +268,125 @@ div.csl-indent {
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>tweet_sentiment <span class="ot">&lt;-</span> tweet_word_sentiment <span class="sc">%&gt;%</span> </span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(tweet_num) <span class="sc">%&gt;%</span> </span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">sentiment_afinn =</span> <span class="fu">as.integer</span>(<span class="fu">sum</span>(sentiment_afinn)),</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">sentiment_bing =</span> <span class="fu">as.integer</span>(<span class="fu">sum</span>(sentiment_bing)),</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">.groups =</span> <span class="st">"keep"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(afrisenti_translated,<span class="at">by =</span> <span class="fu">join_by</span>(tweet_num))</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>tweet_sentiment</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 108,186 × 11
-   tweet_num senti…¹ senti…² trans…³ detec…⁴ assig…⁵ tweet label inten…⁶ detec…⁷
-       &lt;dbl&gt;   &lt;int&gt;   &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt; &lt;fct&gt; &lt;chr&gt;   &lt;chr&gt;  
- 1         1      -3      -1 Amhara… am      amh     አማራ … nega… dev     Amharic
- 2         2      -2      -1 Having… am      amh     ሰውን … nega… dev     Amharic
- 3         3      -3       0 Domest… am      amh     የቤት … nega… dev     Amharic
- 4         4       0      -2 Ethiop… am      amh     Ethi… nega… dev     Amharic
- 5         5      -2      -2 No mat… am      amh     ኦሮሞ … nega… dev     Amharic
- 6         6       0      -3 Tish, … am      amh     ቲሽ ጨ… nega… dev     Amharic
- 7         7      -1       0 Local … am      amh     በምዕራ… nega… dev     Amharic
- 8         8      -8      -3 What h… am      amh     ያየሰው… nega… dev     Amharic
- 9         9      -2      -1 An uns… am      amh     ያልተረ… nega… dev     Amharic
-10        10      -5      -1 The id… am      amh     ደደቡ … nega… dev     Amharic
-# … with 108,176 more rows, 1 more variable: assigned_long &lt;chr&gt;, and
-#   abbreviated variable names ¹​sentiment_afinn, ²​sentiment_bing,
-#   ³​translatedText, ⁴​detected_language, ⁵​assigned_language, ⁶​intended_use,
-#   ⁷​detected_long</code></pre>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>            <span class="at">sentiment_bing =</span> <span class="fu">as.integer</span>(<span class="fu">sum</span>(sentiment_bing))) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">full_join</span>(afrisenti_translated,<span class="at">by =</span> <span class="fu">join_by</span>(tweet_num)) <span class="sc">|&gt;</span> </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">language =</span> <span class="fu">as_factor</span>(assigned_long)) <span class="sc">|&gt;</span> </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># set NA sentiment to neutral</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">contains</span>(<span class="st">"sentiment"</span>),<span class="sc">~</span><span class="fu">replace_na</span>(.x,<span class="dv">0</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</div>
-<p>We have numeric valences so we have to make a choice what to label each number. Obviously, zero is neutral but should we expand the neutral range to, say -1 to +1? Sadly, no. The summary below shows that we assigned far more neutral labels than the original data set has. This is not a good omen. We wish we had more granularity.</p>
+<p>We have numeric valences so we have to make a choice what to label each number. Obviously, zero is neutral but should we expand the neutral range to, say -1 to +1? Sadly, no. The summary below shows that we already assigned far more neutral labels than the original data set has. This is not a good omen. We wish we had more granularity.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>tweet_sentiment <span class="ot">&lt;-</span> tweet_sentiment <span class="sc">|&gt;</span> </span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">label_afinn =</span> <span class="fu">as.factor</span>(<span class="fu">cut</span>(sentiment_afinn,</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">breaks =</span> <span class="fu">c</span>( <span class="sc">-</span><span class="cn">Inf</span>,<span class="sc">-</span><span class="dv">1</span>,<span class="dv">0</span>,<span class="cn">Inf</span>),                         <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"negative"</span>,<span class="st">"neutral"</span>,<span class="st">"positive"</span>)))) <span class="sc">%&gt;%</span> </span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">label_bing =</span> <span class="fu">as.factor</span>(<span class="fu">cut</span>(sentiment_bing,</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">breaks =</span> <span class="fu">c</span>( <span class="sc">-</span><span class="cn">Inf</span>,<span class="sc">-</span><span class="dv">1</span>,<span class="dv">0</span>,<span class="cn">Inf</span>), <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"negative"</span>,<span class="st">"neutral"</span>,<span class="st">"positive"</span>)))) <span class="sc">|&gt;</span> </span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(tweet_num,translatedText,label,label_afinn,label_bing)</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(tweet_sentiment)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>tweet_sentiment <span class="ot">&lt;-</span> tweet_sentiment <span class="sc">|&gt;</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">label_afinn =</span> <span class="fu">as.factor</span>(<span class="fu">cut</span>(sentiment_afinn,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">breaks =</span> <span class="fu">c</span>( <span class="sc">-</span><span class="cn">Inf</span>,<span class="sc">-</span><span class="dv">1</span>,<span class="dv">0</span>,<span class="cn">Inf</span>),                         <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"negative"</span>,<span class="st">"neutral"</span>,<span class="st">"positive"</span>)))) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">label_bing =</span> <span class="fu">as.factor</span>(<span class="fu">cut</span>(sentiment_bing,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>                          <span class="at">breaks =</span> <span class="fu">c</span>( <span class="sc">-</span><span class="cn">Inf</span>,<span class="sc">-</span><span class="dv">1</span>,<span class="dv">0</span>,<span class="cn">Inf</span>), <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"negative"</span>,<span class="st">"neutral"</span>,<span class="st">"positive"</span>)))) <span class="sc">|&gt;</span> </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(language,tweet_num,translatedText,label,label_afinn,label_bing)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(tweet_sentiment)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>   tweet_num      translatedText          label         label_afinn   
- Min.   :     1   Length:108186      negative:35653   negative:27565  
- 1st Qu.: 28390   Class :character   neutral :37677   neutral :48156  
- Median : 56155   Mode  :character   positive:34856   positive:32465  
- Mean   : 56001                                                       
- 3rd Qu.: 83624                                                       
- Max.   :111720                                                       
-    label_bing   
- negative:30226  
- neutral :53386  
- positive:24574  
-                 
-                 
-                 </code></pre>
+<pre><code>    language       tweet_num      translatedText          label      
+ Hausa  :22152   Min.   :     1   Length:111720      negative:36564  
+ Igbo   :15715   1st Qu.: 27931   Class :character   neutral :39151  
+ Yoruba :15127   Median : 55861   Mode  :character   positive:36005  
+ Arabic :12061   Mean   : 55861                                      
+ English:10556   3rd Qu.: 83790                                      
+ Amharic: 9480   Max.   :111720                                      
+ (Other):26629                                                       
+   label_afinn       label_bing   
+ negative:27565   negative:30226  
+ neutral :51690   neutral :56920  
+ positive:32465   positive:24574  
+                                  
+                                  
+                                  
+                                  </code></pre>
 </div>
 </div>
 <p><strong>Results</strong> How did we do? We can generate a confusion matrix with some additional statistics to look at the agreement of our measurements vs.&nbsp;the human classifiers. Ideally all the observations would lie on the diagonal from top left to bottom right. First, we’ll test the “afinn” sentiment.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>xt <span class="ot">&lt;-</span> <span class="fu">table</span>(tweet_sentiment<span class="sc">$</span>label,tweet_sentiment<span class="sc">$</span>label_afinn)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>xt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>xt <span class="ot">&lt;-</span> <span class="fu">table</span>(tweet_sentiment<span class="sc">$</span>label,tweet_sentiment<span class="sc">$</span>label_afinn)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>xt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          
            negative neutral positive
-  negative    15083   13708     6862
-  neutral      7761   22447     7469
-  positive     4721   12001    18134</code></pre>
+  negative    15083   14619     6862
+  neutral      7761   23921     7469
+  positive     4721   13150    18134</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(xt) <span class="sc">|&gt;</span> </span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(xt) <span class="sc">|&gt;</span> </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 6
-  term     class estimate conf.low conf.high p.value
-  &lt;chr&gt;    &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
-1 accuracy &lt;NA&gt;     0.515    0.512     0.518       0
-2 kappa    &lt;NA&gt;     0.269   NA        NA          NA</code></pre>
+  term     class estimate conf.low conf.high    p.value
+  &lt;chr&gt;    &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+1 accuracy &lt;NA&gt;     0.511    0.509     0.514  6.86e-234
+2 kappa    &lt;NA&gt;     0.264   NA        NA     NA        </code></pre>
 </div>
 </div>
 <p>Now we’ll look at the “bing” measures.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>xt <span class="ot">&lt;-</span> <span class="fu">table</span>(tweet_sentiment<span class="sc">$</span>label,tweet_sentiment<span class="sc">$</span>label_bing)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>xt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>xt <span class="ot">&lt;-</span> <span class="fu">table</span>(tweet_sentiment<span class="sc">$</span>label,tweet_sentiment<span class="sc">$</span>label_bing)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>xt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          
            negative neutral positive
-  negative    16757   14568     4328
-  neutral      8124   23878     5675
-  positive     5345   14940    14571</code></pre>
+  negative    16757   15479     4328
+  neutral      8124   25352     5675
+  positive     5345   16089    14571</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(xt) <span class="sc">|&gt;</span> </span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(xt) <span class="sc">|&gt;</span> </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 6
-  term     class estimate conf.low conf.high   p.value
-  &lt;chr&gt;    &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
-1 accuracy &lt;NA&gt;     0.510    0.507     0.513  9.38e-29
-2 kappa    &lt;NA&gt;     0.261   NA        NA     NA       </code></pre>
+  term     class estimate conf.low conf.high p.value
+  &lt;chr&gt;    &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+1 accuracy &lt;NA&gt;     0.507    0.504     0.510   0.925
+2 kappa    &lt;NA&gt;     0.256   NA        NA      NA    </code></pre>
 </div>
 </div>
-<p>As we look at the matrix there are many, many incorrect classifications. The accuracy for both of these measures is scarcely more that 50%. The “Kappa” statistic shows that we are only about 26% better than random chance. It’s not zero but it’s not good. Why the disappointing result? First of all, our valence measure isn’t opinionated enough. There are far too many neutral tweets. Further we don’t address negation, as mentioned above. The tweet below illustrates the problem.</p>
+<p><strong>It’s not me, it’s you.</strong> As we look at the matrix there are many, many incorrect classifications. The accuracy for both of these measures is scarcely more that 50%. The “Kappa” statistic shows that we are only about 26% better than random chance. It’s not zero but it’s not good. Why the disappointing result? First of all, our valence measure isn’t opinionated enough. There are far too many neutral tweets.</p>
+<p>In our defense, I’m not sure the afrisenti sentiment assignements are better. Look at some of the tweets that we think are neutral but have been assigned a positive sentiment in the original data set. Some look pretty neutral to me. Here are 10 random samples.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>afrisenti_translated<span class="sc">$</span>translatedText[<span class="dv">28670</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">11</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>tweet_sentiment <span class="sc">|&gt;</span> </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(label <span class="sc">==</span> <span class="st">"positive"</span> <span class="sc">&amp;</span> label_afinn <span class="sc">==</span> <span class="st">"neutral"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">10</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(translatedText)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 1
+   translatedText                                                               
+   &lt;chr&gt;                                                                        
+ 1 "\U0001f605\U0001f605 You can always walk away from footing from 3a 22h"     
+ 2 "-2- Media institutions that try to follow the ethics of journalism seriousl…
+ 3 "@user Haha Alabali Desiree Rak Payne \U0001f60b"                            
+ 4 "tfarejto f cinema aflam w series espania niveau tala3"                      
+ 5 "np long lead on with"                                                       
+ 6 "#PmGrooveWithTeddy @user @user #NowPlayingOnStarFm -CHUKWU AGOZIGO GI RMX @…
+ 7 "just make a metal bucket"                                                   
+ 8 "@user Take it away djo"                                                     
+ 9 "Frank please send us your account information via text message DM for more …
+10 "RT @user: Have you heard that the government of Lagos State under the admin…</code></pre>
+</div>
+</div>
+<p>But maybe that just means Google Translate has stripped some of the emotion out of them that is present in the original language. I don’t know.</p>
+<p>Further, we don’t address negation, as mentioned above. The tweet below illustrates the problem.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>afrisenti_translated<span class="sc">$</span>translatedText[<span class="dv">28670</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "@user Why don't America want the world to be peaceful 🤔🤔🤔"</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>tweet_word_sentiment <span class="sc">|&gt;</span> </span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(tweet_num <span class="sc">==</span> <span class="st">"28670"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>tweet_word_sentiment <span class="sc">|&gt;</span> </span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(tweet_num <span class="sc">==</span> <span class="st">"28670"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 × 5
 # Rowwise: 
@@ -393,9 +401,9 @@ div.csl-indent {
 <p><strong>A More Sophisticated Approach</strong></p>
 <p>There are a number of approaches to solve the negation problem. A simple one is to combine negation words like “no” and “not” with the subsequent one. We will use this approach in our next post attempting machine learning. Here we’ll try sentence-level measurment using the <code>sentimentr</code> package. This package understands negation better. Our test tweet from above is a challenge. This is since the negation of “peaceful” comes eight words before “not.” The default of <code>n.before = 5</code> doesn’t give us the right answer.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>mytweets <span class="ot">&lt;-</span> <span class="st">"Why don't America want the world to be peaceful"</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>sentimentr<span class="sc">::</span><span class="fu">sentiment</span>(mytweets,<span class="at">n.before =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>mytweets <span class="ot">&lt;-</span> <span class="st">"Why don't America want the world to be peaceful"</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>sentimentr<span class="sc">::</span><span class="fu">sentiment</span>(mytweets,<span class="at">n.before =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   element_id sentence_id word_count sentiment
 1:          1           1          9      0.25</code></pre>
@@ -403,7 +411,7 @@ div.csl-indent {
 </div>
 <p>Setting <code>n.before = Inf</code> captures this but comes at the expense of slower processing speed and potentially more false negatives.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>sentimentr<span class="sc">::</span><span class="fu">sentiment</span>(mytweets,<span class="at">n.before =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>sentimentr<span class="sc">::</span><span class="fu">sentiment</span>(mytweets,<span class="at">n.before =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   element_id sentence_id word_count sentiment
 1:          1           1          9     -0.25</code></pre>
@@ -421,100 +429,113 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>I am using a less common pipe operator below, <code>%$%</code> from the <code>magrittr</code> package, which expands the list-column created by <code>get_sentences</code>. Normally I would use <code>tidyr::unnest()</code> to do this but it loses the special object class that <code>sentiment_by()</code> needs.</p>
+<p>I am using a less common pipe operator below, <code>%$%</code> from the <code>magrittr</code> package, which expands the list-column created by <code>get_sentences</code>. Normally I would use <code>tidyr::unnest()</code> to do this but it loses the special object class that <code>sentiment_by()</code> needs. The <code>sentimentr</code> package uses the fast <code>data.table</code> vernacular, not the <code>dplyr</code> one, which I mostly use here.</p>
 </div>
 </div>
 <p>Before we look at the tweet-level sentiment let’s group by language. This lets us see if the sentiment measure is consistent across languages.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>tweet_sentence <span class="ot">&lt;-</span> afrisenti_translated <span class="sc">|&gt;</span>  </span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sentence =</span> <span class="fu">get_sentences</span>(translatedText)) <span class="sc">%$%</span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sentiment_by</span>(sentence,<span class="fu">list</span>(assigned_long),<span class="at">n.before =</span> <span class="cn">Inf</span>)</span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="co"># There is a built-in plot method for 'sentiment_by()' objects.</span></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(tweet_sentence)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<p>The red diamond is the average sentiment across all tweets. It does look consistent.</p>
-<p>Now let’s assign a valence to each tweet and look at the distribution of values.</p>
-<div class="cell">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>tweet_sentence <span class="ot">&lt;-</span> afrisenti_translated <span class="sc">|&gt;</span>  </span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sentence =</span> <span class="fu">get_sentences</span>(translatedText)) <span class="sc">%$%</span></span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sentiment_by</span>(sentence,<span class="fu">list</span>(tweet_num),<span class="at">n.before =</span> <span class="cn">Inf</span>)</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(tweet_sentence<span class="sc">$</span>ave_sentiment,<span class="at">breaks =</span> <span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">language =</span> <span class="fu">as.factor</span>(assigned_long)) <span class="sc">|&gt;</span> </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">sentence =</span> <span class="fu">get_sentences</span>(translatedText)) <span class="sc">%$%</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sentiment_by</span>(sentence,<span class="fu">list</span>(language,tweet_num),<span class="at">n.before =</span> <span class="cn">Inf</span>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>avgs <span class="ot">&lt;-</span> tweet_sentence <span class="sc">|&gt;</span> </span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(language) <span class="sc">|&gt;</span> </span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">ave_sentiment =</span> <span class="fu">mean</span>(ave_sentiment))</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the sentiment distribution by language</span></span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>tweet_sentence <span class="sc">|&gt;</span></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># make the size manageble</span></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n=</span><span class="dv">1000</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(language) <span class="sc">|&gt;</span></span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">sentiment =</span> ave_sentiment) <span class="sc">|&gt;</span></span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span> <span class="fu">geom_boxplot</span>(</span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">y =</span> sentiment, <span class="at">x =</span> language),</span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="cn">NA</span>,</span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"grey70"</span>,</span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="fl">0.55</span>,</span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="fl">0.35</span>,</span>
+<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">outlier.color =</span> <span class="cn">NA</span></span>
+<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(</span>
+<span id="cb30-26"><a href="#cb30-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">y =</span> sentiment, <span class="at">x =</span> language),</span>
+<span id="cb30-27"><a href="#cb30-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">width =</span> <span class="fl">0.35</span>,</span>
+<span id="cb30-28"><a href="#cb30-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">height =</span> <span class="dv">0</span>,</span>
+<span id="cb30-29"><a href="#cb30-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.15</span>,</span>
+<span id="cb30-30"><a href="#cb30-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="fl">1.5</span></span>
+<span id="cb30-31"><a href="#cb30-31" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb30-32"><a href="#cb30-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb30-33"><a href="#cb30-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> avgs,</span>
+<span id="cb30-34"><a href="#cb30-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">y =</span> ave_sentiment, <span class="at">x =</span> language),</span>
+<span id="cb30-35"><a href="#cb30-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"red"</span>,</span>
+<span id="cb30-36"><a href="#cb30-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">shape =</span> <span class="dv">18</span>,</span>
+<span id="cb30-37"><a href="#cb30-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">size =</span> <span class="dv">4</span>) <span class="sc">+</span></span>
+<span id="cb30-38"><a href="#cb30-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Sentiment"</span>) <span class="sc">+</span> <span class="fu">xlab</span>(<span class="st">"Language"</span>) <span class="sc">+</span></span>
+<span id="cb30-39"><a href="#cb30-39" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">coord_flip</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+<p><img src="index_files/figure-html/sentences%20by%20language-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>The median of this distribution is zero but there are far fewer tweets that are of exactly zero valence so we can expand the range of neutral. I tried to balance the data to match the distribution of sentiment in the original data as closely as possible.</p>
+<p>The red diamond is the average sentiment across all tweets. It does look fairly consistent.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>low <span class="ot">=</span> <span class="sc">-</span><span class="fl">0.01</span></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>high <span class="ot">=</span> <span class="fl">0.12</span></span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>tweet_sentence <span class="ot">&lt;-</span> tweet_sentence <span class="sc">|&gt;</span> </span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">label_sentence =</span> <span class="fu">cut</span>(ave_sentiment,<span class="at">breaks =</span> <span class="fu">c</span>( <span class="sc">-</span><span class="cn">Inf</span>,low,high,<span class="cn">Inf</span>), <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"negative"</span>,<span class="st">"neutral"</span>,<span class="st">"positive"</span>)))</span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>tweet_sentence <span class="sc">|&gt;</span> <span class="fu">group_by</span>(label_sentence) <span class="sc">|&gt;</span> </span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">p =</span> n<span class="sc">/</span><span class="fu">sum</span>(n))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 3 × 3
-  label_sentence     n     p
-  &lt;fct&gt;          &lt;int&gt; &lt;dbl&gt;
-1 negative       32958 0.295
-2 neutral        40020 0.358
-3 positive       38742 0.347</code></pre>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(tweet_sentence<span class="sc">$</span>ave_sentiment,<span class="at">breaks =</span> <span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/sentences%20by%20tweetnum-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We no longer have the problem where too many tweets are neutral. The median of this distribution is zero but there are far fewer tweets that are of exactly zero valence. This let’s us expand the range of neutral above and below zero. I tried to balance the data to match the distribution of sentiment in the original data as closely as possible.</p>
+<p>While we’re at it let’s put our results together.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># picked these levels to balance the data set</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>low <span class="ot">=</span> <span class="sc">-</span><span class="fl">0.01</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>high <span class="ot">=</span> <span class="fl">0.12</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>tweet_sentence <span class="ot">&lt;-</span> tweet_sentence <span class="sc">|&gt;</span> </span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">label_sentence =</span> <span class="fu">cut</span>(ave_sentiment,<span class="at">breaks =</span> <span class="fu">c</span>( <span class="sc">-</span><span class="cn">Inf</span>,low,high,<span class="cn">Inf</span>), <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"negative"</span>,<span class="st">"neutral"</span>,<span class="st">"positive"</span>)))</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>tweet_sentiment <span class="ot">&lt;-</span> <span class="fu">left_join</span>(tweet_sentiment,tweet_sentence)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Joining with `by = join_by(language, tweet_num)`</code></pre>
 </div>
 </div>
 <p>Compare our distribution to the original.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>orig <span class="ot">&lt;-</span> tweet_sentiment <span class="sc">|&gt;</span> </span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(label) <span class="sc">|&gt;</span> </span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">original =</span> n<span class="sc">/</span><span class="fu">sum</span>(n))</span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>trans <span class="ot">&lt;-</span> tweet_sentence <span class="sc">|&gt;</span> </span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">label =</span> label_sentence) <span class="sc">|&gt;</span> </span>
-<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(label) <span class="sc">|&gt;</span> </span>
-<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">translation =</span> n<span class="sc">/</span><span class="fu">sum</span>(n))</span>
-<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(orig,trans,<span class="at">by=</span><span class="st">"label"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">c</span>(original,translation),</span>
-<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="st">"dataset"</span>,<span class="at">values_to =</span> <span class="st">"proportion"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(label) <span class="sc">|&gt;</span> </span>
-<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(label,proportion,<span class="at">fill=</span>dataset)) <span class="sc">+</span> <span class="fu">geom_col</span>(<span class="at">position =</span> <span class="st">"dodge"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>tweet_sentiment <span class="sc">|&gt;</span> </span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="fu">c</span>(label,label_sentence),</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="st">"dataset"</span>,<span class="at">values_to =</span> <span class="st">"sentiment"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(dataset,sentiment) <span class="sc">|&gt;</span> </span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(dataset) <span class="sc">|&gt;</span> </span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reframe</span>(sentiment,<span class="at">proportion =</span> n<span class="sc">/</span><span class="fu">sum</span>(n)) <span class="sc">|&gt;</span> </span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(sentiment,proportion,<span class="at">fill=</span>dataset)) <span class="sc">+</span> <span class="fu">geom_col</span>(<span class="at">position =</span> <span class="st">"dodge"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+<p><img src="index_files/figure-html/compare%20distribution-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>As you can see, we are pretty balanced. This is kind of cheating because we are calibrating the category breakpoints to the known data. We should be calibrating to a training set and then see how it works on the test set. Let’s just see if the in-sample fit is any good first.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>combo <span class="ot">&lt;-</span> <span class="fu">left_join</span>(tweet_sentiment,tweet_sentence,<span class="at">by=</span><span class="st">"tweet_num"</span>)</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>xt <span class="ot">&lt;-</span> <span class="fu">table</span>(combo<span class="sc">$</span>label,combo<span class="sc">$</span>label_sentence)</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>xt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>xt <span class="ot">&lt;-</span> <span class="fu">with</span>(tweet_sentiment,<span class="fu">table</span>(label,label_sentence))</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>xt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>          
-           negative neutral positive
-  negative    17678   10750     7225
-  neutral      9569   17351    10757
-  positive     5519    8972    20365</code></pre>
+<pre><code>          label_sentence
+label      negative neutral positive
+  negative    17776   11510     7278
+  neutral      9624   18651    10876
+  positive     5558    9859    20588</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(xt) <span class="sc">|&gt;</span> </span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>caret<span class="sc">::</span><span class="fu">confusionMatrix</span>(xt) <span class="sc">|&gt;</span> </span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  broom<span class="sc">::</span><span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n=</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 6
   term     class estimate conf.low conf.high p.value
   &lt;chr&gt;    &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
-1 accuracy &lt;NA&gt;     0.512    0.509     0.515       0
-2 kappa    &lt;NA&gt;     0.268   NA        NA          NA</code></pre>
+1 accuracy &lt;NA&gt;     0.510    0.507     0.513       0
+2 kappa    &lt;NA&gt;     0.265   NA        NA          NA</code></pre>
 </div>
 </div>
 <p>```</p>

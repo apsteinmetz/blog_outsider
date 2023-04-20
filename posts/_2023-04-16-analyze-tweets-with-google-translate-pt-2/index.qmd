@@ -103,15 +103,15 @@ Add up the valences for each tweet to arrive at the net sentiment.
 tweet_sentiment <- tweet_word_sentiment %>% 
   group_by(tweet_num) %>% 
   summarise(sentiment_afinn = as.integer(sum(sentiment_afinn)),
-            sentiment_bing = as.integer(sum(sentiment_bing)),
-            .groups = "keep") %>% 
+            sentiment_bing = as.integer(sum(sentiment_bing))) %>% 
   ungroup() |> 
-  left_join(afrisenti_translated,by = join_by(tweet_num))
-
-tweet_sentiment
+  full_join(afrisenti_translated,by = join_by(tweet_num)) |> 
+  mutate(language = as_factor(assigned_long)) |> 
+  # set NA sentiment to neutral
+  mutate(across(contains("sentiment"),~replace_na(.x,0)))
 ```
 
-We have numeric valences so we have to make a choice what to label each number. Obviously, zero is neutral but should we expand the neutral range to, say -1 to +1? Sadly, no. The summary below shows that we assigned far more neutral labels than the original data set has. This is not a good omen. We wish we had more granularity.
+We have numeric valences so we have to make a choice what to label each number. Obviously, zero is neutral but should we expand the neutral range to, say -1 to +1? Sadly, no. The summary below shows that we already assigned far more neutral labels than the original data set has. This is not a good omen. We wish we had more granularity.
 
 ```{r}
 tweet_sentiment <- tweet_sentiment |> 
@@ -119,12 +119,14 @@ tweet_sentiment <- tweet_sentiment |>
                                      breaks = c( -Inf,-1,0,Inf),                         labels=c("negative","neutral","positive")))) %>% 
   mutate(label_bing = as.factor(cut(sentiment_bing,
                           breaks = c( -Inf,-1,0,Inf), labels=c("negative","neutral","positive")))) |> 
-  select(tweet_num,translatedText,label,label_afinn,label_bing)
+  select(language,tweet_num,translatedText,label,label_afinn,label_bing)
 
 summary(tweet_sentiment)
 ```
 
-**Results** How did we do? We can generate a confusion matrix with some additional statistics to look at the agreement of our measurements vs. the human classifiers. Ideally all the observations would lie on the diagonal from top left to bottom right. First, we'll test the "afinn" sentiment.
+## Results
+
+How did we do? We can generate a confusion matrix with some additional statistics to look at the agreement of our measurements vs. the human classifiers. Ideally all the observations would lie on the diagonal from top left to bottom right. First, we'll test the "afinn" sentiment.
 
 ```{r evaluate}
 xt <- table(tweet_sentiment$label,tweet_sentiment$label_afinn)
@@ -150,7 +152,23 @@ caret::confusionMatrix(xt) |>
   slice_head(n=2)
 ```
 
-As we look at the matrix there are many, many incorrect classifications. The accuracy for both of these measures is scarcely more that 50%. The "Kappa" statistic shows that we are only about 26% better than random chance. It's not zero but it's not good. Why the disappointing result? First of all, our valence measure isn't opinionated enough. There are far too many neutral tweets. Further we don't address negation, as mentioned above. The tweet below illustrates the problem.
+## It's not me, it's you.
+
+As we look at the matrix there are many, many incorrect classifications. The accuracy for both of these measures is scarcely more that 50%. The "Kappa" statistic shows that we are only about 26% better than random chance. It's not zero but it's not good. Why the disappointing result? First of all, our valence measure isn't opinionated enough. There are far too many neutral tweets.
+
+In our defense, I'm not sure the afrisenti sentiment assignements are better. Look at some of the tweets that we think are neutral but have been assigned a positive sentiment in the original data set. Some look pretty neutral to me. Here are 10 random samples.
+
+```{r}
+set.seed(11)
+tweet_sentiment |> 
+  filter(label == "positive" & label_afinn == "neutral") |> 
+  slice_sample(n=10) |> 
+  select(translatedText)
+```
+
+But maybe that just means Google Translate has stripped some of the emotion out of them that is present in the original language. I don't know.
+
+Further, we don't address negation, as mentioned above. The tweet below illustrates the problem.
 
 ```{r illustrate error}
 afrisenti_translated$translatedText[28670]
@@ -184,67 +202,92 @@ With that noted, lets forge ahead.
 As before, we start by breaking the tweets up into constituent parts, sentences in this case. Most tweets will be just one sentence of course. Again we compute a sentiment score, this time with the `sentiment_by()` function. It yields a finer grained sentiment score.
 
 ::: callout-note
-I am using a less common pipe operator below, `%$%` from the `magrittr` package, which expands the list-column created by `get_sentences`. Normally I would use `tidyr::unnest()` to do this but it loses the special object class that `sentiment_by()` needs.
+I am using a less common pipe operator below, `%$%` from the `magrittr` package, which expands the list-column created by `get_sentences`. Normally I would use `tidyr::unnest()` to do this but it loses the special object class that `sentiment_by()` needs. The `sentimentr` package uses the fast `data.table` vernacular, not the `dplyr` one, which I mostly use here.
 :::
 
-Before we look at the tweet-level sentiment let's group by language.  This lets us see if the sentiment measure is consistent across languages.
+Before we look at the tweet-level sentiment let's group by language. This lets us see if the sentiment measure is consistent across languages.
 
 ```{r sentences by language}
 tweet_sentence <- afrisenti_translated |>  
+  mutate(language = as.factor(assigned_long)) |> 
   mutate(sentence = get_sentences(translatedText)) %$%
-  sentiment_by(sentence,list(assigned_long),n.before = Inf)
+  sentiment_by(sentence,list(language,tweet_num),n.before = Inf)
 
-# There is a built-in plot method for 'sentiment_by()' objects.
-plot(tweet_sentence)
+avgs <- tweet_sentence |> 
+  group_by(language) |> 
+  summarise(ave_sentiment = mean(ave_sentiment))
+
+# plot the sentiment distribution by language
+tweet_sentence |>
+  as_tibble() |>
+  # make the size manageble
+  slice_sample(n=1000) |> 
+  group_by(language) |>
+  rename(sentiment = ave_sentiment) |>
+  ggplot() + geom_boxplot(
+    aes(y = sentiment, x = language),
+    fill = NA,
+    color = "grey70",
+    width = 0.55,
+    size = 0.35,
+    outlier.color = NA
+  ) +
+  geom_jitter(
+    aes(y = sentiment, x = language),
+    width = 0.35,
+    height = 0,
+    alpha = 0.15,
+    size = 1.5
+  ) +
+  theme_bw() +
+  geom_point(data = avgs,
+    aes(y = ave_sentiment, x = language),
+    colour = "red",
+    shape = 18,
+    size = 4) +
+  ylab("Sentiment") + xlab("Language") +
+  ggplot2::coord_flip()
 ```
-The red diamond is the average sentiment across all tweets. It does look consistent.
 
-Now let's assign a valence to each tweet and look at the distribution of values.
+The red diamond is the average sentiment across all tweets. It does look fairly consistent.
+
 ```{r sentences by tweetnum}
-tweet_sentence <- afrisenti_translated |>  
-  mutate(sentence = get_sentences(translatedText)) %$%
-  sentiment_by(sentence,list(tweet_num),n.before = Inf)
-
 hist(tweet_sentence$ave_sentiment,breaks = 50)
 ```
-The median of this distribution is zero but there are far fewer tweets that are of exactly zero valence so we can expand the range of neutral.  I tried to balance the data to match the distribution of sentiment in the original data as closely as possible.
+
+We no longer have the problem where too many tweets are neutral. The median of this distribution is zero but there are far fewer tweets that are of exactly zero valence. This let's us expand the range of neutral above and below zero. I tried to balance the data to match the distribution of sentiment in the original data as closely as possible.
+
+While we're at it let's put our results together.
+
 ```{r cut sentence valence}
+# picked these levels to balance the data set
 low = -0.01
 high = 0.12
 tweet_sentence <- tweet_sentence |> 
   as_tibble() |> 
   mutate(label_sentence = cut(ave_sentiment,breaks = c( -Inf,low,high,Inf), labels=c("negative","neutral","positive")))
 
-tweet_sentence |> group_by(label_sentence) |> 
-  count() |> 
-  ungroup() |> 
-  mutate(p = n/sum(n))
+tweet_sentiment <- left_join(tweet_sentiment,tweet_sentence)
 ```
 
 Compare our distribution to the original.
-```{r compare distribution}
-orig <- tweet_sentiment |> 
-  group_by(label) |> 
-  count() |> 
-  ungroup() |> 
-  mutate(original = n/sum(n))
-trans <- tweet_sentence |> 
-  rename(label = label_sentence) |> 
-  group_by(label) |> 
-  count() |> 
-  ungroup() |> 
-  mutate(translation = n/sum(n))
 
-left_join(orig,trans,by="label") |> 
-  pivot_longer(c(original,translation),
-               names_to = "dataset",values_to = "proportion") |> 
-  group_by(label) |> 
-  ggplot(aes(label,proportion,fill=dataset)) + geom_col(position = "dodge")
+```{r compare distribution}
+tweet_sentiment |> 
+    pivot_longer(c(label,label_sentence),
+               names_to = "dataset",values_to = "sentiment") |> 
+  group_by(dataset,sentiment) |> 
+  count() |> 
+  group_by(dataset) |> 
+  reframe(sentiment,proportion = n/sum(n)) |> 
+  ungroup() |> 
+  ggplot(aes(sentiment,proportion,fill=dataset)) + geom_col(position = "dodge")
 ```
-As you can see, we are pretty balanced.  This is kind of cheating because we are calibrating the category breakpoints to the known data.  We should be calibrating to a training set and then see how it works on the test set.  Let's just see if the in-sample fit is any good first.
+
+As you can see, we are pretty balanced. This is kind of cheating because we are calibrating the category breakpoints to the known data. We should be calibrating to a training set and then see how it works on the test set. Let's just see if the in-sample fit is any good first.
+
 ```{r sentence results}
-combo <- left_join(tweet_sentiment,tweet_sentence,by="tweet_num")
-xt <- table(combo$label,combo$label_sentence)
+xt <- with(tweet_sentiment,table(label,label_sentence))
 xt
 ```
 
@@ -254,5 +297,4 @@ caret::confusionMatrix(xt) |>
   slice_head(n=2)
 ```
 
-```
-
+\`\`\`
