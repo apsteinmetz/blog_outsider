@@ -1,5 +1,5 @@
 ---
-title: "analyze tweets with google translate pt 2"
+title: "Sentiment Analysis Using Google Translate (Pt. 2)"
 description: |
   
 author: Art Steinmetz
@@ -11,14 +11,20 @@ bibliography: references.bib
 execute: 
   freeze: true
 ---
+## Introduction
+
+We will use the tidytext framework to measure sentiment of tweets originally in African languages but translated to English. We'll measure sentiment at both the word level and sentence level and see how it agrees with the sentiment, positive, negative or neutral, already assigned in the Afrisenti data set.
 
 ## In Our Last Episode...
 
-In [part one of this series](https://outsiderdata.netlify.app/posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/) we translated the afrisenti dataset using the Google Cloud Translate API. This dataset contains a little over 100,000 tweets in 13 different African languages[@Muhammad2023AfriSentiAT]. We saw that , at first glance, Google Translate does a good job on these languages. Are the translations good enough to run sentiment analysis on?
+In [part one of this series](https://outsiderdata.netlify.app/posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/) we translated the afrisenti dataset using the Google Cloud Translate API. This dataset contains a little over 110,000 tweets in 13 different African languages[@Muhammad2023AfriSentiAT]. We saw that , at first glance, Google Translate does a good job on these languages. Let's ask
+
+1.  Are the translations good enough to run sentiment analysis on?
+2.  Will the sentiments we measure agree with the original data? This is a higher standard, of course.
 
 ## Measuring Sentiment
 
-Now that we have all of the tweets translated into English we can use sentiment tools calibrated to the English language. We will try two different approaches. For both we'll compare the measured sentiment of the English tweet to the assigned sentiment in the dataset. How close can we get to 100% agreement?
+Now that we have all of the tweets translated into English we can use sentiment tools calibrated to the English language. We will try two different approaches. For both we'll compare the measured sentiment of the English tweet to the assigned sentiment in the dataset.
 
 1.  Measure the sentiment "valence" of each word as either positive or negative and take the balance of positive vs. negative as the sentiment of the tweet.
 2.  Negation turns a positive sentiment into a negative one. "I do not like" has one positive word, "like," but is clearly a negative sentiment. Rather than measure each word, we can run a sentence-level model to see if we get a better result.
@@ -39,13 +45,31 @@ suppressPackageStartupMessages({
   library(sentimentr)
   library(magrittr)
 })
+
+# set up some chart defaults
+tan1 <- "#FDECCD"
+yellow1 <- "#FFBF00"
+green1 <- "#007000"
+
+theme_afri <- function(...){
+  # making a function allows passing further theme elements
+  ggplot2::theme(
+    plot.background = element_rect(fill = tan1, color = NA),
+    panel.background = element_blank(),
+    legend.background = element_blank(),
+    legend.box.background = element_blank(),
+    legend.key = element_blank(),
+    ...
+    ) 
+}
 afrisenti_translated <- readr::read_csv('https://raw.githubusercontent.com/apsteinmetz/tidytuesday/master/2023-02-28_african_language/data/afrisenti_translated.csv',
-                                        show_col_types = FALSE) |> 
+                                        show_col_types = FALSE) |>
+  select(tweet_num,assigned_long,translatedText,label) |> 
   mutate(label = as.factor(label))
 afrisenti_translated
 ```
 
-The `tidytext` package makes it easy to divide each tweet into separate words and measure the sentiment valence of each one. We decide the sentiment of each word using two of the sentiment databases included with `tidytext`, "afinn" and "bing. If a word is not in one of these databases we code it as"0" or neutral. Further, we need to use the stems of words. "Idiots" is not in our sentiment databases, "idiot" is. Word stemming will fix that. The `Hunspell` package using `hunspell_stem()` will do the trick. It returns a list of possible stems (usually just one) so we have to `unnest()` the list column. The tradeoff is that if the word is not in `hunspell`'s dictionary, it drops the word. Fortunately, there are over 49,000 words in the dictionary.
+The `tidytext` package makes it easy to divide each tweet into separate words and measure the sentiment valence of each one. We decide the sentiment of each word using two of the sentiment sources included with `tidytext`, "afinn" and "bing." If a word is not in one of these sources we code it as"0" or neutral. Further, we need to use the stems of words. "Idiots" is not in our sentiment sources, "Idiot" is. Word stemming will fix that. The `hunspell` package using `hunspell_stem()` will do the trick. It returns a list of possible stems (usually just one, but not always) so we have to `unnest()` the list column. The tradeoff is that if the word is not in `hunspell`'s dictionary, it drops the word. Fortunately, there are over 49,000 words in the dictionary.
 
 ```{r tokenize}
 tweet_word_sentiment <- afrisenti_translated %>%
@@ -73,13 +97,16 @@ tweet_word_sentiment <- afrisenti_translated %>%
   select(-sentiment)
 ```
 
-There is an important difference between the two sentiment databases. "Bing" is just positive, negative or neutral. "Afinn" has degrees running from -5 to +5. I don't know who decided that "superb" gets a "5" and "euphoric" gets a "4," but there you are. We can see how the valences are distributed in our tweets.
+There is an important difference between the two sentiment sources. "Bing" is just positive, negative or neutral. "Afinn" has degrees running from -5 to +5. I don't know who decided that "superb" gets a "5" and "euphoric" gets a "4," but there you are. We can see how the valences are distributed in our tweets.
 
-```{r distribution}
+```{r plot distribution}
 tweet_word_sentiment |> 
-  pivot_longer(cols = c("sentiment_afinn","sentiment_bing"),names_to = "database",values_to = "valence") |> 
-  ggplot(aes(valence,fill = database)) + 
-  geom_histogram(position = "dodge",bins = 10)
+  pivot_longer(cols = c("sentiment_afinn","sentiment_bing"),names_to = "source",values_to = "valence") |> 
+  ggplot(aes(valence,fill = source)) + 
+  geom_histogram(position = "dodge",bins = 10) + 
+  scale_fill_manual(values = c(yellow1,green1,"black")) +
+  theme_afri() + 
+  labs(title = '"Afinn" Sentiment Database Allows More Nuance')
 ```
 
 Let's look at just one example to see how this works.
@@ -93,9 +120,9 @@ tweet_word_sentiment |>
   filter(tweet_num == "45")
 ```
 
-The benefits and drawbacks of stemming are apparent. We can find the stem of "idiots" and "cannibals" but "unforgivable" gets changed to "forgivable" which flips its sentiment. No matter because neither word is in either sentiment database. There are no positive words in this tweet so the sum of all the valences is negative, which matches with the assigned sentiment.
+The benefits and drawbacks of stemming are apparent. We can find the stem of "idiots" and "cannibals" but "unforgivable" gets changed to "forgivable" which flips its sentiment. No matter because neither word is in either sentiment source. There are no positive words in this tweet so the sum of all the valences is negative, which matches with the assigned sentiment.
 
-We might expect that the finer granularity of the "afinn" database would yield a better result but we'll see.
+We might expect that the finer granularity of the "afinn" source would yield a better result but we'll see.
 
 Add up the valences for each tweet to arrive at the net sentiment.
 
@@ -126,7 +153,31 @@ summary(tweet_sentiment)
 
 ## Results
 
-How did we do? We can generate a confusion matrix with some additional statistics to look at the agreement of our measurements vs. the human classifiers. Ideally all the observations would lie on the diagonal from top left to bottom right. First, we'll test the "afinn" sentiment.
+How did we do? Here are samples of positive-scored tweets along with the original sentiment. If it's not "positive" we disagree.
+
+```{r}
+set.seed(1)
+tweet_sentiment |> 
+  filter(label_afinn == "positive" & label_bing == "positive") |> 
+  slice_sample(n=10) |> 
+  select(label,translatedText)
+```
+
+Our scoring looks pretty good. Where we disagree with Afrisenti, I side with tidytext for the most part.
+
+Here are samples of negative-scored tweets with along the original sentiment.
+
+```{r}
+set.seed(5)
+tweet_sentiment |> 
+  filter(label_afinn == "negative" & label_bing == "negative") |> 
+  slice_sample(n=10) |> 
+  select(label,translatedText)
+```
+
+It's the same story with the negative tweets. We do a reasonable job and the correctness of the original sentiment is arguable. There is a lot of disagreement.
+
+We can generate a confusion matrix with some additional statistics to look at the agreement of our measurements vs. the human classifiers. Ideally all the observations would lie on the diagonal from top left to bottom right. First, we'll test the "afinn" sentiment.
 
 ```{r evaluate}
 xt <- table(tweet_sentiment$label,tweet_sentiment$label_afinn)
@@ -156,19 +207,45 @@ caret::confusionMatrix(xt) |>
 
 As we look at the matrix there are many, many incorrect classifications. The accuracy for both of these measures is scarcely more that 50%. The "Kappa" statistic shows that we are only about 26% better than random chance. It's not zero but it's not good. Why the disappointing result? First of all, our valence measure isn't opinionated enough. There are far too many neutral tweets.
 
-In our defense, I'm not sure the afrisenti sentiment assignements are better. Look at some of the tweets that we think are neutral but have been assigned a positive sentiment in the original data set. Some look pretty neutral to me. Here are 10 random samples.
+```{r plot avg sentiment}
+avgs <- tweet_sentiment |> 
+  rename(label_original = label) |> 
+  group_by(language) |> 
+  summarise(across(contains("label"),
+                   ~mean(as.numeric(.x)-2),
+                   .names = "mean_{str_remove(.col,'label_')}")) |> 
+  pivot_longer(cols = contains("mean"), names_to = "source",values_to = "average") |> 
+  mutate(source = str_remove(source,"mean_"))
 
-```{r}
-set.seed(11)
-tweet_sentiment |> 
-  filter(label == "positive" & label_afinn == "neutral") |> 
-  slice_sample(n=10) |> 
-  select(translatedText)
+# plot the sentiment distribution by language
+avgs |> ggplot(aes(y = average,x = language)) +
+  geom_point(aes(color = source,shape = source),
+             size = 4) +
+  geom_line() + 
+  scale_y_continuous(n.breaks = 5) +
+  scale_shape_manual(values = c(afinn = 15,bing = 17,sentence=19,original =3)) +
+  scale_color_manual(values = c(afinn = "red",bing = yellow1,sentence=green1,original ="black")) +
+  scale_fill_manual(values = c(afinn = "red",bing = yellow1,sentence=green1,original ="black")) +
+  
+  theme_afri() +
+  labs(y="Sentiment",x="Language",
+       title = "There is Disagreement Amoung Sources About The Average Sentiment",
+       subtitle = "Why is English the most divergent?") +
+  ggplot2::coord_flip()
 ```
 
-But maybe that just means Google Translate has stripped some of the emotion out of them that is present in the original language. I don't know.
+In our defense, I'm not sure the Afrisenti sentiment assignments are better, as we saw above. But maybe that just means Google Translate has stripped some of the emotion out of them that is present in the original language. I don't know, but this would mean Google Cloud Translate doesn't work for this purpose.
 
-Further, we don't address negation, as mentioned above. The tweet below illustrates the problem.
+Here's the puzzle, though.  The biggest disagreement about sentiment is in English-language tweets, where **no translation is needed.** so we can't blame Google for this.  A look at some English tweets reveals that they are mostly in [Pidgin](https://en.wikipedia.org/wiki/Pidgin) so the vocabulary is not what we would expect in the sentiment sources we're using. Here are some random English tweets:
+```{r}
+afrisenti_translated |> 
+  filter(assigned_long == "English") |> 
+  slice_sample(n=5) |> 
+  select(translatedText)
+```
+So, paradoxically, the translated tweets of truly foreign languages are rendered into more standard English.
+
+Maybe we'll get more agreement if we address negation, as mentioned above. The tweet below illustrates the problem.
 
 ```{r illustrate error}
 afrisenti_translated$translatedText[28670]
@@ -199,7 +276,18 @@ sentimentr::sentiment(mytweets,n.before = Inf)
 
 With that noted, lets forge ahead.
 
-As before, we start by breaking the tweets up into constituent parts, sentences in this case. Most tweets will be just one sentence of course. Again we compute a sentiment score, this time with the `sentiment_by()` function. It yields a finer grained sentiment score.
+As before, we start by breaking the tweets up into constituent parts, sentences in this case. Most tweets will be just one sentence of course. Again we compute a sentiment score, this time with the `sentiment_by()` function. It yields a finer grained sentiment score than our earlier measures.
+
+```{r get sentence sentiment - the slow chunk}
+# temporary remove when draft: false
+# tweet_sentence <- afrisenti_translated |>  
+#   mutate(language = as.factor(assigned_long)) |> 
+#   mutate(sentence = get_sentences(translatedText)) %$%
+#   sentiment_by(sentence,list(language,tweet_num),n.before = Inf)
+
+# temporary remove when draft: false
+load(file=paste0(here::here(),"/tweet_sentence.rdata"))
+```
 
 ::: callout-note
 I am using a less common pipe operator below, `%$%` from the `magrittr` package, which expands the list-column created by `get_sentences`. Normally I would use `tidyr::unnest()` to do this but it loses the special object class that `sentiment_by()` needs. The `sentimentr` package uses the fast `data.table` vernacular, not the `dplyr` one, which I mostly use here.
@@ -207,15 +295,14 @@ I am using a less common pipe operator below, `%$%` from the `magrittr` package,
 
 Before we look at the tweet-level sentiment let's group by language. This lets us see if the sentiment measure is consistent across languages.
 
-```{r sentences by language}
-tweet_sentence <- afrisenti_translated |>  
-  mutate(language = as.factor(assigned_long)) |> 
-  mutate(sentence = get_sentences(translatedText)) %$%
-  sentiment_by(sentence,list(language,tweet_num),n.before = Inf)
-
+```{r plot sentence sentiment by langauge}
 avgs <- tweet_sentence |> 
   group_by(language) |> 
   summarise(ave_sentiment = mean(ave_sentiment))
+
+avgs_orig <- afrisenti_translated |> 
+  group_by(assigned_long) |> 
+  summarise(ave_sentiment = mean(as.numeric(label)-2))
 
 # plot the sentiment distribution by language
 tweet_sentence |>
@@ -239,23 +326,39 @@ tweet_sentence |>
     alpha = 0.15,
     size = 1.5
   ) +
-  theme_bw() +
+  scale_y_continuous(n.breaks = 5) +
+  # theme_bw() +
+  theme_afri() + 
   geom_point(data = avgs,
     aes(y = ave_sentiment, x = language),
     colour = "red",
     shape = 18,
     size = 4) +
+  geom_point(data = avgs_orig,
+    aes(y = ave_sentiment, x = assigned_long),
+    colour = green1,
+    shape = 19,
+    size = 4) +
   ylab("Sentiment") + xlab("Language") +
-  ggplot2::coord_flip()
+  labs(title = "Average Sentiment at the Sentence Level is  Consistently Positive",
+       subtitle = "There is wide disagreement with English tweets.") +
+  annotate("text",y = .7,x=7.5,label = "Red Diamond is Measured") + 
+  annotate("text",y = .7,x=6.5,label = "Green Circle is Original") + 
+  coord_flip()
 ```
 
-The red diamond is the average sentiment across all tweets. It does look fairly consistent.
+The dots are the measured sentiment of a sample of tweets. The markers are the average measured sentiment (red diamond) and average original sentiment (green circle), across all tweets. The measured sentiment looks more consistent then the original. The tweets in all languages are scored, on average, positive, by our calculations. We obviously disagree with the original. Note that the original 3-level sentiment as been converted to a numeric range, -1 to 1, to compute the green markers, whereas the range for our measurements is much wider.
 
 ```{r sentences by tweetnum}
-hist(tweet_sentence$ave_sentiment,breaks = 50)
+#| warning: false
+tweet_sentence |> 
+  ggplot(aes(ave_sentiment)) + geom_histogram(fill=yellow1,bins=50) +
+  scale_x_continuous(limits = c(-3,3))+
+  theme_afri()
+
 ```
 
-We no longer have the problem where too many tweets are neutral. The median of this distribution is zero but there are far fewer tweets that are of exactly zero valence. This let's us expand the range of neutral above and below zero. I tried to balance the data to match the distribution of sentiment in the original data as closely as possible.
+We no longer have the problem where too many tweets are neutral. The median of the distribution above is zero but there are far fewer tweets that are of exactly zero valence. This let's us expand the range of neutral above and below zero. I tried to balance the data to match the distribution of sentiment in the original data as closely as possible.
 
 While we're at it let's put our results together.
 
@@ -265,14 +368,15 @@ low = -0.01
 high = 0.12
 tweet_sentence <- tweet_sentence |> 
   as_tibble() |> 
-  mutate(label_sentence = cut(ave_sentiment,breaks = c( -Inf,low,high,Inf), labels=c("negative","neutral","positive")))
+  mutate(label_sentence = cut(ave_sentiment,
+                              breaks = c( -Inf,low,high,Inf), labels=c("negative","neutral","positive")))
 
-tweet_sentiment <- left_join(tweet_sentiment,tweet_sentence)
+tweet_sentiment <- left_join(tweet_sentiment,tweet_sentence,by = join_by(language, tweet_num))
 ```
 
 Compare our distribution to the original.
 
-```{r compare distribution}
+```{r plot compare distribution}
 tweet_sentiment |> 
     pivot_longer(c(label,label_sentence),
                names_to = "dataset",values_to = "sentiment") |> 
@@ -281,8 +385,12 @@ tweet_sentiment |>
   group_by(dataset) |> 
   reframe(sentiment,proportion = n/sum(n)) |> 
   ungroup() |> 
-  ggplot(aes(sentiment,proportion,fill=dataset)) + geom_col(position = "dodge")
+  ggplot(aes(sentiment,proportion,fill=dataset)) + geom_col(position = "dodge") + 
+  scale_fill_manual(values = c(yellow1,green1)) + 
+    theme_afri()
 ```
+
+## A Dissapointing Outcome
 
 As you can see, we are pretty balanced. This is kind of cheating because we are calibrating the category breakpoints to the known data. We should be calibrating to a training set and then see how it works on the test set. Let's just see if the in-sample fit is any good first.
 
@@ -297,4 +405,50 @@ caret::confusionMatrix(xt) |>
   slice_head(n=2)
 ```
 
-\`\`\`
+Wow. That's dissapointing. The agreemnent with the original sentiment is nearly identical to our other two measures, bad. I thought balancing the outcomes to match the frequency of the original would help, at least.
+
+Do our various measures agree with each other?
+
+```{r bing vs sentence}
+xt <- with(tweet_sentiment,table(label_bing,label_sentence))
+xt
+
+```
+
+```{r}
+caret::confusionMatrix(xt) |> 
+  broom::tidy() |> 
+  slice_head(n=2)
+```
+
+```{r afinn vs sentence}
+xt <- with(tweet_sentiment,table(label_afinn,label_sentence))
+xt
+
+```
+
+```{r}
+caret::confusionMatrix(xt) |> 
+  broom::tidy() |> 
+  slice_head(n=2)
+```
+
+```{r afinn vs bing}
+xt <- with(tweet_sentiment,table(label_afinn,label_bing))
+xt
+
+```
+
+```{r}
+caret::confusionMatrix(xt) |> 
+  broom::tidy() |> 
+  slice_head(n=2)
+```
+
+The "afinn" and "bing" measures are in good agreement with each other but that's about it.
+
+## Conclusion
+
+If we take the sentiment labels in the original data set as "true," our sentiment valence measurements in English do a poor job. A cursory visual examination shows the English translations of many positive or negative-labeled tweets don't seem to have any sentiment leanings and our methods don't find any leaning. We therefore conclude that Google Cloud Translate doesn't match well with these tweets using tidytext methods.  Still, the sentiments we detected to seem be broadly "good," even if they don't agree well with original data.
+
+We're not defeated yet. Our measurements had no knowledge of what the original sentiments were. What if we could learn the inscrutable methods used to assign sentiment in the original? In the next post we'll apply machine learning to see if we can train a model using the translated tweets that is in closer agreement with the Afrisenti data set.
