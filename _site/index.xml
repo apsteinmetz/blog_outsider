@@ -19,7 +19,9 @@
 
 
 
-<p>Can an English speaker use Google Cloud Translate to conduct experiments with natural language processing? Let’s fund out.</p>
+<p>Can an English speaker use Google Cloud Translate to conduct experiments with natural language processing? Let’s fund out. Like all my data science posts, I find interesting questions (to me, anyway) and answer them in ways that sharpen my R coding skills. I am reminded of the movie “Fast Times At Ridgemont High” where Sean Penn’s character thinks he can simultaneously “learn about Cuba and have some food.” The teacher, played by Ray Walston, takes a dim view of the pizza delivery. Hopefully, you, dear reader, will be more accepting.</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/wqjX_ZvCa2s?clip=Ugkxe4Dae_bBu-HMKtoGlYRqPGiUaoLLD0yv&amp;clipt=EP7UAxj3sAQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen="">
+</iframe>
 <section id="inspired-by-tidytuesday" class="level2">
 <h2 class="anchored" data-anchor-id="inspired-by-tidytuesday">Inspired by TidyTuesday</h2>
 <p>Some of the the R data science community participate in a weekly challenge called “Tidy Tuesday,” where an interesting data set is presented for analysis but mostly visualization. There are some tremendous examples of beautiful work posted on <a href="twitter.com">Twitter</a> with the hashtag #tidytuesday.</p>
@@ -333,6 +335,7 @@ Muhammad, Shamsuddeen Hassan, Seid Yimam, Idris Abdulmumin, Ibrahim Sa’id Ahma
 </div></section></div> ]]></description>
   <guid>outsiderdata.netlify.app/posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/index.html</guid>
   <pubDate>Sat, 15 Apr 2023 04:00:00 GMT</pubDate>
+  <media:content url="outsiderdata.netlify.app/posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/img/preview.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
 <item>
   <title>Switching to Quarto from Blogdown</title>

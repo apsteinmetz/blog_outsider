@@ -3,13 +3,18 @@ title: "Sentiment Analysis Using Google Translate (Pt. 1)"
 author: "Art Steinmetz"
 date: "2023-04-15"
 format: html
+image: img/preview.png
 editor: visual
 bibliography: references.bib
 execute: 
   freeze: true
 ---
 
-Can an English speaker use Google Cloud Translate to conduct experiments with natural language processing? Let's fund out.
+Can an English speaker use Google Cloud Translate to conduct experiments with natural language processing? Let's fund out. Like all my data science posts, I find interesting questions (to me, anyway) and answer them in ways that sharpen my R coding skills. I am reminded of the movie "Fast Times At Ridgemont High" where Sean Penn's character thinks he can simultaneously "learn about Cuba and have some food." The teacher, played by Ray Walston, takes a dim view of the pizza delivery. Hopefully, you, dear reader, will be more accepting.
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/wqjX_ZvCa2s?clip=Ugkxe4Dae_bBu-HMKtoGlYRqPGiUaoLLD0yv&amp;clipt=EP7UAxj3sAQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
+
+</iframe>
 
 ## Inspired by TidyTuesday
 
