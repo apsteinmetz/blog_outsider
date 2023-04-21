@@ -1,16 +1,16 @@
 ---
 title: "Sentiment Analysis Using Google Translate (Pt. 2)"
-description: |
-  
 author: Art Steinmetz
 date: 2023-04-16
 draft: true
 format: html
+image: img/preview.png
 editor: visual
 bibliography: references.bib
 execute: 
   freeze: true
 ---
+
 ## Introduction
 
 We will use the tidytext framework to measure sentiment of tweets originally in African languages but translated to English. We'll measure sentiment at both the word level and sentence level and see how it agrees with the sentiment, positive, negative or neutral, already assigned in the Afrisenti data set.
@@ -236,13 +236,15 @@ avgs |> ggplot(aes(y = average,x = language)) +
 
 In our defense, I'm not sure the Afrisenti sentiment assignments are better, as we saw above. But maybe that just means Google Translate has stripped some of the emotion out of them that is present in the original language. I don't know, but this would mean Google Cloud Translate doesn't work for this purpose.
 
-Here's the puzzle, though.  The biggest disagreement about sentiment is in English-language tweets, where **no translation is needed.** so we can't blame Google for this.  A look at some English tweets reveals that they are mostly in [Pidgin](https://en.wikipedia.org/wiki/Pidgin) so the vocabulary is not what we would expect in the sentiment sources we're using. Here are some random English tweets:
+Here's the puzzle, though. The biggest disagreement about sentiment is in English-language tweets, where **no translation is needed.** so we can't blame Google for this. A look at some English tweets reveals that they are mostly in [Pidgin](https://en.wikipedia.org/wiki/Pidgin) so the vocabulary is not what we would expect in the sentiment sources we're using. Here are some random English tweets:
+
 ```{r}
 afrisenti_translated |> 
   filter(assigned_long == "English") |> 
   slice_sample(n=5) |> 
   select(translatedText)
 ```
+
 So, paradoxically, the translated tweets of truly foreign languages are rendered into more standard English.
 
 Maybe we'll get more agreement if we address negation, as mentioned above. The tweet below illustrates the problem.
@@ -449,6 +451,6 @@ The "afinn" and "bing" measures are in good agreement with each other but that's
 
 ## Conclusion
 
-If we take the sentiment labels in the original data set as "true," our sentiment valence measurements in English do a poor job. A cursory visual examination shows the English translations of many positive or negative-labeled tweets don't seem to have any sentiment leanings and our methods don't find any leaning. We therefore conclude that Google Cloud Translate doesn't match well with these tweets using tidytext methods.  Still, the sentiments we detected to seem be broadly "good," even if they don't agree well with original data.
+If we take the sentiment labels in the original data set as "true," our sentiment valence measurements in English do a poor job. A cursory visual examination shows the English translations of many positive or negative-labeled tweets don't seem to have any sentiment leanings and our methods don't find any leaning. We therefore conclude that Google Cloud Translate doesn't match well with these tweets using tidytext methods. Still, the sentiments we detected to seem be broadly "good," even if they don't agree well with original data.
 
 We're not defeated yet. Our measurements had no knowledge of what the original sentiments were. What if we could learn the inscrutable methods used to assign sentiment in the original? In the next post we'll apply machine learning to see if we can train a model using the translated tweets that is in closer agreement with the Afrisenti data set.
