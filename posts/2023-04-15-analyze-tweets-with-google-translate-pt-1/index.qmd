@@ -2,6 +2,10 @@
 title: "Sentiment Analysis Using Google Translate (Pt. 1)"
 author: "Art Steinmetz"
 date: "2023-04-15"
+categories: 
+  - tidyverse
+  - google translate
+  - twitter
 format: html
 image: img/preview.png
 editor: visual

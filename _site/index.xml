@@ -10,7 +10,524 @@
 <atom:link href="outsiderdata.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Putting what&#39;s in there, out there. With R!</description>
 <generator>quarto-1.2.335</generator>
-<lastBuildDate>Sat, 15 Apr 2023 04:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sun, 16 Apr 2023 04:00:00 GMT</lastBuildDate>
+<item>
+  <title>Sentiment Analysis Using Google Translate (Pt. 2)</title>
+  <dc:creator>Art Steinmetz</dc:creator>
+  <link>outsiderdata.netlify.app/posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>Sentiment analysis is a common task in natural language processing. Many of the tools available for this are calibrated to the English language. Can Google Translate let us apply this toolset to a broader set of languages? We will use the tidytext framework to measure sentiment of tweets originally in African languages but translated to English. We’ll measure sentiment at both the word level and sentence level and see how it agrees with the sentiment, positive, negative or neutral, already assigned in the Afrisenti data set.</p>
+</section>
+<section id="in-our-last-episode" class="level2">
+<h2 class="anchored" data-anchor-id="in-our-last-episode">In Our Last Episode…</h2>
+<p>In <a href="https://outsiderdata.netlify.app/posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/">part one of this series</a> we translated the afrisenti data set using the Google Cloud Translate API. This data set contains a little over 110,000 tweets in 13 different African languages<span class="citation" data-cites="Muhammad2023AfriSentiAT">(Muhammad et al. 2023)</span>. We saw that , at first glance, Google Translate does a good job on these languages. So now let’s ask:</p>
+<ol type="1">
+<li>Are the translations good enough to run sentiment analysis on?</li>
+<li>Will the sentiments we measure agree with the original data? This is a higher standard, of course.</li>
+</ol>
+</section>
+<section id="measuring-sentiment" class="level2">
+<h2 class="anchored" data-anchor-id="measuring-sentiment">Measuring Sentiment</h2>
+<p>Now that we have all of the tweets translated into English we can use sentiment tools calibrated to the English language. We will try two different approaches. For both we’ll compare the measured sentiment of the English tweet to the assigned sentiment in the data set.</p>
+<ol type="1">
+<li>Measure the sentiment “valence” of each word as either positive or negative and take the balance of positive vs.&nbsp;negative as the sentiment of the tweet.</li>
+<li>Negation turns a positive sentiment into a negative one. “I do not like” has one positive word, “like,” but is clearly a negative sentiment. Rather than measure each word, we can run a sentence-level model to see if we get a better result.</li>
+</ol>
+</section>
+<section id="sentiment-measurement-at-the-word-level" class="level2">
+<h2 class="anchored" data-anchor-id="sentiment-measurement-at-the-word-level">Sentiment Measurement at the Word Level</h2>
+<p>We will be using the tidytext package in this project and following the approach shown in the <a href="https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html">“Introduction to tidytext” by Julia Silge and Dave Robinson</a>.</p>
+<p>First load the needed packages and the translated tweets from part one of this project.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="co" style="color: #5E5E5E;">#load libraries</span></span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;">suppressPackageStartupMessages</span>({</span>
+<span id="cb1-3">  <span class="fu" style="color: #4758AB;">library</span>(tidyverse)</span>
+<span id="cb1-4">  <span class="fu" style="color: #4758AB;">library</span>(tidytext)</span>
+<span id="cb1-5">  <span class="fu" style="color: #4758AB;">library</span>(hunspell)</span>
+<span id="cb1-6">  <span class="fu" style="color: #4758AB;">library</span>(sentimentr)</span>
+<span id="cb1-7">  <span class="fu" style="color: #4758AB;">library</span>(magrittr)</span>
+<span id="cb1-8">})</span>
+<span id="cb1-9"></span>
+<span id="cb1-10"><span class="co" style="color: #5E5E5E;"># set up some chart defaults</span></span>
+<span id="cb1-11">tan1 <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="st" style="color: #20794D;">"#FDECCD"</span></span>
+<span id="cb1-12">yellow1 <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="st" style="color: #20794D;">"#FFBF00"</span></span>
+<span id="cb1-13">green1 <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="st" style="color: #20794D;">"#007000"</span></span>
+<span id="cb1-14"></span>
+<span id="cb1-15">theme_afri <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="cf" style="color: #003B4F;">function</span>(...){</span>
+<span id="cb1-16">  <span class="co" style="color: #5E5E5E;"># making a function allows passing further theme elements</span></span>
+<span id="cb1-17">  ggplot2<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">theme</span>(</span>
+<span id="cb1-18">    <span class="at" style="color: #657422;">plot.background =</span> <span class="fu" style="color: #4758AB;">element_rect</span>(<span class="at" style="color: #657422;">fill =</span> tan1, <span class="at" style="color: #657422;">color =</span> <span class="cn" style="color: #8f5902;">NA</span>),</span>
+<span id="cb1-19">    <span class="at" style="color: #657422;">panel.background =</span> <span class="fu" style="color: #4758AB;">element_blank</span>(),</span>
+<span id="cb1-20">    <span class="at" style="color: #657422;">legend.background =</span> <span class="fu" style="color: #4758AB;">element_blank</span>(),</span>
+<span id="cb1-21">    <span class="at" style="color: #657422;">legend.box.background =</span> <span class="fu" style="color: #4758AB;">element_blank</span>(),</span>
+<span id="cb1-22">    <span class="at" style="color: #657422;">legend.key =</span> <span class="fu" style="color: #4758AB;">element_blank</span>(),</span>
+<span id="cb1-23">    ...</span>
+<span id="cb1-24">    ) </span>
+<span id="cb1-25">}</span>
+<span id="cb1-26">afrisenti_translated <span class="ot" style="color: #003B4F;">&lt;-</span> readr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">read_csv</span>(<span class="st" style="color: #20794D;">'https://raw.githubusercontent.com/apsteinmetz/tidytuesday/master/2023-02-28_african_language/data/afrisenti_translated.csv'</span>,</span>
+<span id="cb1-27">                                        <span class="at" style="color: #657422;">show_col_types =</span> <span class="cn" style="color: #8f5902;">FALSE</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb1-28">  <span class="fu" style="color: #4758AB;">select</span>(tweet_num,assigned_long,translatedText,label) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb1-29">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">label =</span> <span class="fu" style="color: #4758AB;">as.factor</span>(label))</span>
+<span id="cb1-30">afrisenti_translated</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 111,720 × 4
+   tweet_num assigned_long translatedText                                  label
+       &lt;dbl&gt; &lt;chr&gt;         &lt;chr&gt;                                           &lt;fct&gt;
+ 1         1 Amharic       Amhara region needs moderation!!! He hates Mus… nega…
+ 2         2 Amharic       Having a mood in a way that annoys someone....  nega…
+ 3         3 Amharic       Domestic violence - without hearing - without … nega…
+ 4         4 Amharic       Ethiopia, what was your role in overthrowing T… nega…
+ 5         5 Amharic       No matter how Oromo learns, they don't realize… nega…
+ 6         6 Amharic       Tish, dark powder, are you standing at 97? Tim… nega…
+ 7         7 Amharic       Local residents said that the internet and tel… nega…
+ 8         8 Amharic       What happened to Schimmels is sad. By the word… nega…
+ 9         9 Amharic       An unstable country does not need elections     nega…
+10        10 Amharic       The idiot and the bubble, the Ethiopian PM Abi… nega…
+# … with 111,710 more rows</code></pre>
+</div>
+</div>
+<p>The <code>tidytext</code> package makes it easy to divide each tweet into separate words and measure the sentiment valence of each one. The <code>tidytext</code> package has a few sentiment lexicons. Here, we decide the sentiment of each word using the “afinn” lexicon. We chose this because it has 11 shades of sentiment and we hope the finer granularity will be helpful. If a word is not in the lexicon we code it as”0” or neutral. Further, we need to use the stems of words. “Idiots” is not in our sentiment sources, “Idiot” is. Word stemming will fix that. The <code>hunspell</code> package using <code>hunspell_stem()</code> will do the trick. It returns a list of possible stems (usually just one, but not always) so we have to <code>unnest()</code> the list column. The trade-off is that if the word is not in <code>hunspell</code>’s dictionary, it drops the word. Fortunately, there are over 49,000 words in the dictionary.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1">tweet_word_sentiment <span class="ot" style="color: #003B4F;">&lt;-</span> afrisenti_translated <span class="sc" style="color: #5E5E5E;">%&gt;%</span></span>
+<span id="cb3-2">  <span class="fu" style="color: #4758AB;">select</span>(tweet_num, translatedText, label) <span class="sc" style="color: #5E5E5E;">%&gt;%</span></span>
+<span id="cb3-3">  <span class="fu" style="color: #4758AB;">unnest_tokens</span>(word, translatedText) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb3-4">  <span class="fu" style="color: #4758AB;">anti_join</span>(stop_words, <span class="at" style="color: #657422;">by =</span> <span class="fu" style="color: #4758AB;">join_by</span>(word)) <span class="sc" style="color: #5E5E5E;">%&gt;%</span></span>
+<span id="cb3-5">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">word =</span> <span class="fu" style="color: #4758AB;">hunspell_stem</span>(word)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb3-6">  <span class="fu" style="color: #4758AB;">unnest</span>(word) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb3-7">  <span class="fu" style="color: #4758AB;">left_join</span>(<span class="fu" style="color: #4758AB;">get_sentiments</span>(<span class="st" style="color: #20794D;">"afinn"</span>),</span>
+<span id="cb3-8">            <span class="at" style="color: #657422;">multiple =</span> <span class="st" style="color: #20794D;">"all"</span>,</span>
+<span id="cb3-9">            <span class="at" style="color: #657422;">by =</span> <span class="fu" style="color: #4758AB;">join_by</span>(word)) <span class="sc" style="color: #5E5E5E;">%&gt;%</span></span>
+<span id="cb3-10">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">value =</span> <span class="fu" style="color: #4758AB;">replace_na</span>(value, <span class="dv" style="color: #AD0000;">0</span>)) <span class="sc" style="color: #5E5E5E;">%&gt;%</span></span>
+<span id="cb3-11">  <span class="fu" style="color: #4758AB;">rename</span>(<span class="at" style="color: #657422;">sentiment_afinn =</span> value)</span></code></pre></div>
+</div>
+<p>I don’t know who decided that “superb” gets a “+5” and “euphoric” gets a “+4,” but there you are. We can see how the valences are distributed in our tweets. The vast majority of words are not in the lexicon and therefore are coded as zero, neutral.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1">tweet_word_sentiment <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb4-2">  <span class="fu" style="color: #4758AB;">ggplot</span>(<span class="fu" style="color: #4758AB;">aes</span>(sentiment_afinn)) <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb4-3">  <span class="fu" style="color: #4758AB;">geom_histogram</span>(<span class="at" style="color: #657422;">bins =</span> <span class="dv" style="color: #AD0000;">10</span>,<span class="at" style="color: #657422;">fill =</span> yellow1,<span class="at" style="color: #657422;">color =</span> tan1,<span class="at" style="color: #657422;">binwidth =</span> <span class="dv" style="color: #AD0000;">1</span>) <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb4-4">  <span class="fu" style="color: #4758AB;">scale_x_continuous</span>(<span class="at" style="color: #657422;">n.breaks =</span> <span class="dv" style="color: #AD0000;">10</span>,<span class="at" style="color: #657422;">limits =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="sc" style="color: #5E5E5E;">-</span><span class="dv" style="color: #AD0000;">5</span>,<span class="sc" style="color: #5E5E5E;">+</span><span class="dv" style="color: #AD0000;">5</span>)) <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb4-5">  <span class="fu" style="color: #4758AB;">theme_afri</span>() <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb4-6">  <span class="fu" style="color: #4758AB;">labs</span>(<span class="at" style="color: #657422;">title =</span> <span class="st" style="color: #20794D;">'"Afinn" Sentiment Database Allows More Nuance'</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="outsiderdata.netlify.app/posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index_files/figure-html/plot distribution-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Now let’s look at how stemming works. The tweet below is coded as negative in the Afrisenti data set.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">afrisenti_translated<span class="sc" style="color: #5E5E5E;">$</span>translatedText[<span class="dv" style="color: #AD0000;">45</span>]</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "These idiots are cannibals and unforgivable renegades of the Eritrean people"</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">tweet_word_sentiment <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb7-2">  <span class="fu" style="color: #4758AB;">filter</span>(tweet_num <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"45"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb7-3">  <span class="fu" style="color: #4758AB;">select</span>(word,sentiment_afinn)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 2
+  word       sentiment_afinn
+  &lt;chr&gt;                &lt;dbl&gt;
+1 idiot                   -3
+2 cannibal                 0
+3 forgivable               0
+4 renegade                 0
+5 people                   0</code></pre>
+</div>
+</div>
+<p>The benefits and drawbacks of stemming are apparent. We can find the stem of “idiots” and “cannibals” but “unforgivable” gets changed to “forgivable” which flips its sentiment. No matter because neither word is in our sentiment lexicon. There are no positive words in this tweet so the sum of all the valences is negative, which matches with the assigned sentiment.</p>
+<p>Next we add up the valences for each tweet to arrive at the net sentiment.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">tweet_sentiment <span class="ot" style="color: #003B4F;">&lt;-</span> tweet_word_sentiment <span class="sc" style="color: #5E5E5E;">%&gt;%</span> </span>
+<span id="cb9-2">  <span class="fu" style="color: #4758AB;">group_by</span>(tweet_num) <span class="sc" style="color: #5E5E5E;">%&gt;%</span> </span>
+<span id="cb9-3">  <span class="fu" style="color: #4758AB;">summarise</span>(<span class="at" style="color: #657422;">sentiment_afinn =</span> <span class="fu" style="color: #4758AB;">as.integer</span>(<span class="fu" style="color: #4758AB;">sum</span>(sentiment_afinn))) <span class="sc" style="color: #5E5E5E;">%&gt;%</span> </span>
+<span id="cb9-4">  <span class="fu" style="color: #4758AB;">ungroup</span>() <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb9-5">  <span class="fu" style="color: #4758AB;">full_join</span>(afrisenti_translated,<span class="at" style="color: #657422;">by =</span> <span class="fu" style="color: #4758AB;">join_by</span>(tweet_num)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb9-6">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">language =</span> <span class="fu" style="color: #4758AB;">as_factor</span>(assigned_long)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb9-7">  <span class="fu" style="color: #4758AB;">rename</span>(<span class="at" style="color: #657422;">label_original =</span> label) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb9-8">  <span class="co" style="color: #5E5E5E;"># set NA sentiment to neutral</span></span>
+<span id="cb9-9">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="fu" style="color: #4758AB;">across</span>(<span class="fu" style="color: #4758AB;">contains</span>(<span class="st" style="color: #20794D;">"sentiment"</span>),<span class="sc" style="color: #5E5E5E;">~</span><span class="fu" style="color: #4758AB;">replace_na</span>(.x,<span class="dv" style="color: #AD0000;">0</span>)))</span></code></pre></div>
+</div>
+<p>We have numeric valences. If we want to compare our measurment to the original we have to make a choice what to label each number. Obviously, zero is neutral but should we expand the neutral range to include, say -1 and +1? Sadly, no. The summary below shows that we already assigned far more neutral labels than the original data set has. This is not a good omen. We wish we had more granularity.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1">tweet_sentiment <span class="ot" style="color: #003B4F;">&lt;-</span> tweet_sentiment <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb10-2">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">label_afinn =</span> <span class="fu" style="color: #4758AB;">as.factor</span>(<span class="fu" style="color: #4758AB;">cut</span>(sentiment_afinn,</span>
+<span id="cb10-3">                                     <span class="at" style="color: #657422;">breaks =</span> <span class="fu" style="color: #4758AB;">c</span>( <span class="sc" style="color: #5E5E5E;">-</span><span class="cn" style="color: #8f5902;">Inf</span>,<span class="sc" style="color: #5E5E5E;">-</span><span class="dv" style="color: #AD0000;">1</span>,<span class="dv" style="color: #AD0000;">0</span>,<span class="cn" style="color: #8f5902;">Inf</span>),                         <span class="at" style="color: #657422;">labels=</span><span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"negative"</span>,<span class="st" style="color: #20794D;">"neutral"</span>,<span class="st" style="color: #20794D;">"positive"</span>))))  <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb10-4">  <span class="fu" style="color: #4758AB;">select</span>(language,tweet_num,translatedText,label_original,label_afinn)</span>
+<span id="cb10-5"></span>
+<span id="cb10-6"><span class="fu" style="color: #4758AB;">summary</span>(<span class="fu" style="color: #4758AB;">select</span>(tweet_sentiment,label_original,label_afinn))</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  label_original    label_afinn   
+ negative:36564   negative:27564  
+ neutral :39151   neutral :51688  
+ positive:36005   positive:32468  </code></pre>
+</div>
+</div>
+</section>
+<section id="results" class="level2">
+<h2 class="anchored" data-anchor-id="results">Results</h2>
+<p>How did we do? Here are samples of positive-scored tweets along with the original sentiment. If it’s not “positive” we disagree.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><span class="fu" style="color: #4758AB;">set.seed</span>(<span class="dv" style="color: #AD0000;">1</span>)</span>
+<span id="cb12-2">tweet_sentiment <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb12-3">  <span class="fu" style="color: #4758AB;">filter</span>(label_afinn <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"positive"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb12-4">  <span class="fu" style="color: #4758AB;">slice_sample</span>(<span class="at" style="color: #657422;">n=</span><span class="dv" style="color: #AD0000;">10</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb12-5">  <span class="fu" style="color: #4758AB;">select</span>(label_original,translatedText)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 2
+   label_original translatedText                                                
+   &lt;fct&gt;          &lt;chr&gt;                                                         
+ 1 positive       "@user Amen Thanks so much fam... God bless you all"          
+ 2 neutral        "No need to extend us. https://t.co/cKIft7Aqk5"               
+ 3 positive       "Our king is one Mohammed VI... Long live the king and long l…
+ 4 positive       "'@user @user @user @user and every time the son of their mou…
+ 5 positive       "@user This problem of insecurity that we are dealing with ma…
+ 6 positive       "Just as our bodies have a great need for food, so even our h…
+ 7 neutral        "RT @user: You definitely can improve your #yoruba by watchin…
+ 8 positive       "@user Tanemi forgiveness and forgiveness, God is the best, G…
+ 9 positive       "@user Don't agree! We want him to continue as president beca…
+10 negative       "This is the appropriate response that deserves the likes of …</code></pre>
+</div>
+</div>
+<p>Our scoring looks pretty good. Where we disagree with Afrisenti, I side with tidytext for the most part.</p>
+<p>Here are samples of negative-scored tweets with along the original sentiment.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="fu" style="color: #4758AB;">set.seed</span>(<span class="dv" style="color: #AD0000;">5</span>)</span>
+<span id="cb14-2">tweet_sentiment <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb14-3">  <span class="fu" style="color: #4758AB;">filter</span>(label_afinn <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"negative"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb14-4">  <span class="fu" style="color: #4758AB;">slice_sample</span>(<span class="at" style="color: #657422;">n=</span><span class="dv" style="color: #AD0000;">10</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb14-5">  <span class="fu" style="color: #4758AB;">select</span>(label_original,translatedText)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 2
+   label_original translatedText                                                
+   &lt;fct&gt;          &lt;chr&gt;                                                         
+ 1 positive       "@user Good man, this time is up. The children and the childr…
+ 2 neutral        "who died in power"                                           
+ 3 positive       "SAY NO TO SUICIDE!!! Reposted from @user - We have some tips…
+ 4 negative       "Hunger has no respect \U0001fae1"                            
+ 5 negative       "@user And you started ruining it with lies \U0001f914\U0001f…
+ 6 positive       "@user @user @user @user @user @user God forbid evil!"        
+ 7 neutral        "'It's father Kashi, you can leave this beautifully and go ho…
+ 8 neutral        "Tete provincial finance director arrested https://t.co/guJWN…
+ 9 negative       "@user Just as Barcelona were tired, PSG will also be tired, …
+10 negative       "u see diz life e no go make u hype somethings see diz otondo…</code></pre>
+</div>
+</div>
+<p>It’s the same story with the negative tweets. We do a reasonable job and the correctness of the original sentiment is arguable. There is a lot of disagreement.</p>
+<p>We can generate a confusion matrix with some additional statistics to look at the agreement of our measurements vs.&nbsp;the human classifiers. Ideally all the observations would lie on the diagonal from top left to bottom right.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1">xt <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">table</span>(tweet_sentiment<span class="sc" style="color: #5E5E5E;">$</span>label_original,tweet_sentiment<span class="sc" style="color: #5E5E5E;">$</span>label_afinn)</span>
+<span id="cb16-2">xt</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          
+           negative neutral positive
+  negative    15083   14619     6862
+  neutral      7761   23921     7469
+  positive     4720   13148    18137</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1">caret<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">confusionMatrix</span>(xt) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb18-2">  broom<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">tidy</span>() <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb18-3">  <span class="fu" style="color: #4758AB;">slice_head</span>(<span class="at" style="color: #657422;">n=</span><span class="dv" style="color: #AD0000;">2</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 6
+  term     class estimate conf.low conf.high    p.value
+  &lt;chr&gt;    &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+1 accuracy &lt;NA&gt;     0.511    0.509     0.514  2.58e-234
+2 kappa    &lt;NA&gt;     0.264   NA        NA     NA        </code></pre>
+</div>
+</div>
+</section>
+<section id="its-not-me-its-you." class="level2">
+<h2 class="anchored" data-anchor-id="its-not-me-its-you.">It’s not me, it’s you.</h2>
+<p>As we look at the cross-tab there are many, many incorrect classifications. The accuracy for both of these measures is scarcely more that 50%. The “Kappa” statistic shows that we are only about 26% better than random chance. It’s not zero but it’s not good. Why the disappointing result? First of all, our valence measure isn’t opinionated enough. There are far too many neutral tweets.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1">avgs <span class="ot" style="color: #003B4F;">&lt;-</span> tweet_sentiment <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb20-2">  <span class="fu" style="color: #4758AB;">group_by</span>(language) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb20-3">  <span class="fu" style="color: #4758AB;">summarise</span>(<span class="fu" style="color: #4758AB;">across</span>(<span class="fu" style="color: #4758AB;">contains</span>(<span class="st" style="color: #20794D;">"label"</span>),</span>
+<span id="cb20-4">                   <span class="sc" style="color: #5E5E5E;">~</span><span class="fu" style="color: #4758AB;">mean</span>(<span class="fu" style="color: #4758AB;">as.numeric</span>(.x)<span class="sc" style="color: #5E5E5E;">-</span><span class="dv" style="color: #AD0000;">2</span>),</span>
+<span id="cb20-5">                   <span class="at" style="color: #657422;">.names =</span> <span class="st" style="color: #20794D;">"mean_{str_remove(.col,'label_')}"</span>)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb20-6">  <span class="fu" style="color: #4758AB;">pivot_longer</span>(<span class="at" style="color: #657422;">cols =</span> <span class="fu" style="color: #4758AB;">contains</span>(<span class="st" style="color: #20794D;">"mean"</span>), <span class="at" style="color: #657422;">names_to =</span> <span class="st" style="color: #20794D;">"source"</span>,<span class="at" style="color: #657422;">values_to =</span> <span class="st" style="color: #20794D;">"average"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb20-7">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">source =</span> <span class="fu" style="color: #4758AB;">str_remove</span>(source,<span class="st" style="color: #20794D;">"mean_"</span>))</span>
+<span id="cb20-8"></span>
+<span id="cb20-9"><span class="co" style="color: #5E5E5E;"># plot the sentiment distribution by language</span></span>
+<span id="cb20-10">avgs <span class="sc" style="color: #5E5E5E;">|&gt;</span> <span class="fu" style="color: #4758AB;">ggplot</span>(<span class="fu" style="color: #4758AB;">aes</span>(<span class="at" style="color: #657422;">y =</span> average,<span class="at" style="color: #657422;">x =</span> language)) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb20-11">  <span class="fu" style="color: #4758AB;">geom_point</span>(<span class="fu" style="color: #4758AB;">aes</span>(<span class="at" style="color: #657422;">color =</span> source,<span class="at" style="color: #657422;">shape =</span> source),</span>
+<span id="cb20-12">             <span class="at" style="color: #657422;">size =</span> <span class="dv" style="color: #AD0000;">4</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb20-13">  <span class="fu" style="color: #4758AB;">geom_line</span>() <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb20-14">  <span class="fu" style="color: #4758AB;">scale_y_continuous</span>(<span class="at" style="color: #657422;">n.breaks =</span> <span class="dv" style="color: #AD0000;">5</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb20-15">  <span class="fu" style="color: #4758AB;">scale_shape_manual</span>(<span class="at" style="color: #657422;">values =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="at" style="color: #657422;">afinn =</span> <span class="dv" style="color: #AD0000;">15</span>,</span>
+<span id="cb20-16">                                <span class="at" style="color: #657422;">sentence=</span><span class="dv" style="color: #AD0000;">19</span>,<span class="at" style="color: #657422;">original =</span><span class="dv" style="color: #AD0000;">3</span>)) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb20-17">  <span class="fu" style="color: #4758AB;">scale_color_manual</span>(<span class="at" style="color: #657422;">values =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="at" style="color: #657422;">afinn =</span> <span class="st" style="color: #20794D;">"red"</span>,</span>
+<span id="cb20-18">                                <span class="at" style="color: #657422;">sentence=</span>green1,<span class="at" style="color: #657422;">original =</span><span class="st" style="color: #20794D;">"black"</span>)) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb20-19">  <span class="fu" style="color: #4758AB;">scale_fill_manual</span>(<span class="at" style="color: #657422;">values =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="at" style="color: #657422;">afinn =</span> <span class="st" style="color: #20794D;">"red"</span>,</span>
+<span id="cb20-20">                               <span class="at" style="color: #657422;">sentence=</span>green1,<span class="at" style="color: #657422;">original =</span><span class="st" style="color: #20794D;">"black"</span>)) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb20-21">  </span>
+<span id="cb20-22">  <span class="fu" style="color: #4758AB;">theme_afri</span>() <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb20-23">  <span class="fu" style="color: #4758AB;">labs</span>(<span class="at" style="color: #657422;">y=</span><span class="st" style="color: #20794D;">"Sentiment"</span>,<span class="at" style="color: #657422;">x=</span><span class="st" style="color: #20794D;">"Language"</span>,</span>
+<span id="cb20-24">       <span class="at" style="color: #657422;">title =</span> <span class="st" style="color: #20794D;">"There is Disagreement About The Average Sentiment"</span>,</span>
+<span id="cb20-25">       <span class="at" style="color: #657422;">subtitle =</span> <span class="st" style="color: #20794D;">"Why is English the most divergent?"</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb20-26">  ggplot2<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">coord_flip</span>()</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="outsiderdata.netlify.app/posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index_files/figure-html/plot avg sentiment-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>You may wonder if one of the other sentiment lexicons would produce a better result. I have tried the others but I don’t include them here because the results are substantially identical.</p>
+<p>In our defense, I’m not sure the Afrisenti sentiment assignments are better, as we saw above. But maybe that just means Google Translate has stripped some of the emotion out of them that is present in the original language. I don’t know, but this would mean Google Cloud Translate doesn’t work for this purpose.</p>
+<p>Here’s the puzzle, though. The biggest disagreement about sentiment is in English-language tweets, where <strong>no translation is needed</strong> so we can’t blame Google for this. A look at some English tweets reveals that they are mostly in <a href="https://en.wikipedia.org/wiki/Pidgin">Pidgin</a> so the vocabulary is not what we would expect in the sentiment sources we’re using. Here are some random English tweets:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1">afrisenti_translated <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb21-2">  <span class="fu" style="color: #4758AB;">filter</span>(assigned_long <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"English"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb21-3">  <span class="fu" style="color: #4758AB;">slice_sample</span>(<span class="at" style="color: #657422;">n=</span><span class="dv" style="color: #AD0000;">5</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb21-4">  <span class="fu" style="color: #4758AB;">select</span>(translatedText)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 1
+  translatedText                                                                
+  &lt;chr&gt;                                                                         
+1 jesus taught i had sef                                                        
+2 better all those figures they are generating if u never dey vex reach na the …
+3 people don dey find themselves from twitter oo and that ilorin where everyone…
+4 it's sweet soul abeg                                                          
+5 as a guyman used to paying the lump sum and calling it a day with the mindset…</code></pre>
+</div>
+</div>
+<p>So, paradoxically, the translated tweets of truly foreign languages are rendered into more standard English.</p>
+<p>Maybe we’ll get more agreement if we address negation, as mentioned above. The tweet below illustrates the problem.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1">afrisenti_translated<span class="sc" style="color: #5E5E5E;">$</span>translatedText[<span class="dv" style="color: #AD0000;">28670</span>]</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "@user Why don't America want the world to be peaceful 🤔🤔🤔"</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1">tweet_word_sentiment <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb25-2">  <span class="fu" style="color: #4758AB;">filter</span>(tweet_num <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"28670"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 4
+  tweet_num label    word     sentiment_afinn
+      &lt;dbl&gt; &lt;fct&gt;    &lt;chr&gt;              &lt;dbl&gt;
+1     28670 negative user                   0
+2     28670 negative world                  0
+3     28670 negative peaceful               2</code></pre>
+</div>
+</div>
+<p>Unless the negation is itself a negative valence word, many negative tweets will test as positive. In this example “peaceful” is positive but “don’t want” clearly flips it.</p>
+<p><strong>A More Sophisticated Approach</strong></p>
+<p>There are a number of approaches to solve the negation problem. A simple one is to combine negation words like “no” and “not” with the subsequent one. We will use this approach in our next post attempting machine learning. Here we’ll try sentence-level measurement using the <code>sentimentr</code> package. This package understands negation better. Our test tweet from above is a challenge. This is since the negation of “peaceful” comes eight words before “not.” The default of <code>n.before = 5</code> doesn’t give us the right answer.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1">mytweets <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="st" style="color: #20794D;">"Why don't America want the world to be peaceful"</span></span>
+<span id="cb27-2"></span>
+<span id="cb27-3">sentimentr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">sentiment</span>(mytweets,<span class="at" style="color: #657422;">n.before =</span> <span class="dv" style="color: #AD0000;">5</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   element_id sentence_id word_count sentiment
+1:          1           1          9      0.25</code></pre>
+</div>
+</div>
+<p>Setting <code>n.before = Inf</code> captures this but comes at the expense of slower processing speed and potentially more false negatives.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1">sentimentr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">sentiment</span>(mytweets,<span class="at" style="color: #657422;">n.before =</span> <span class="cn" style="color: #8f5902;">Inf</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   element_id sentence_id word_count sentiment
+1:          1           1          9     -0.25</code></pre>
+</div>
+</div>
+<p>With that noted, lets forge ahead.</p>
+<p>As before, we start by breaking the tweets up into constituent parts, sentences in this case. Most tweets will be just one sentence of course. Again we compute a sentiment score, this time with the <code>sentiment_by()</code> function. It yields a finer grained sentiment score than our earlier measures.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1">tweet_sentence <span class="ot" style="color: #003B4F;">&lt;-</span> afrisenti_translated <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb31-2">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">language =</span> <span class="fu" style="color: #4758AB;">as.factor</span>(assigned_long)) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb31-3">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">sentence =</span> <span class="fu" style="color: #4758AB;">get_sentences</span>(translatedText)) <span class="sc" style="color: #5E5E5E;">%$%</span></span>
+<span id="cb31-4">  <span class="fu" style="color: #4758AB;">sentiment_by</span>(sentence,<span class="fu" style="color: #4758AB;">list</span>(language,tweet_num),<span class="at" style="color: #657422;">n.before =</span> <span class="cn" style="color: #8f5902;">Inf</span>)</span></code></pre></div>
+</div>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>I am using a less common pipe operator below, <code>%$%</code> from the <code>magrittr</code> package, which expands the list-column created by <code>get_sentences</code>. Normally I would use <code>tidyr::unnest()</code> to do this but it loses the special object class that <code>sentiment_by()</code> needs. The <code>sentimentr</code> package uses the fast <code>data.table</code> vernacular, not the <code>dplyr</code> one, which I mostly use here.</p>
+</div>
+</div>
+<p>Before we look at the tweet-level sentiment let’s group by language. This lets us see if the sentiment measure is consistent across languages.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1">avgs <span class="ot" style="color: #003B4F;">&lt;-</span> tweet_sentence <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb32-2">  <span class="fu" style="color: #4758AB;">group_by</span>(language) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb32-3">  <span class="fu" style="color: #4758AB;">summarise</span>(<span class="at" style="color: #657422;">ave_sentiment =</span> <span class="fu" style="color: #4758AB;">mean</span>(ave_sentiment))</span>
+<span id="cb32-4"></span>
+<span id="cb32-5">avgs_orig <span class="ot" style="color: #003B4F;">&lt;-</span> afrisenti_translated <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb32-6">  <span class="fu" style="color: #4758AB;">group_by</span>(assigned_long) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb32-7">  <span class="fu" style="color: #4758AB;">summarise</span>(<span class="at" style="color: #657422;">ave_sentiment =</span> <span class="fu" style="color: #4758AB;">mean</span>(<span class="fu" style="color: #4758AB;">as.numeric</span>(label)<span class="sc" style="color: #5E5E5E;">-</span><span class="dv" style="color: #AD0000;">2</span>))</span>
+<span id="cb32-8"></span>
+<span id="cb32-9"><span class="co" style="color: #5E5E5E;"># plot the sentiment distribution by language</span></span>
+<span id="cb32-10">tweet_sentence <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb32-11">  <span class="fu" style="color: #4758AB;">as_tibble</span>() <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb32-12">  <span class="co" style="color: #5E5E5E;"># make the size manageable</span></span>
+<span id="cb32-13">  <span class="fu" style="color: #4758AB;">slice_sample</span>(<span class="at" style="color: #657422;">n=</span><span class="dv" style="color: #AD0000;">1000</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb32-14">  <span class="fu" style="color: #4758AB;">group_by</span>(language) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb32-15">  <span class="fu" style="color: #4758AB;">rename</span>(<span class="at" style="color: #657422;">sentiment =</span> ave_sentiment) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb32-16">  <span class="fu" style="color: #4758AB;">ggplot</span>() <span class="sc" style="color: #5E5E5E;">+</span> <span class="fu" style="color: #4758AB;">geom_boxplot</span>(</span>
+<span id="cb32-17">    <span class="fu" style="color: #4758AB;">aes</span>(<span class="at" style="color: #657422;">y =</span> sentiment, <span class="at" style="color: #657422;">x =</span> language),</span>
+<span id="cb32-18">    <span class="at" style="color: #657422;">fill =</span> <span class="cn" style="color: #8f5902;">NA</span>,</span>
+<span id="cb32-19">    <span class="at" style="color: #657422;">color =</span> <span class="st" style="color: #20794D;">"grey70"</span>,</span>
+<span id="cb32-20">    <span class="at" style="color: #657422;">width =</span> <span class="fl" style="color: #AD0000;">0.55</span>,</span>
+<span id="cb32-21">    <span class="at" style="color: #657422;">size =</span> <span class="fl" style="color: #AD0000;">0.35</span>,</span>
+<span id="cb32-22">    <span class="at" style="color: #657422;">outlier.color =</span> <span class="cn" style="color: #8f5902;">NA</span></span>
+<span id="cb32-23">  ) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb32-24">  <span class="fu" style="color: #4758AB;">geom_jitter</span>(</span>
+<span id="cb32-25">    <span class="fu" style="color: #4758AB;">aes</span>(<span class="at" style="color: #657422;">y =</span> sentiment, <span class="at" style="color: #657422;">x =</span> language),</span>
+<span id="cb32-26">    <span class="at" style="color: #657422;">width =</span> <span class="fl" style="color: #AD0000;">0.35</span>,</span>
+<span id="cb32-27">    <span class="at" style="color: #657422;">height =</span> <span class="dv" style="color: #AD0000;">0</span>,</span>
+<span id="cb32-28">    <span class="at" style="color: #657422;">alpha =</span> <span class="fl" style="color: #AD0000;">0.15</span>,</span>
+<span id="cb32-29">    <span class="at" style="color: #657422;">size =</span> <span class="fl" style="color: #AD0000;">1.5</span></span>
+<span id="cb32-30">  ) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb32-31">  <span class="fu" style="color: #4758AB;">scale_y_continuous</span>(<span class="at" style="color: #657422;">n.breaks =</span> <span class="dv" style="color: #AD0000;">5</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb32-32">  <span class="co" style="color: #5E5E5E;"># theme_bw() +</span></span>
+<span id="cb32-33">  <span class="fu" style="color: #4758AB;">theme_afri</span>() <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb32-34">  <span class="fu" style="color: #4758AB;">geom_point</span>(<span class="at" style="color: #657422;">data =</span> avgs,</span>
+<span id="cb32-35">    <span class="fu" style="color: #4758AB;">aes</span>(<span class="at" style="color: #657422;">y =</span> ave_sentiment, <span class="at" style="color: #657422;">x =</span> language),</span>
+<span id="cb32-36">    <span class="at" style="color: #657422;">colour =</span> <span class="st" style="color: #20794D;">"red"</span>,</span>
+<span id="cb32-37">    <span class="at" style="color: #657422;">shape =</span> <span class="dv" style="color: #AD0000;">18</span>,</span>
+<span id="cb32-38">    <span class="at" style="color: #657422;">size =</span> <span class="dv" style="color: #AD0000;">4</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb32-39">  <span class="fu" style="color: #4758AB;">geom_point</span>(<span class="at" style="color: #657422;">data =</span> avgs_orig,</span>
+<span id="cb32-40">    <span class="fu" style="color: #4758AB;">aes</span>(<span class="at" style="color: #657422;">y =</span> ave_sentiment, <span class="at" style="color: #657422;">x =</span> assigned_long),</span>
+<span id="cb32-41">    <span class="at" style="color: #657422;">colour =</span> green1,</span>
+<span id="cb32-42">    <span class="at" style="color: #657422;">shape =</span> <span class="dv" style="color: #AD0000;">19</span>,</span>
+<span id="cb32-43">    <span class="at" style="color: #657422;">size =</span> <span class="dv" style="color: #AD0000;">4</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb32-44">  <span class="fu" style="color: #4758AB;">ylab</span>(<span class="st" style="color: #20794D;">"Sentiment"</span>) <span class="sc" style="color: #5E5E5E;">+</span> <span class="fu" style="color: #4758AB;">xlab</span>(<span class="st" style="color: #20794D;">"Language"</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb32-45">  <span class="fu" style="color: #4758AB;">labs</span>(<span class="at" style="color: #657422;">title =</span> <span class="st" style="color: #20794D;">"Average Sentiment at the Sentence Level is  Consistently Positive"</span>,</span>
+<span id="cb32-46">       <span class="at" style="color: #657422;">subtitle =</span> <span class="st" style="color: #20794D;">"There is wide disagreement with English tweets."</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb32-47">  <span class="fu" style="color: #4758AB;">annotate</span>(<span class="st" style="color: #20794D;">"text"</span>,<span class="at" style="color: #657422;">y =</span> .<span class="dv" style="color: #AD0000;">7</span>,<span class="at" style="color: #657422;">x=</span><span class="fl" style="color: #AD0000;">7.5</span>,<span class="at" style="color: #657422;">label =</span> <span class="st" style="color: #20794D;">"Red Diamond is Measured"</span>) <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb32-48">  <span class="fu" style="color: #4758AB;">annotate</span>(<span class="st" style="color: #20794D;">"text"</span>,<span class="at" style="color: #657422;">y =</span> .<span class="dv" style="color: #AD0000;">7</span>,<span class="at" style="color: #657422;">x=</span><span class="fl" style="color: #AD0000;">6.5</span>,<span class="at" style="color: #657422;">label =</span> <span class="st" style="color: #20794D;">"Green Circle is Original"</span>) <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb32-49">  <span class="fu" style="color: #4758AB;">coord_flip</span>()</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="outsiderdata.netlify.app/posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index_files/figure-html/plot sentence sentiment by langauge-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The dots are the measured sentiment of a sample of tweets. The markers are the average measured sentiment (red diamond) and average original sentiment (green circle), across all tweets. The measured sentiment looks more consistent then the original. The tweets in all languages are scored, on average, positive, by our calculations. We obviously disagree with the original. Note that the original 3-level sentiment as been converted to a numeric range, -1 to 1, to compute the green markers, whereas the range for our measurements is much wider.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1">tweet_sentence <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb33-2">  <span class="fu" style="color: #4758AB;">ggplot</span>(<span class="fu" style="color: #4758AB;">aes</span>(ave_sentiment)) <span class="sc" style="color: #5E5E5E;">+</span> <span class="fu" style="color: #4758AB;">geom_histogram</span>(<span class="at" style="color: #657422;">fill=</span>yellow1,<span class="at" style="color: #657422;">bins=</span><span class="dv" style="color: #AD0000;">50</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb33-3">  <span class="fu" style="color: #4758AB;">scale_x_continuous</span>(<span class="at" style="color: #657422;">limits =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="sc" style="color: #5E5E5E;">-</span><span class="dv" style="color: #AD0000;">3</span>,<span class="dv" style="color: #AD0000;">3</span>))<span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb33-4">  <span class="fu" style="color: #4758AB;">theme_afri</span>()</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="outsiderdata.netlify.app/posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index_files/figure-html/sentences by tweetnum-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We no longer have the problem where too many tweets are neutral. The median of the distribution above is zero but there are far fewer tweets that are of exactly zero valence. This let’s us expand the range of neutral above and below zero. I tried to balance the data to match the distribution of sentiment in the original data as closely as possible.</p>
+<p>While we’re at it let’s put our results together.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><span class="co" style="color: #5E5E5E;"># picked these levels to balance the data set</span></span>
+<span id="cb34-2">low <span class="ot" style="color: #003B4F;">=</span> <span class="sc" style="color: #5E5E5E;">-</span><span class="fl" style="color: #AD0000;">0.01</span></span>
+<span id="cb34-3">high <span class="ot" style="color: #003B4F;">=</span> <span class="fl" style="color: #AD0000;">0.12</span></span>
+<span id="cb34-4">tweet_sentence <span class="ot" style="color: #003B4F;">&lt;-</span> tweet_sentence <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb34-5">  <span class="fu" style="color: #4758AB;">as_tibble</span>() <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb34-6">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">label_sentence =</span> <span class="fu" style="color: #4758AB;">cut</span>(ave_sentiment,</span>
+<span id="cb34-7">                              <span class="at" style="color: #657422;">breaks =</span> <span class="fu" style="color: #4758AB;">c</span>( <span class="sc" style="color: #5E5E5E;">-</span><span class="cn" style="color: #8f5902;">Inf</span>,low,high,<span class="cn" style="color: #8f5902;">Inf</span>), <span class="at" style="color: #657422;">labels=</span><span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"negative"</span>,<span class="st" style="color: #20794D;">"neutral"</span>,<span class="st" style="color: #20794D;">"positive"</span>)))</span>
+<span id="cb34-8"></span>
+<span id="cb34-9">tweet_sentiment <span class="ot" style="color: #003B4F;">&lt;-</span></span>
+<span id="cb34-10">  <span class="fu" style="color: #4758AB;">left_join</span>(tweet_sentiment, tweet_sentence,</span>
+<span id="cb34-11">            <span class="at" style="color: #657422;">by =</span> <span class="fu" style="color: #4758AB;">join_by</span>(language, tweet_num))</span></code></pre></div>
+</div>
+<p>Compare our distribution to the original.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1">tweet_sentiment <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb35-2">    <span class="fu" style="color: #4758AB;">pivot_longer</span>(<span class="fu" style="color: #4758AB;">c</span>(label_original,label_sentence),</span>
+<span id="cb35-3">               <span class="at" style="color: #657422;">names_to =</span> <span class="st" style="color: #20794D;">"source"</span>,<span class="at" style="color: #657422;">values_to =</span> <span class="st" style="color: #20794D;">"sentiment"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb35-4">  <span class="fu" style="color: #4758AB;">group_by</span>(source,sentiment) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb35-5">  <span class="fu" style="color: #4758AB;">count</span>() <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb35-6">  <span class="fu" style="color: #4758AB;">group_by</span>(source) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb35-7">  <span class="fu" style="color: #4758AB;">reframe</span>(sentiment,<span class="at" style="color: #657422;">proportion =</span> n<span class="sc" style="color: #5E5E5E;">/</span><span class="fu" style="color: #4758AB;">sum</span>(n)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb35-8">  <span class="fu" style="color: #4758AB;">ungroup</span>() <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb35-9">  <span class="fu" style="color: #4758AB;">ggplot</span>(<span class="fu" style="color: #4758AB;">aes</span>(sentiment,proportion,<span class="at" style="color: #657422;">fill=</span>source)) <span class="sc" style="color: #5E5E5E;">+</span> <span class="fu" style="color: #4758AB;">geom_col</span>(<span class="at" style="color: #657422;">position =</span> <span class="st" style="color: #20794D;">"dodge"</span>) <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb35-10">  <span class="fu" style="color: #4758AB;">scale_fill_manual</span>(<span class="at" style="color: #657422;">values =</span> <span class="fu" style="color: #4758AB;">c</span>(yellow1,green1)) <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb35-11">    <span class="fu" style="color: #4758AB;">theme_afri</span>() <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb35-12">  <span class="fu" style="color: #4758AB;">labs</span>(<span class="at" style="color: #657422;">title =</span> <span class="st" style="color: #20794D;">'Choose Valence Range of "Neutral" to Balance Outcomes'</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="outsiderdata.netlify.app/posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index_files/figure-html/plot compare distribution-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="a-dissapointing-outcome" class="level2">
+<h2 class="anchored" data-anchor-id="a-dissapointing-outcome">A Dissapointing Outcome</h2>
+<p>As you can see, we are pretty balanced. This is kind of cheating because we are calibrating the category breakpoints to the known data. We should be calibrating to a training set and then see how it works on the test set. Let’s just see if the in-sample fit is any good first.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1">xt <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">with</span>(tweet_sentiment,<span class="fu" style="color: #4758AB;">table</span>(label_original,label_sentence))</span>
+<span id="cb36-2">xt</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              label_sentence
+label_original negative neutral positive
+      negative    17776   11510     7278
+      neutral      9624   18651    10876
+      positive     5558    9859    20588</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1">caret<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">confusionMatrix</span>(xt) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb38-2">  broom<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">tidy</span>() <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb38-3">  <span class="fu" style="color: #4758AB;">slice_head</span>(<span class="at" style="color: #657422;">n=</span><span class="dv" style="color: #AD0000;">2</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 6
+  term     class estimate conf.low conf.high p.value
+  &lt;chr&gt;    &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+1 accuracy &lt;NA&gt;     0.510    0.507     0.513       0
+2 kappa    &lt;NA&gt;     0.265   NA        NA          NA</code></pre>
+</div>
+</div>
+<p>Wow. That’s disappointing. The agreement with the original sentiment is nearly identical to the word-level measurements. That is, poor. I thought balancing the outcomes to match the frequency of the original would help, at least.</p>
+<p>Do our two measures agree with each other?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1">xt <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">with</span>(tweet_sentiment,<span class="fu" style="color: #4758AB;">table</span>(label_afinn,label_sentence))</span>
+<span id="cb40-2">xt</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           label_sentence
+label_afinn negative neutral positive
+   negative    18667    4586     4311
+   neutral      9301   29272    13115
+   positive     4990    6162    21316</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1">caret<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">confusionMatrix</span>(xt) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb42-2">  broom<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">tidy</span>() <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb42-3">  <span class="fu" style="color: #4758AB;">slice_head</span>(<span class="at" style="color: #657422;">n=</span><span class="dv" style="color: #AD0000;">2</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 6
+  term     class estimate conf.low conf.high p.value
+  &lt;chr&gt;    &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+1 accuracy &lt;NA&gt;     0.620    0.617     0.623       0
+2 kappa    &lt;NA&gt;     0.425   NA        NA          NA</code></pre>
+</div>
+</div>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>If we take the sentiment labels in the original data set as “true,” our sentiment valence measurements in English do a poor job. A cursory visual examination reveals that the sentiment we assigned with our valence measures look pretty reasonable in most cases but do not predict what is in the Afrisenti data set very well. We therefore conclude that Google Cloud Translate doesn’t match well with these tweets using tidytext methods.</p>
+<p>We’re not defeated yet. Our measurements had no knowledge of what the original sentiments were. What if we could learn the inscrutable methods used to assign sentiment in the original? In the next post we’ll apply machine learning to see if we can train a model using the translated tweets that is in closer agreement with the Afrisenti data set.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-Muhammad2023AfriSentiAT" class="csl-entry">
+Muhammad, Shamsuddeen Hassan, Idris Abdulmumin, Abinew Ali Ayele, Nedjma Ousidhoum, David Ifeoluwa Adelani, Seid Muhie Yimam, Ibrahim Sa’id Ahmad, et al. 2023. <span>“AfriSenti: A Twitter Sentiment Analysis Benchmark for African Languages.”</span> In.
+</div>
+</div></section></div> ]]></description>
+  <category>tidytext</category>
+  <category>twitter</category>
+  <guid>outsiderdata.netlify.app/posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index.html</guid>
+  <pubDate>Sun, 16 Apr 2023 04:00:00 GMT</pubDate>
+  <media:content url="outsiderdata.netlify.app/posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/img/preview.png" medium="image" type="image/png" height="103" width="144"/>
+</item>
 <item>
   <title>Sentiment Analysis Using Google Translate (Pt. 1)</title>
   <dc:creator>Art Steinmetz</dc:creator>
@@ -333,6 +850,9 @@ Note
 Muhammad, Shamsuddeen Hassan, Seid Yimam, Idris Abdulmumin, Ibrahim Sa’id Ahmad, Ousidhoum Nedjma, Ayele Abinew, David Adelani, et al. 2023. <span>“<span>S</span>em<span>E</span>val-2023 Task 12: Sentiment Analysis for African Languages (<span>A</span>fri<span>S</span>enti-<span>S</span>em<span>E</span>val).”</span> In <em>Proceedings of the 17th International Workshop on Semantic Evaluation (SemEval-2023)</em>.
 </div>
 </div></section></div> ]]></description>
+  <category>tidyverse</category>
+  <category>google translate</category>
+  <category>twitter</category>
   <guid>outsiderdata.netlify.app/posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/index.html</guid>
   <pubDate>Sat, 15 Apr 2023 04:00:00 GMT</pubDate>
   <media:content url="outsiderdata.netlify.app/posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/img/preview.png" medium="image" type="image/png" height="103" width="144"/>
