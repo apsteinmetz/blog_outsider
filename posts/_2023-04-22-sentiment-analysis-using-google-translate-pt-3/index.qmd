@@ -27,14 +27,15 @@ We will take the usual approach of splitting the data into test and training set
 ```{r setup}
 #| warning: false
 suppressPackageStartupMessages({
-library(tidyverse)
-library(tidytext)
-library(tidymodels)
-library(textrecipes)
-library(vip)
-library(butcher)
-library(yardstick)
-library(hardhat)
+  library(tidyverse)
+  library(tidytext)
+  library(tidymodels)
+  library(textrecipes)
+  library(vip)
+  library(butcher)
+  library(yardstick)
+  library(hardhat)
+  library(tictoc)
 })
 
 
@@ -185,28 +186,31 @@ tweet_rec_af <-
   recipe(sentiment ~ tweet, data = tweet_train) %>%
   step_tokenize(tweet)  %>%
   step_stopwords(tweet,custom_stopword_source = full_stop_words) %>%
-  step_tokenfilter(tweet, max_tokens = 2e3) %>%
+  step_tokenfilter(tweet, max_tokens = 2e2) %>%
   step_tfidf(tweet)
 
 # choose the model
-rf_model <- parsnip::rand_forest(trees = 100) %>% 
-   set_engine("ranger",num.threads = cores,importance = "impurity") %>% 
+rf_model <- parsnip::rand_forest() %>% 
+   set_engine("ranger",importance = "impurity") %>% 
    set_mode("classification")
 
 
 # describe the workflow
 # we specify that we'll be working with a sparse matrix in the blueprint
-wf <- 
+wf_rf <- 
     workflow() |> 
     add_recipe(tweet_rec_af,
                blueprint = default_recipe_blueprint(composition = "dgCMatrix")) |> 
     add_model(rf_model)
+
+prep_af <- prep(tweet_rec_af)
+temp <- bake(prep_af,new_data = NULL)
 ```
 
 ## Fit the model
 ```{r}
 tic()
-rf_fit <- fit(wf_rf_sparse,tweet_train)
+rf_fit <- fit(wf_rf,tweet_train)
 toc()
 
 ```
