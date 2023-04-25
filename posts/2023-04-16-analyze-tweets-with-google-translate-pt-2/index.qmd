@@ -35,7 +35,7 @@ Now that we have all of the tweets translated into English we can use sentiment 
 
 ## Sentiment Measurement at the Word Level
 
-We will be using the tidytext package in this project and following the approach shown in the ["Introduction to tidytext" by Julia Silge and Dave Robinson](https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html).
+We will be using the tidytext package in this project and following the approach shown in the ["Introduction to tidytext" by Julia Silge and Dave Robinson](https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html) and [Tidy Text Mining](https://www.tidytextmining.com/)[@silge2016].
 
 First load the needed packages and the translated tweets from part one of this project.
 

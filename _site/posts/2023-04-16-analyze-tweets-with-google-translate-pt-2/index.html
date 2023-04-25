@@ -291,7 +291,7 @@ div.csl-indent {
 </section>
 <section id="sentiment-measurement-at-the-word-level" class="level2">
 <h2 class="anchored" data-anchor-id="sentiment-measurement-at-the-word-level">Sentiment Measurement at the Word Level</h2>
-<p>We will be using the tidytext package in this project and following the approach shown in the <a href="https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html">“Introduction to tidytext” by Julia Silge and Dave Robinson</a>.</p>
+<p>We will be using the tidytext package in this project and following the approach shown in the <a href="https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html">“Introduction to tidytext” by Julia Silge and Dave Robinson</a> and <a href="https://www.tidytextmining.com/">Tidy Text Mining</a><span class="citation" data-cites="silge2016">(<a href="#ref-silge2016" role="doc-biblioref">Silge and Robinson 2016</a>)</span>.</p>
 <p>First load the needed packages and the translated tweets from part one of this project.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#load libraries</span></span>
@@ -338,7 +338,7 @@ div.csl-indent {
  8         8 Amharic       What happened to Schimmels is sad. By the word… nega…
  9         9 Amharic       An unstable country does not need elections     nega…
 10        10 Amharic       The idiot and the bubble, the Ethiopian PM Abi… nega…
-# … with 111,710 more rows</code></pre>
+# ℹ 111,710 more rows</code></pre>
 </div>
 </div>
 <p>The <code>tidytext</code> package makes it easy to divide each tweet into separate words and measure the sentiment valence of each one. The <code>tidytext</code> package has a few sentiment lexicons. Here, we decide the sentiment of each word using the “afinn” lexicon. We chose this because it has 11 shades of sentiment and we hope the finer granularity will be helpful. If a word is not in the lexicon we code it as”0” or neutral. Further, we need to use the stems of words. “Idiots” is not in our sentiment sources, “Idiot” is. Word stemming will fix that. The <code>hunspell</code> package using <code>hunspell_stem()</code> will do the trick. It returns a list of possible stems (usually just one, but not always) so we have to <code>unnest()</code> the list column. The trade-off is that if the word is not in <code>hunspell</code>’s dictionary, it drops the word. Fortunately, there are over 49,000 words in the dictionary.</p>
@@ -770,6 +770,9 @@ label_afinn negative neutral positive
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
 <div id="ref-Muhammad2023AfriSentiAT" class="csl-entry" role="doc-biblioentry">
 Muhammad, Shamsuddeen Hassan, Idris Abdulmumin, Abinew Ali Ayele, Nedjma Ousidhoum, David Ifeoluwa Adelani, Seid Muhie Yimam, Ibrahim Sa’id Ahmad, et al. 2023. <span>“AfriSenti: A Twitter Sentiment Analysis Benchmark for African Languages.”</span> In.
+</div>
+<div id="ref-silge2016" class="csl-entry" role="doc-biblioentry">
+Silge, Julia, and David Robinson. 2016. <span>“Tidytext: Text Mining and Analysis Using Tidy Data Principles in r.”</span> <em>The Journal of Open Source Software</em> 1 (3): 37. <a href="https://doi.org/10.21105/joss.00037">https://doi.org/10.21105/joss.00037</a>.
 </div>
 </div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

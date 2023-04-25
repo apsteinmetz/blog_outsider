@@ -1,0 +1,213 @@
+---
+title: "Sentiment Analysis Using Google Translate (Pt. 3)"
+description: |
+
+author: Art Steinmetz
+date: 2023-04-22
+draft: true
+categories: 
+  - tidytext
+  - twitter
+format: html
+editor: visual
+bibliography: references.bib
+execute: 
+  freeze: true
+  warning: false
+---
+
+## Introduction
+
+In Part 2 of this series we learned that our valence measurement of the words in the Afrisenti data set did not agree well with the sentiments already provided. While the sentiments we derived made sense in general, they were determined without any knowledge of how the original sentiments were determined. For this post we will apply machine learning techniques to try to reverse engineer the thinking that went into the sentiment assignments.
+
+In our previous analysis we were only in agreement with original data about 50% of the time. Can our trained models do any better? If we train on the native language tweets will that get a better result than training on the the translated tweets? Let's see.
+
+We will take the usual approach of splitting the data into test and training sets then run a classifier model on the training set and finally validate it against the test set.
+
+```{r setup}
+#| warning: false
+suppressPackageStartupMessages({
+library(tidyverse)
+library(tidytext)
+library(tidymodels)
+library(textrecipes)
+library(vip)
+library(butcher)
+library(yardstick)
+library(hardhat)
+})
+
+
+# set up some chart defaults
+tan1 <- "#FDECCD"
+yellow1 <- "#FFBF00"
+green1 <- "#007000"
+
+theme_afri <- function(...){
+  # making a function allows passing further theme elements
+  ggplot2::theme(
+    plot.background = element_rect(fill = tan1, color = NA),
+    panel.background = element_blank(),
+    legend.background = element_blank(),
+    legend.box.background = element_blank(),
+    legend.key = element_blank(),
+    ...
+    ) 
+}
+# the the previously translated tweets.
+afrisenti_translated <- readr::read_csv('https://raw.githubusercontent.com/apsteinmetz/tidytuesday/master/2023-02-28_african_language/data/afrisenti_translated.csv',
+                                        show_col_types = FALSE) |>
+  mutate(lang = as.factor(assigned_long)) |> 
+  mutate(sentiment = as.factor(label)) |> 
+  mutate(intended_use = as.factor(intended_use)) |> 
+  select(lang,tweet_num,sentiment,translatedText,tweet,intended_use)
+afrisenti_translated
+```
+
+## Pre-Processing. Can We Make Our Job Easier?
+
+When we measured the tweets using a sentiment lexicon, only the words in the lexicon contributed to the sentiment measurement. Everything else was neutral. With machine learning everything counts and the more words we have the bigger the model and the longer it will take to train. It is common in analyzing text to drop low-information words or "stop words." In English, words like "the" and "that." We want to build a list of stop words relevant to our data set. On Kaggle I found a list of [stop words in various African languages](https://www.kaggle.com/datasets/rtatman/stopword-lists-for-african-languages). It doesn't cover every language in our data set but will reduce the matrix size a bit. We'll add that to the lexicon of English stop words and a custom lexicon built from a quick inspection of the data set.
+
+```{r}
+# ----- SETUP ------------------------------
+stop_words_af <- readr::read_csv('https://raw.githubusercontent.com/apsteinmetz/tidytuesday/master/data/stopwords_af.csv', show_col_types = FALSE)
+
+# add my stop words to defaults
+my_stop_words = tibble(word = c("http","https","dey","de","al","url","na","t.co","rt","user","users","wey","don",
+                                as.character(1:100)))
+                           
+
+# make a stopword list of any 1-character words
+# this is a somewhat arbitrary rubric for African language stop words
+stop_words_1char <- afrisenti_translated |> 
+  unnest_tokens(word,tweet) |> 
+  select(word) |> 
+  filter(str_length(word)<2) |> 
+  unique()
+
+full_stop_words <-  c(
+  tidytext::stop_words$word,
+  my_stop_words$word,
+  stop_words_af$word,
+  stop_words_1char$word
+)
+
+```
+
+What do we do when a negation flips the sentiment of a tweet? "I Love" is positive but "I do not love" is negative. In our previous post we tried sentence-level analysis to handle negation. Here we are doing word level training. We will address this by created new tokens where any instance of, say "not love" is replaced by "not_love," an entirely new word for our analysis. This is very crude and doesn't include most of our languages, but it's something.
+
+```{r}
+# make negation tokens
+afrisenti_translated <- afrisenti_translated |>
+  mutate(tweet = str_replace(tweet, "not ","not_"))  |> 
+  mutate(tweet = str_replace(tweet, "no ","no_")) |>
+  mutate(tweet = str_replace(tweet, "don't ","dont_")) |>
+  mutate(translatedText = str_replace(translatedText, "not ","not_")) |> 
+  mutate(translatedText = str_replace(translatedText, "no ","no_")) |>
+  mutate(translatedText = str_replace(translatedText, "don't ","dont_"))
+
+```
+
+## Explore the Data Set
+
+```{r EDA}
+summary(afrisenti_translated)
+```
+
+The data set is already tagged into training and test sets. The training set is twice the size of the test set. What is "dev?" I don't know if this split is random or not but we are concerned whether the profile of the training set is similar to the test set. Let's split it according to the tags.
+
+```{r}
+tweet_train <- afrisenti_translated |> 
+  filter(intended_use == "train") |> 
+  select(tweet_num,sentiment,lang,tweet)
+
+tweet_test <- afrisenti_translated |> 
+  filter(intended_use == "test") |> 
+  select(tweet_num,sentiment,lang,tweet)
+
+tweet_dev <- afrisenti_translated |> 
+  filter(intended_use == "dev") |> 
+  select(tweet_num,sentiment,lang,tweet)
+```
+
+Let's see if the training set is representative of the test set. Do the languages align?
+
+```{r}
+afrisenti_translated |> 
+ggplot(aes(lang,group=intended_use)) + 
+   geom_bar(aes(y = after_stat(prop)),fill = yellow1) + 
+          scale_y_continuous(labels=scales::percent) +
+  theme_afri(axis.text.x = element_text()) +
+  coord_flip() +
+  facet_grid(~intended_use) + 
+  labs(title = "Splits Are Reasonably Aligned by Language",
+       y = "Proportion", x= "Language")
+```
+
+Looks okay.
+
+Do the sentiments align?
+
+```{r}
+afrisenti_translated |> 
+ggplot(aes(sentiment,group=intended_use)) + 
+   geom_bar(aes(y = after_stat(prop)),fill=yellow1) + 
+          scale_y_continuous(labels=scales::percent) +
+  theme_afri(axis.text.x = element_text()) +
+  facet_grid(~intended_use) + 
+  coord_flip() + 
+  labs(title = "Splits Are Balanced by Sentiment",
+       y = "Proportion", x= "Sentiment")
+
+
+```
+
+## Approach to the Problem
+
+The structure of our model is basically a regression with one dependent variable and thousands of Independent variables which are all of the words in all the tweets. One approach would simply code each of the words by their presence or absence in the tweet. A more nuanced approach is to code each word in each tweet by how important it is in the tweet, ["tf-idf"](https://www.tidytextmining.com/tfidf.html),sort of a uniqueness measure. This has the added benefit of down-ranking stop words that appear very frequently all over the place, even if we have no stop word lexicon for a certain language.
+
+There are over 260,000 unique words in this set of tweets. That's 260,00 variables and over 110,000 tweets. That's a pretty big matrix, over 28 billion elements, but the vast majority of those elements are filled with zero. We can make the memory size of this monster manageable by using a ["sparse matrix."](https://www.tidyverse.org/blog/2020/11/tidymodels-sparse-support/) Such a matrix describes what elements are empty without actually populating them. Fortunately a number of machine learning packages understand sparse matrices.
+
+Another goal of this project is to learn more about the [`tidymodels` framework](tidymodels.org). This is an extension of the Posit `tidyverse`. I haven't made up my mind about this yet. Is it more or less work? `tidymodels` establish a consistent workflow for machine learning applications that allow us to change the building blocks of the model in a simple fashion and make clear what the each of the blocks do. It also provides integrated tools for pre-processing the data and tuning the models to optimize performance. It uses a kitchen metaphor that involves `recipe`s you can `prep`, `juice` and `bake`. There is a ton of stuff and it's frankly intimidating.  We will only touch the surface here.
+
+We are particularly interested in the [`textrecipes`](https://textrecipes.tidymodels.org/index.html) package which contains an additional set of potential recipe steps for text oriented data.
+
+We'll establish a baseline by training a model on the African-language tweets. Note that we don't care what language the token is. It could be any language or no language. It could be an emoji, as long as it is associated with a sentiment. There is a risk that the same word could convey the opposite sentiment in two different languages but I assume it is rare enough to ignore.
+
+
+## Build the Model
+
+```{r}
+# try it the sparse way
+
+# make recipe
+tweet_rec_af <-
+  recipe(sentiment ~ tweet, data = tweet_train) %>%
+  step_tokenize(tweet)  %>%
+  step_stopwords(tweet,custom_stopword_source = full_stop_words) %>%
+  step_tokenfilter(tweet, max_tokens = 2e3) %>%
+  step_tfidf(tweet)
+
+# choose the model
+rf_model <- parsnip::rand_forest(trees = 100) %>% 
+   set_engine("ranger",num.threads = cores,importance = "impurity") %>% 
+   set_mode("classification")
+
+
+# describe the workflow
+# we specify that we'll be working with a sparse matrix in the blueprint
+wf <- 
+    workflow() |> 
+    add_recipe(tweet_rec_af,
+               blueprint = default_recipe_blueprint(composition = "dgCMatrix")) |> 
+    add_model(rf_model)
+```
+
+## Fit the model
+```{r}
+tic()
+rf_fit <- fit(wf_rf_sparse,tweet_train)
+toc()
+
+```
+
