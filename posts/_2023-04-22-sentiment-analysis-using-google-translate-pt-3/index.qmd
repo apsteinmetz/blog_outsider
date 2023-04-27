@@ -186,11 +186,11 @@ tweet_rec_af <-
   recipe(sentiment ~ tweet, data = tweet_train) %>%
   step_tokenize(tweet)  %>%
   step_stopwords(tweet,custom_stopword_source = full_stop_words) %>%
-  step_tokenfilter(tweet, max_tokens = 2e2) %>%
+  step_tokenfilter(tweet, max_tokens = 1e3) %>%
   step_tfidf(tweet)
 
 # choose the model
-rf_model <- parsnip::rand_forest() %>% 
+rf_model <- parsnip::rand_forest(trees = 100) %>% 
    set_engine("ranger",importance = "impurity") %>% 
    set_mode("classification")
 
@@ -199,12 +199,11 @@ rf_model <- parsnip::rand_forest() %>%
 # we specify that we'll be working with a sparse matrix in the blueprint
 wf_rf <- 
     workflow() |> 
-    add_recipe(tweet_rec_af,
-               blueprint = default_recipe_blueprint(composition = "dgCMatrix")) |> 
+#    add_recipe(tweet_rec_af,
+#               blueprint = default_recipe_blueprint(composition = "dgCMatrix")) |> 
+    add_recipe(tweet_rec_af) |> 
     add_model(rf_model)
 
-prep_af <- prep(tweet_rec_af)
-temp <- bake(prep_af,new_data = NULL)
 ```
 
 ## Fit the model
@@ -212,6 +211,14 @@ temp <- bake(prep_af,new_data = NULL)
 tic()
 rf_fit <- fit(wf_rf,tweet_train)
 toc()
+
+```
+```{r}
+actual <- tweet_test$sentiment
+predicted <- predict(rf_fit,tweet_test,type = "class")$.pred_class
+tab <- table(actual,predicted)
+tab
+caret::confusionMatrix(tab)
 
 ```
 
