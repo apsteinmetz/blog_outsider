@@ -1,15 +1,10 @@
 # modeling of sentiment
 library(tidyverse)
 library(tidytext)
-library(tidymodels)
-library(textrecipes)
-library(tm)
-library(vip)
+library(quanteda)
 library(tictoc)
-library(butcher)
-library(yardstick)
-library(hardhat)
-library(Matrix)
+library(ranger)
+library(xgboost)
 
 #setwd("2023-02-28_african_language")
 load("~/R Projects/tidytuesday/2023-02-28_african_language/data/stopwords_af.rdata")
@@ -107,40 +102,18 @@ token_filter <- function(tokens) {
     # call any word of 1 or 2 characters a stop word
     filter(str_length(word) > 2)
 }
-
-
-make_dfm <- function(tweet_data) {
-  tweet_tokens <- tweet_data |>
-    unnest_tokens(word, tweet) |>
-    token_filter() |>
-    only_top_words(1000) |>
-    count(tweet_num, word) |>
-    bind_tf_idf(word, tweet_num, n) |>
-    select(tweet_num, word, tf_idf) |>
-    pivot_wider(
-      names_from = word,
-      names_prefix = "word_",
-      values_from = tf_idf,
-      values_fill = 0
-    ) |>
-    left_join(select(tweet_data, tweet_num, sentiment)) |>
-    select(sentiment, everything(), -tweet_num)
-  return(tweet_tokens)
-}
-
-
 # --------------------------------------
 # make sparse document-feature matrix
 
-make_dfm <- function(tweet_data,native = TRUE) {
-tweet_tokens <- 
-  if(native){
-    unnest_tokens(tweet_data,word, tweet)
+make_dfm <- function(tweet_data,translated = FALSE,num_words = 1000) {
+  if(translated){
+    tweet_tokens <- unnest_tokens(select(tweet_data,tweet_num,translatedText),word, translatedText)
   } else{
-    unnest_tokens(tweet_data,word,translatedText)
-  } |> 
+    tweet_tokens <- unnest_tokens(select(tweet_data,tweet_num,tweet),word,tweet)
+  } 
+tweet_tokens <- tweet_tokens |> 
   token_filter() |>
-  only_top_words(2000) |>
+  only_top_words(num_words) |>
   count(tweet_num, word) |>
   bind_tf_idf(word, tweet_num, n) |>
   select(tweet_num, word, tf_idf)
@@ -158,8 +131,17 @@ return(tweet_dfm)
 }
 
 
-tweet_train_dfm <- make_dfm(tweet_train,native = FALSE)
-tweet_test_dfm <- make_dfm(tweet_test,native = FALSE)
+# more words in common in the translated word list
+translated = TRUE
+tweet_train_dfm <- make_dfm(tweet_train,translated = translated,num_words = 2000)
+tweet_test_dfm <- make_dfm(tweet_test,translated = translated,num_words = 2000)
+
+
+# how close are the word lists?
+# more words in common in the translated word list
+inner_join(enframe(dimnames(tweet_train_dfm)[[2]]),
+           enframe(dimnames(tweet_test_dfm)[[2]]),
+           by = "value") |> nrow() |> paste("Words in both train and test sets")
 
 # make sure test set has all variables in both train and test sets
 tweet_test_dfm <- dfm_match(tweet_test_dfm, 
@@ -168,13 +150,14 @@ tweet_test_dfm <- dfm_match(tweet_test_dfm,
 # -------------------------------------------
 # run the models
 
+tic()
 rf_fit <- ranger::ranger(y= tweet_train_dfm$sentiment,
                          x=tweet_train_dfm,
                          num.trees = 100,
                          classification = TRUE)
 
 predictions <- predict(rf_fit,tweet_test_dfm)
-
+toc()
 
 # Validation set assessment #1: looking at confusion matrix
 predicted_for_table <- tibble(actual = tweet_test_dfm$sentiment,
@@ -183,102 +166,28 @@ predicted_for_table <- tibble(actual = tweet_test_dfm$sentiment,
 
 caret::confusionMatrix(table(predicted_for_table))
 
-# ------------------------------------------------------
-# try it the sparse way
-# make recipe
-sparse_bp <- default_recipe_blueprint(composition = "dgCMatrix")
-
-tweet_rec_eng <-
-  recipe(sentiment ~ translatedText, data = tweet_train) |>
-  step_tokenize(translatedText)  |>
-  step_stopwords(translatedText,custom_stopword_source = full_stop_words) |>
-  step_tokenfilter(translatedText, max_tokens = 2e3) |>
-  step_tfidf(translatedText)
-
-tweet_rec_af <-
-  recipe(sentiment ~ tweet, data = tweet_train) |>
-  step_tokenize(tweet)  |>
-  step_stopwords(tweet,custom_stopword_source = full_stop_words) |>
-  step_tokenfilter(tweet, max_tokens = 2e3) |>
-  step_tfidf(tweet)
-
-# cores <- parallel::detectCores()
-
-# rf_model <- parsnip::rand_forest(trees = 100) |> 
-#   set_engine("ranger",num.threads = cores,importance = "impurity") |> 
-#   set_mode("classification")
-# 
-# xg_model <- parsnip::boost_tree(trees = 100,tree_depth = 50) |> 
-#   set_engine("xgboost",nthread = cores,verbose = 0) |> 
-#   set_mode("classification")
-# 
-lasso_model <-
-  logistic_reg(penalty = 0.02, mixture = 1) |>
-  set_engine("glmnet") |>
-  set_args(family = "binomial")
-
-# wf_xg_sparse <- 
-#   workflow() |> 
-#   add_recipe(tweet_rec,blueprint = sparse_bp) |> 
-#   add_model(xg_model)
-# 
-# wf_rf_sparse <- 
-#    workflow() |> 
-#    add_recipe(tweet_rec,blueprint = sparse_bp) |> 
-#    add_model(rf_model)
-
-wf_lasso_eng <- 
-  workflow() |> 
-  add_recipe(tweet_rec_eng,blueprint = sparse_bp) |> 
-  add_model(lasso_model)
-
-wf_lasso_af <- 
-  workflow() |> 
-  add_recipe(tweet_rec_af,blueprint = sparse_bp) |> 
-  add_model(lasso_model)
-
-# wf_rf_fat <- 
-#   workflow() |> 
-#   add_recipe(tweet_rec) |> 
-#   #  add_recipe(tweet_rec,blueprint = sparse_bp) |> 
-#   add_model(rf_model)
-
-# tic()
-# rf_fit <- fit(wf_rf_sparse,tweet_train)
-# toc()
-
-# tic()
-# xg_fit <- fit(wf_xg_sparse,tweet_train)
-# toc()
-# 
-# xg_fit
-# 
-# # summary(predict(rf_fit,tweet_train))
-# summary(predict(xg_fit,tweet_train))
-
 tic()
-lasso_fit_eng <- fit(wf_lasso_eng,tweet_train)
+xg_fit <- xgboost(
+  data = tweet_train_dfm,
+  max.depth = 100,
+  nrounds = 100,
+  objective = "multi:softmax",
+  num_class = 3,
+  label = as.numeric(tweet_train_dfm$sentiment)-1,
+  print_every_n = 10
+)
 toc()
 
-# use native languages
-# summary(predict(rf_fit,tweet_train))
-actual <- tweet_test$sentiment
-predicted <- predict(lasso_fit_eng,tweet_test,type = "class")$.pred_class
+xg_fit$evaluation_log |> 
+  ggplot(aes(iter,train_mlogloss)) + geom_line()
 
-tab <- table(actual,predicted)
-tab
-confusionMatrix(tab)
+predicted <- predict(xg_fit,tweet_test_dfm) |> 
+  as.factor()
 
-# african model run
-tic()
-lasso_fit_af <- fit(wf_lasso_af,tweet_train)
-toc()
+levels(predicted) <- levels(tweet_test$sentiment)
+predicted_for_table <- tibble(actual = tweet_test_dfm$sentiment,
+                              predicted)
 
-# summary(predict(rf_fit,tweet_train))
-actual <- tweet_test$sentiment
-predicted <- predict(lasso_fit_af,tweet_test,type = "class")$.pred_class
 
-tab <- table(actual,predicted)
-tab
-confusionMatrix(tab)
+caret::confusionMatrix(table(predicted_for_table))
 
