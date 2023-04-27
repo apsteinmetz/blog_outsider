@@ -132,7 +132,7 @@ return(tweet_dfm)
 
 
 # more words in common in the translated word list
-translated = TRUE
+translated = FALSE
 tweet_train_dfm <- make_dfm(tweet_train,translated = translated,num_words = 2000)
 tweet_test_dfm <- make_dfm(tweet_test,translated = translated,num_words = 2000)
 

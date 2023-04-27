@@ -12,6 +12,7 @@ format: html
 editor: visual
 bibliography: references.bib
 execute: 
+  eval: false
   freeze: true
   warning: false
 ---
@@ -22,21 +23,17 @@ In Part 2 of this series we learned that our valence measurement of the words in
 
 In our previous analysis we were only in agreement with original data about 50% of the time. Can our trained models do any better? If we train on the native language tweets will that get a better result than training on the the translated tweets? Let's see.
 
-We will take the usual approach of splitting the data into test and training sets then run a classifier model on the training set and finally validate it against the test set.
+We will take the usual machine learning approach of splitting the data into test and training sets, then run a classifier model on the training set and finally validate it against the test set.
 
 ```{r setup}
 #| warning: false
 suppressPackageStartupMessages({
-  library(tidyverse)
-  library(tidytext)
-  library(tidymodels)
-  library(textrecipes)
-  library(vip)
-  library(butcher)
-  library(yardstick)
-  library(hardhat)
-  library(tictoc)
-})
+library(tidyverse)
+library(tidytext)
+library(quanteda)
+library(tictoc)
+library(ranger)
+library(xgboost)})
 
 
 # set up some chart defaults
@@ -65,50 +62,6 @@ afrisenti_translated <- readr::read_csv('https://raw.githubusercontent.com/apste
 afrisenti_translated
 ```
 
-## Pre-Processing. Can We Make Our Job Easier?
-
-When we measured the tweets using a sentiment lexicon, only the words in the lexicon contributed to the sentiment measurement. Everything else was neutral. With machine learning everything counts and the more words we have the bigger the model and the longer it will take to train. It is common in analyzing text to drop low-information words or "stop words." In English, words like "the" and "that." We want to build a list of stop words relevant to our data set. On Kaggle I found a list of [stop words in various African languages](https://www.kaggle.com/datasets/rtatman/stopword-lists-for-african-languages). It doesn't cover every language in our data set but will reduce the matrix size a bit. We'll add that to the lexicon of English stop words and a custom lexicon built from a quick inspection of the data set.
-
-```{r}
-# ----- SETUP ------------------------------
-stop_words_af <- readr::read_csv('https://raw.githubusercontent.com/apsteinmetz/tidytuesday/master/data/stopwords_af.csv', show_col_types = FALSE)
-
-# add my stop words to defaults
-my_stop_words = tibble(word = c("http","https","dey","de","al","url","na","t.co","rt","user","users","wey","don",
-                                as.character(1:100)))
-                           
-
-# make a stopword list of any 1-character words
-# this is a somewhat arbitrary rubric for African language stop words
-stop_words_1char <- afrisenti_translated |> 
-  unnest_tokens(word,tweet) |> 
-  select(word) |> 
-  filter(str_length(word)<2) |> 
-  unique()
-
-full_stop_words <-  c(
-  tidytext::stop_words$word,
-  my_stop_words$word,
-  stop_words_af$word,
-  stop_words_1char$word
-)
-
-```
-
-What do we do when a negation flips the sentiment of a tweet? "I Love" is positive but "I do not love" is negative. In our previous post we tried sentence-level analysis to handle negation. Here we are doing word level training. We will address this by created new tokens where any instance of, say "not love" is replaced by "not_love," an entirely new word for our analysis. This is very crude and doesn't include most of our languages, but it's something.
-
-```{r}
-# make negation tokens
-afrisenti_translated <- afrisenti_translated |>
-  mutate(tweet = str_replace(tweet, "not ","not_"))  |> 
-  mutate(tweet = str_replace(tweet, "no ","no_")) |>
-  mutate(tweet = str_replace(tweet, "don't ","dont_")) |>
-  mutate(translatedText = str_replace(translatedText, "not ","not_")) |> 
-  mutate(translatedText = str_replace(translatedText, "no ","no_")) |>
-  mutate(translatedText = str_replace(translatedText, "don't ","dont_"))
-
-```
-
 ## Explore the Data Set
 
 ```{r EDA}
@@ -120,15 +73,15 @@ The data set is already tagged into training and test sets. The training set is 
 ```{r}
 tweet_train <- afrisenti_translated |> 
   filter(intended_use == "train") |> 
-  select(tweet_num,sentiment,lang,tweet)
+  select(tweet_num,sentiment,lang,tweet,translatedText)
 
 tweet_test <- afrisenti_translated |> 
   filter(intended_use == "test") |> 
-  select(tweet_num,sentiment,lang,tweet)
+  select(tweet_num,sentiment,lang,tweet,translatedText)
 
 tweet_dev <- afrisenti_translated |> 
   filter(intended_use == "dev") |> 
-  select(tweet_num,sentiment,lang,tweet)
+  select(tweet_num,sentiment,lang,tweet,translatedText)
 ```
 
 Let's see if the training set is representative of the test set. Do the languages align?
@@ -165,60 +118,186 @@ ggplot(aes(sentiment,group=intended_use)) +
 
 ## Approach to the Problem
 
-The structure of our model is basically a regression with one dependent variable and thousands of Independent variables which are all of the words in all the tweets. One approach would simply code each of the words by their presence or absence in the tweet. A more nuanced approach is to code each word in each tweet by how important it is in the tweet, ["tf-idf"](https://www.tidytextmining.com/tfidf.html),sort of a uniqueness measure. This has the added benefit of down-ranking stop words that appear very frequently all over the place, even if we have no stop word lexicon for a certain language.
+The structure of our model is basically a regression with one dependent variable and thousands of Independent variables which are all of the words ("tokens") in all the tweets. One approach would simply code each of the words by their presence or absence in the tweet. A more nuanced approach is to code each word in each tweet by how important it is in the tweet. ["tf-idf"](https://www.tidytextmining.com/tfidf.html), is sort of a uniqueness measure. This has the added benefit of down-ranking stop words that appear very frequently all over the place, even if we have no stop-word lexicon for a certain language.
 
-There are over 260,000 unique words in this set of tweets. That's 260,00 variables and over 110,000 tweets. That's a pretty big matrix, over 28 billion elements, but the vast majority of those elements are filled with zero. We can make the memory size of this monster manageable by using a ["sparse matrix."](https://www.tidyverse.org/blog/2020/11/tidymodels-sparse-support/) Such a matrix describes what elements are empty without actually populating them. Fortunately a number of machine learning packages understand sparse matrices.
+There are several machine learning models we might try. There are two R packages suitable for classifiers where there are more than two categores that also work with sparse matrices (see below), `ranger` and `xgboost`. In preview we will use `xgboost` here because the results are about same but `xgboost` is much faster. Here is a short comparison of [different machine learning approaches](https://arxiv.org/ftp/arxiv/papers/2101/2101.06353.pdf) to sentiment analysis.[@Saifullah2021]
 
-There are several machine learning models we might try. I have had the most success with random forests. Here is a short comparison of [different machine learning approaches](%22https://arxiv.org/ftp/arxiv/papers/2101/2101.06353.pdf#:~:text=Random%20Forest%20(RF)%20is%20a,the%20sample%20data%20they%20have.%22) to sentiment analysis.[@Saifullah2021]
+::: callout-note
+## Why not tidymodels?
+
+I set out to use RStudio's suite of machine learning workflow packages, `tidymodels`, in this project, but quickly became frustrated. I could never get the wrapper around `xgboost` to give a sensible result (it's probably my fault) and there is a bug in the wrapper around `ranger` that prevents making predictions with the model. So we'll do it the old-fashioned way.
+:::
+
+## Pre-Processing.
+
+There are some things we can to do boost our chances of a satisfying outcome. As noted above we're going to build a matrix with the tweet numbers, an arbitrary index to uniquely identify each tweet ("document"), as the rows, and each word in every tweet ("feature") as the columns. This will create a "document feature matrix."
+
+Before we create the matrix, we first split all the tweets into individual words ("tokens") and refine that list to make it more managable. Let's create a few functions to help us with the.
+
+What do we do when a negation flips the sentiment of a tweet? "I Love" is positive but "I do not love" is negative. In our previous post we tried sentence-level analysis to handle negation. Here we are doing word level training. We will address this by created new tokens where any instance of, say "not love" is replaced by "not_love," an entirely new word for our analysis. This is very crude and doesn't include most of our languages, but it's something.
+
+```{r}
+# turn words preceded by "not" into "not_<word>"
+# to create a negated token
+detect_negations <- function(tokens,negation_words = c("not","no")) {
+  # function to negate tokenized data
+  tokens <- tokens |> rowid_to_column(var="word_num")
+  not_words_rows <- tokens |> 
+    filter(word %in% negation_words) |> 
+    mutate(word_num = word_num) |> 
+    pull(word_num)
+  tokens <- tokens |> 
+    # create negated terms
+    filter(!(word_num %in% not_words_rows)) |> 
+    mutate(word = ifelse(word_num %in% (not_words_rows+1),paste0("not_",word),word)) |> 
+    select(-word_num)
+  return(tokens)
+}
+
+```
+
+When we measured the tweets using a sentiment lexicon, only the words in the lexicon contributed to the sentiment measurement. Everything else was neutral. With machine learning everything counts and the more words we have, the bigger the model and the longer it will take to train. It is common in analyzing text to drop low-information words or "stop words." In English, words like "the" and "that." We want to build a list of stop words relevant to our data set. On Kaggle I found a list of [stop words in various African languages](https://www.kaggle.com/datasets/rtatman/stopword-lists-for-african-languages). It doesn't cover every language in our data set but will reduce the matrix size a bit. We'll add that to the lexicon of English stop words and a custom lexicon built from a quick inspection of the data set.
+
+```{r}
+stop_words_af <- readr::read_csv('https://raw.githubusercontent.com/apsteinmetz/tidytuesday/master/data/stopwords_af.csv', show_col_types = FALSE)
+
+# add my stop words to defaults
+my_stop_words = tibble(word = c("http","https","dey","de","al","url","na","t.co","rt","user","users","wey","don",
+                                as.character(1:100)))
+                           
+
+# make a stopword list of any 1-character words
+# this is a somewhat arbitrary rubric for African language stop words
+stop_words_1char <- afrisenti_translated |> 
+  unnest_tokens(word,tweet) |> 
+  select(word) |> 
+  filter(str_length(word)<2) |> 
+  unique()
+
+full_stop_words <-  c(
+  tidytext::stop_words$word,
+  my_stop_words$word,
+  stop_words_af$word,
+  stop_words_1char$word
+) |> 
+  enframe(value = "word")
+
+token_filter <- function(tokens) {
+  tokens |>
+    # create negations where "not" or "no" is before a word
+    detect_negations() |> 
+    # remove stop words
+    anti_join(full_stop_words)
+}
+```
+
+Did we say every word? Well, not EVERY word. 260,000 is more than we can handle so let's create a helper function to prune the data set to only the words with the highest frequency.
+
+```{r}
+only_top_words <- function(tokens, word_count = 2000) {
+  chosen_words <- tokens |>
+    ungroup() |>
+    select(word) |>
+    count(word) |>
+    slice_max(order_by = n, n = word_count) |> 
+    select(-n)
+  return(inner_join(tokens,chosen_words))
+}
+```
+
+Even after pruning there are over 2,000 unique words in this set of tweets. That's 260,000 variables and over 110,000 tweets. That's a pretty big matrix, over 120 million elements, but the vast majority of those elements are filled with zero. We can make the memory size of this monster manageable by using a ["sparse matrix."](https://www.tidyverse.org/blog/2020/11/tidymodels-sparse-support/) Such a matrix describes what elements are empty without actually populating them. Fortunately both `ranger` and `xgboost` understand sparse matrices.
+
+The function `make_dfm` is our workhorse. It takes the raw tweet data and turns it into sparse document feature matrix after applying our pre-processing steps. Note that the matrix does not contain our independent variable, sentiment. That is a separate vector we attach to the matrix as a `docvar`, part of a `quanteda::dfm` object.
+
+Note the order of our pre-processing matters. First we create negation tokens, then we prune stop words, then we compute the tf-idf and finally we take the top words. Spoiler alert: around 2000 words is the sweet spot.
+
+```{r}
+# --------------------------------------
+# make sparse document-feature matrix
+
+make_dfm <- function(tweet_data,translated = FALSE,num_words = 1000) {
+  if(translated){
+    tweet_tokens <- unnest_tokens(select(tweet_data,tweet_num,translatedText),word, translatedText)
+  } else{
+    tweet_tokens <- unnest_tokens(select(tweet_data,tweet_num,tweet),word,tweet)
+  } 
+tweet_tokens <- tweet_tokens |> 
+  token_filter() |>
+  count(tweet_num, word) |>
+  bind_tf_idf(word, tweet_num, n) |>
+  only_top_words(num_words) |>
+  select(tweet_num, word, tf_idf)
+
+sentiment_subset <- tweet_tokens |> 
+  slice_head(n=1,by=tweet_num) |> 
+  left_join(tweet_data) |> 
+  pull(sentiment)
+
+tweet_dfm <- cast_dfm(tweet_tokens,tweet_num,word,tf_idf)
+# add dependent variable to sparse matrix
+docvars(tweet_dfm,"sentiment") <- sentiment_subset
+
+return(tweet_dfm)
+}
+```
 
 We'll establish a baseline by training a model on the African-language tweets.
 
 Note that we don't care what language the token is. It could be any language or no language. It could be an emoji, as long as it is associated with a sentiment. There is a risk that the same word could convey the opposite sentiment in two different languages but I assume it is rare enough to ignore.
 
-## Build the Model
-
 ```{r}
-# try it the sparse way
+#| message: false
+# more words in common in the translated word list
+translated = TRUE
+tweet_train_dfm <- make_dfm(tweet_train,translated = translated,num_words = 2000)
+tweet_test_dfm <- make_dfm(tweet_test,translated = translated,num_words = 2000)
 
-# make recipe
-tweet_rec_af <-
-  recipe(sentiment ~ tweet, data = tweet_train) %>%
-  step_tokenize(tweet)  %>%
-  step_stopwords(tweet,custom_stopword_source = full_stop_words) %>%
-  step_tokenfilter(tweet, max_tokens = 1e3) %>%
-  step_tfidf(tweet)
-
-# choose the model
-rf_model <- parsnip::rand_forest(trees = 100) %>% 
-   set_engine("ranger",importance = "impurity") %>% 
-   set_mode("classification")
-
-
-# describe the workflow
-# we specify that we'll be working with a sparse matrix in the blueprint
-wf_rf <- 
-    workflow() |> 
-#    add_recipe(tweet_rec_af,
-#               blueprint = default_recipe_blueprint(composition = "dgCMatrix")) |> 
-    add_recipe(tweet_rec_af) |> 
-    add_model(rf_model)
-
+# how close are the word lists?
+# more words in common in the translated word list
+inner_join(enframe(dimnames(tweet_train_dfm)[[2]]),
+           enframe(dimnames(tweet_test_dfm)[[2]]),
+           by = "value") |> nrow() |> paste("Words in both train and test sets")
+```
+How sparse is the training dfm?  99.82% of the the entries are zero.
+```{r}
+tweet_train_dfm
 ```
 
-## Fit the model
 
 ```{r}
+# make sure test set has all variables in both train and test sets
+tweet_test_dfm <- dfm_match(tweet_test_dfm, 
+                      features = featnames(tweet_train_dfm))
+```
+
+```{r}
+# run the models
 tic()
-rf_fit <- fit(wf_rf,tweet_train)
+xg_fit <- xgboost(
+  data = tweet_train_dfm,
+  max.depth = 100,
+  nrounds = 100,
+  objective = "multi:softmax",
+  num_class = 3,
+  label = as.numeric(tweet_train_dfm$sentiment)-1,
+  print_every_n = 10
+)
 toc()
-
 ```
 
 ```{r}
-actual <- tweet_test$sentiment
-predicted <- predict(rf_fit,tweet_test,type = "class")$.pred_class
-tab <- table(actual,predicted)
-tab
-caret::confusionMatrix(tab)
+xg_fit$evaluation_log |> 
+  ggplot(aes(iter,train_mlogloss)) + geom_line()
+```
 
+```{r}
+predicted <- predict(xg_fit,tweet_test_dfm) |> 
+  as.factor()
+
+levels(predicted) <- levels(tweet_test$sentiment)
+predicted_for_table <- tibble(actual = tweet_test_dfm$sentiment,
+                              predicted)
+
+
+caret::confusionMatrix(table(predicted_for_table))
 ```
