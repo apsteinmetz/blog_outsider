@@ -169,12 +169,11 @@ The structure of our model is basically a regression with one dependent variable
 
 There are over 260,000 unique words in this set of tweets. That's 260,00 variables and over 110,000 tweets. That's a pretty big matrix, over 28 billion elements, but the vast majority of those elements are filled with zero. We can make the memory size of this monster manageable by using a ["sparse matrix."](https://www.tidyverse.org/blog/2020/11/tidymodels-sparse-support/) Such a matrix describes what elements are empty without actually populating them. Fortunately a number of machine learning packages understand sparse matrices.
 
-Another goal of this project is to learn more about the [`tidymodels` framework](tidymodels.org). This is an extension of the Posit `tidyverse`. I haven't made up my mind about this yet. Is it more or less work? `tidymodels` establish a consistent workflow for machine learning applications that allow us to change the building blocks of the model in a simple fashion and make clear what the each of the blocks do. It also provides integrated tools for pre-processing the data and tuning the models to optimize performance. It uses a kitchen metaphor that involves `recipe`s you can `prep`, `juice` and `bake`. There is a ton of stuff and it's frankly intimidating.  We will only touch the surface here.
+There are several machine learning models we might try. I have had the most success with random forests. Here is a short comparison of [different machine learning approaches](%22https://arxiv.org/ftp/arxiv/papers/2101/2101.06353.pdf#:~:text=Random%20Forest%20(RF)%20is%20a,the%20sample%20data%20they%20have.%22) to sentiment analysis.[@Saifullah2021]
 
-We are particularly interested in the [`textrecipes`](https://textrecipes.tidymodels.org/index.html) package which contains an additional set of potential recipe steps for text oriented data.
+We'll establish a baseline by training a model on the African-language tweets.
 
-We'll establish a baseline by training a model on the African-language tweets. Note that we don't care what language the token is. It could be any language or no language. It could be an emoji, as long as it is associated with a sentiment. There is a risk that the same word could convey the opposite sentiment in two different languages but I assume it is rare enough to ignore.
-
+Note that we don't care what language the token is. It could be any language or no language. It could be an emoji, as long as it is associated with a sentiment. There is a risk that the same word could convey the opposite sentiment in two different languages but I assume it is rare enough to ignore.
 
 ## Build the Model
 
@@ -207,12 +206,14 @@ wf_rf <-
 ```
 
 ## Fit the model
+
 ```{r}
 tic()
 rf_fit <- fit(wf_rf,tweet_train)
 toc()
 
 ```
+
 ```{r}
 actual <- tweet_test$sentiment
 predicted <- predict(rf_fit,tweet_test,type = "class")$.pred_class
@@ -221,4 +222,3 @@ tab
 caret::confusionMatrix(tab)
 
 ```
-
