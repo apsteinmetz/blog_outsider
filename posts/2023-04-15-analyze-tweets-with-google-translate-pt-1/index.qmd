@@ -39,7 +39,7 @@ I split these explorations into four snack-able posts.
 
 1.  In this post we show how to use Google Cloud Translate to batch translate the entire data set.
 2.  Here we use the tidytext framework to do sentiment analysis with word valences.
-3.  Next, we'll compare machine learning approaches in the tidymodels framework to do sentiment analysis on both the native and translated tweets.
+3.  Next, we'll compare machine learning approaches to do sentiment analysis on both the native and translated tweets.
 4.  Finally, let's use the already assigned sentiment tags to explore African attitudes to the "global north."
 
 ::: callout-caution
