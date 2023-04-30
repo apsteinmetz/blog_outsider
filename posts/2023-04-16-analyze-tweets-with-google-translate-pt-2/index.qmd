@@ -1,5 +1,5 @@
 ---
-title: "Sentiment Analysis Using Google Translate (Pt. 2)"
+title: "Sentiment Analysis Using Google Translate (Pt. 2 - Word Valence)"
 author: Art Steinmetz
 date: 2023-04-16
 categories: 
@@ -151,7 +151,7 @@ tweet_sentiment |>
   select(label_original,translatedText)
 ```
 
-Our scoring looks pretty good. Where we disagree with Afrisenti, I side with tidytext for the most part.
+Our scoring looks pretty good. Where we disagree with Afrisenti, I side with tidytext for the most part. Having said that, the provided sentiments are human-curated with at least 2 out of 3 native language speakers agreeing on how to code each tweet. So who am I to argue?
 
 Here are samples of negative-scored tweets with along the original sentiment.
 

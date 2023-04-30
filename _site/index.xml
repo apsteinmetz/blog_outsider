@@ -10,7 +10,537 @@
 <atom:link href="outsiderdata.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Putting what&#39;s in there, out there. With R!</description>
 <generator>quarto-1.2.335</generator>
-<lastBuildDate>Sun, 16 Apr 2023 04:00:00 GMT</lastBuildDate>
+<lastBuildDate>Sat, 22 Apr 2023 04:00:00 GMT</lastBuildDate>
+<item>
+  <title>Sentiment Analysis Using Google Translate (Pt. 3 - Machine Learning)</title>
+  <dc:creator>Art Steinmetz</dc:creator>
+  <link>outsiderdata.netlify.app/posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
+<p>In Part 2 of this series we learned that summing the valence measurement of the words in the Afrisenti data set did not agree well with the sentiments already provided. While the sentiments we calculated made sense in general, they were measured without any knowledge of how the original sentiments were determined. For this post we will apply machine learning techniques to try to reverse engineer the thinking that went into the sentiment assignments.</p>
+<p>In our previous analysis we were only in agreement with original data about 50% of the time. Can our trained models do any better? If we pass the tweets through Google Translate first to convert them all to English, will we improve or worsen the accuracy of the model? Let’s see.</p>
+<p>We will take the usual machine learning approach of splitting the data into test and training sets, then run a classifier model on the training set and finally validate it against the test set.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;">suppressPackageStartupMessages</span>({</span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;">library</span>(tidyverse)</span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;">library</span>(tidytext)</span>
+<span id="cb1-4"><span class="fu" style="color: #4758AB;">library</span>(quanteda)</span>
+<span id="cb1-5"><span class="fu" style="color: #4758AB;">library</span>(tictoc)</span>
+<span id="cb1-6"><span class="fu" style="color: #4758AB;">library</span>(xgboost)})</span>
+<span id="cb1-7"></span>
+<span id="cb1-8"></span>
+<span id="cb1-9"><span class="co" style="color: #5E5E5E;"># set up some chart defaults</span></span>
+<span id="cb1-10">tan1 <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="st" style="color: #20794D;">"#FDECCD"</span></span>
+<span id="cb1-11">yellow1 <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="st" style="color: #20794D;">"#FFBF00"</span></span>
+<span id="cb1-12">green1 <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="st" style="color: #20794D;">"#007000"</span></span>
+<span id="cb1-13"></span>
+<span id="cb1-14">theme_afri <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="cf" style="color: #003B4F;">function</span>(...){</span>
+<span id="cb1-15">  <span class="co" style="color: #5E5E5E;"># making a function allows passing further theme elements</span></span>
+<span id="cb1-16">  ggplot2<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">theme</span>(</span>
+<span id="cb1-17">    <span class="at" style="color: #657422;">plot.background =</span> <span class="fu" style="color: #4758AB;">element_rect</span>(<span class="at" style="color: #657422;">fill =</span> tan1, <span class="at" style="color: #657422;">color =</span> <span class="cn" style="color: #8f5902;">NA</span>),</span>
+<span id="cb1-18">    <span class="at" style="color: #657422;">panel.background =</span> <span class="fu" style="color: #4758AB;">element_blank</span>(),</span>
+<span id="cb1-19">    <span class="at" style="color: #657422;">legend.background =</span> <span class="fu" style="color: #4758AB;">element_blank</span>(),</span>
+<span id="cb1-20">    <span class="at" style="color: #657422;">legend.box.background =</span> <span class="fu" style="color: #4758AB;">element_blank</span>(),</span>
+<span id="cb1-21">    <span class="at" style="color: #657422;">legend.key =</span> <span class="fu" style="color: #4758AB;">element_blank</span>(),</span>
+<span id="cb1-22">    ...</span>
+<span id="cb1-23">    ) </span>
+<span id="cb1-24">}</span>
+<span id="cb1-25"><span class="co" style="color: #5E5E5E;"># the the previously translated tweets.</span></span>
+<span id="cb1-26">afrisenti_translated <span class="ot" style="color: #003B4F;">&lt;-</span> readr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">read_csv</span>(<span class="st" style="color: #20794D;">'https://raw.githubusercontent.com/apsteinmetz/tidytuesday/master/2023-02-28_african_language/data/afrisenti_translated.csv'</span>,</span>
+<span id="cb1-27">                                        <span class="at" style="color: #657422;">show_col_types =</span> <span class="cn" style="color: #8f5902;">FALSE</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb1-28">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">lang =</span> <span class="fu" style="color: #4758AB;">as.factor</span>(assigned_long)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb1-29">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">sentiment =</span> <span class="fu" style="color: #4758AB;">as.factor</span>(label)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb1-30">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">intended_use =</span> <span class="fu" style="color: #4758AB;">as.factor</span>(intended_use)) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb1-31">  <span class="fu" style="color: #4758AB;">select</span>(lang,tweet_num,sentiment,translatedText,tweet,intended_use)</span>
+<span id="cb1-32">afrisenti_translated</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 111,720 × 6
+   lang    tweet_num sentiment translatedText                 tweet intended_use
+   &lt;fct&gt;       &lt;dbl&gt; &lt;fct&gt;     &lt;chr&gt;                          &lt;chr&gt; &lt;fct&gt;       
+ 1 Amharic         1 negative  Amhara region needs moderatio… አማራ … dev         
+ 2 Amharic         2 negative  Having a mood in a way that a… ሰውን … dev         
+ 3 Amharic         3 negative  Domestic violence - without h… የቤት … dev         
+ 4 Amharic         4 negative  Ethiopia, what was your role … Ethi… dev         
+ 5 Amharic         5 negative  No matter how Oromo learns, t… ኦሮሞ … dev         
+ 6 Amharic         6 negative  Tish, dark powder, are you st… ቲሽ ጨ… dev         
+ 7 Amharic         7 negative  Local residents said that the… በምዕራ… dev         
+ 8 Amharic         8 negative  What happened to Schimmels is… ያየሰው… dev         
+ 9 Amharic         9 negative  An unstable country does not … ያልተረ… dev         
+10 Amharic        10 negative  The idiot and the bubble, the… ደደቡ … dev         
+# ℹ 111,710 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="explore-the-data-set" class="level2">
+<h2 class="anchored" data-anchor-id="explore-the-data-set">Explore the Data Set</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><span class="fu" style="color: #4758AB;">summary</span>(afrisenti_translated)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      lang         tweet_num         sentiment     translatedText    
+ Hausa  :22152   Min.   :     1   negative:36564   Length:111720     
+ Igbo   :15715   1st Qu.: 27931   neutral :39151   Class :character  
+ Yoruba :15127   Median : 55861   positive:36005   Mode  :character  
+ Arabic :12061   Mean   : 55861                                      
+ English:10556   3rd Qu.: 83790                                      
+ Amharic: 9480   Max.   :111720                                      
+ (Other):26629                                                       
+    tweet           intended_use 
+ Length:111720      dev  :13728  
+ Class :character   test :34307  
+ Mode  :character   train:63685  
+                                 
+                                 
+                                 
+                                 </code></pre>
+</div>
+</div>
+<p>The data set is already tagged into training, test and “dev” sets. The training set is twice the size of the test set. What is “dev?” I don’t know if this split is random or not but we are concerned whether the profile of the training set is similar to the test set. Let’s split it according to the tags.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">tweet_train <span class="ot" style="color: #003B4F;">&lt;-</span> afrisenti_translated <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb5-2">  <span class="fu" style="color: #4758AB;">filter</span>(intended_use <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"train"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb5-3">  <span class="fu" style="color: #4758AB;">select</span>(tweet_num,sentiment,lang,tweet,translatedText)</span>
+<span id="cb5-4"></span>
+<span id="cb5-5">tweet_test <span class="ot" style="color: #003B4F;">&lt;-</span> afrisenti_translated <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb5-6">  <span class="fu" style="color: #4758AB;">filter</span>(intended_use <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"test"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb5-7">  <span class="fu" style="color: #4758AB;">select</span>(tweet_num,sentiment,lang,tweet,translatedText)</span>
+<span id="cb5-8"></span>
+<span id="cb5-9">tweet_dev <span class="ot" style="color: #003B4F;">&lt;-</span> afrisenti_translated <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb5-10">  <span class="fu" style="color: #4758AB;">filter</span>(intended_use <span class="sc" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"dev"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb5-11">  <span class="fu" style="color: #4758AB;">select</span>(tweet_num,sentiment,lang,tweet,translatedText)</span></code></pre></div>
+</div>
+<p>Now we’ll see if the training set is representative of the test set. Do the languages align?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">afrisenti_translated <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb6-2"><span class="fu" style="color: #4758AB;">ggplot</span>(<span class="fu" style="color: #4758AB;">aes</span>(lang,<span class="at" style="color: #657422;">group=</span>intended_use)) <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb6-3">   <span class="fu" style="color: #4758AB;">geom_bar</span>(<span class="fu" style="color: #4758AB;">aes</span>(<span class="at" style="color: #657422;">y =</span> <span class="fu" style="color: #4758AB;">after_stat</span>(prop)),<span class="at" style="color: #657422;">fill =</span> yellow1) <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb6-4">          <span class="fu" style="color: #4758AB;">scale_y_continuous</span>(<span class="at" style="color: #657422;">labels=</span>scales<span class="sc" style="color: #5E5E5E;">::</span>percent) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb6-5">  <span class="fu" style="color: #4758AB;">theme_afri</span>(<span class="at" style="color: #657422;">axis.text.x =</span> <span class="fu" style="color: #4758AB;">element_text</span>()) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb6-6">  <span class="fu" style="color: #4758AB;">coord_flip</span>() <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb6-7">  <span class="fu" style="color: #4758AB;">facet_grid</span>(<span class="sc" style="color: #5E5E5E;">~</span>intended_use) <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb6-8">  <span class="fu" style="color: #4758AB;">labs</span>(<span class="at" style="color: #657422;">title =</span> <span class="st" style="color: #20794D;">"Splits Are Reasonably Aligned by Language"</span>,</span>
+<span id="cb6-9">       <span class="at" style="color: #657422;">y =</span> <span class="st" style="color: #20794D;">"Proportion"</span>, <span class="at" style="color: #657422;">x=</span> <span class="st" style="color: #20794D;">"Language"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="outsiderdata.netlify.app/posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index_files/figure-html/eda1-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Looks okay.</p>
+<p>Do the sentiments align?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">afrisenti_translated <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb7-2"><span class="fu" style="color: #4758AB;">ggplot</span>(<span class="fu" style="color: #4758AB;">aes</span>(sentiment,<span class="at" style="color: #657422;">group=</span>intended_use)) <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb7-3">   <span class="fu" style="color: #4758AB;">geom_bar</span>(<span class="fu" style="color: #4758AB;">aes</span>(<span class="at" style="color: #657422;">y =</span> <span class="fu" style="color: #4758AB;">after_stat</span>(prop)),<span class="at" style="color: #657422;">fill=</span>yellow1) <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb7-4">          <span class="fu" style="color: #4758AB;">scale_y_continuous</span>(<span class="at" style="color: #657422;">labels=</span>scales<span class="sc" style="color: #5E5E5E;">::</span>percent) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb7-5">  <span class="fu" style="color: #4758AB;">theme_afri</span>(<span class="at" style="color: #657422;">axis.text.x =</span> <span class="fu" style="color: #4758AB;">element_text</span>()) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb7-6">  <span class="fu" style="color: #4758AB;">facet_grid</span>(<span class="sc" style="color: #5E5E5E;">~</span>intended_use) <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb7-7">  <span class="fu" style="color: #4758AB;">coord_flip</span>() <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb7-8">  <span class="fu" style="color: #4758AB;">labs</span>(<span class="at" style="color: #657422;">title =</span> <span class="st" style="color: #20794D;">"Splits Are Balanced by Sentiment"</span>,</span>
+<span id="cb7-9">       <span class="at" style="color: #657422;">y =</span> <span class="st" style="color: #20794D;">"Proportion"</span>, <span class="at" style="color: #657422;">x=</span> <span class="st" style="color: #20794D;">"Sentiment"</span>)</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="outsiderdata.netlify.app/posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index_files/figure-html/eda2-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The splits are well balanced.</p>
+</section>
+<section id="approach-to-the-problem" class="level2">
+<h2 class="anchored" data-anchor-id="approach-to-the-problem">Approach to the Problem</h2>
+<p>The structure of our model is basically a regression with one dependent variable and thousands of independent variables which are all of the words (“tokens”) in all the tweets. This is a “document feature matrix” (<em>DFM</em>). What goes in the cells of the matrix? One approach would simply code each of the words by their presence or absence in the tweet. A more nuanced approach is to code each word in each tweet by how important it is in the tweet. <a href="https://www.tidytextmining.com/tfidf.html">“<em>tf-idf</em>”</a>, is sort of a uniqueness measure. This has the added benefit of down-ranking stop words that appear very frequently all over the place, even if we have no stop-word lexicon for a certain language.</p>
+<p>There are several machine learning models we might try. There are two R packages suitable for classifiers where there are more than two categores that also work with sparse matrices (see below), <code>ranger</code> and <code>xgboost</code>. In preview, we will use <code>xgboost</code> here because the results are about same but <code>xgboost</code> is much faster. Here is a short comparison of <a href="https://arxiv.org/ftp/arxiv/papers/2101/2101.06353.pdf">different machine learning approaches</a> to sentiment analysis.<span class="citation" data-cites="Saifullah2021">(Saifullah, Fauziah, and Aribowo 2021)</span></p>
+<div class="callout-note callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Why not tidymodels?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>I set out to use RStudio’s suite of machine learning workflow packages, <code>tidymodels</code>, in this project, but quickly became frustrated. I could not get the wrapper around <code>xgboost</code> to give a sensible result (it’s probably my fault) and there is a bug in the wrapper around <code>ranger</code> that prevents making predictions with the model. So we’ll do it the old-fashioned way.</p>
+</div>
+</div>
+</section>
+<section id="pre-processing." class="level2">
+<h2 class="anchored" data-anchor-id="pre-processing.">Pre-Processing.</h2>
+<p>There are some things we can to do boost our chances of a satisfying outcome. As noted above we’re going to build a matrix with the tweet numbers, an arbitrary index to uniquely identify each tweet (“document”), as the rows, and each word in every tweet (“feature”) as the columns. This will create a “document feature matrix.”</p>
+<p>Before we create the matrix, we first split all the tweets into individual words (“tokens”) and refine that list to make it more managable. Let’s create a few functions to help us with this.</p>
+<p>What do we do when a negation flips the sentiment of a tweet? “I Love” is positive but “I do not love” is negative. In our previous post we tried sentence-level analysis to handle negation. Here we are doing word level training. We will address this by creating new tokens where any instance of, say “not love” is replaced by “not_love,” an entirely new word for our analysis. This is very crude and only includes English (9% of the tweets), but it’s something. It’s actually simpler to do use the <code>str_replace_all(tweet,"not |no ","not_")</code> function to do this before we tokenize the tweets.</p>
+<p>When we measured the tweets using a sentiment lexicon, only the words in the lexicon contributed to the sentiment measurement. Everything else was neutral. With machine learning everything counts and the more words we have, the bigger the model and the longer it will take to train. It is common in analyzing text to drop low-information words or “stop words.” In English, we drop words like “the” and “that.” We want to build a list of stop words relevant to our data set. On Kaggle I found a list of <a href="https://www.kaggle.com/datasets/rtatman/stopword-lists-for-african-languages">stop words in various African languages</a>. It doesn’t cover every language in our data set but will reduce the matrix size a bit. We’ll add that to the lexicon of English stop words and a custom lexicon built from a quick inspection of the data set. In practice, the <em>tf-idf</em> score is the biggest indicator of a low-information word, irrespective of language.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">stop_words_af <span class="ot" style="color: #003B4F;">&lt;-</span> readr<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">read_csv</span>(<span class="st" style="color: #20794D;">'https://raw.githubusercontent.com/apsteinmetz/tidytuesday/master/data/stopwords_af.csv'</span>, <span class="at" style="color: #657422;">show_col_types =</span> <span class="cn" style="color: #8f5902;">FALSE</span>)</span>
+<span id="cb8-2"></span>
+<span id="cb8-3"><span class="co" style="color: #5E5E5E;"># add my stop words to defaults</span></span>
+<span id="cb8-4">my_stop_words <span class="ot" style="color: #003B4F;">=</span> <span class="fu" style="color: #4758AB;">tibble</span>(<span class="at" style="color: #657422;">word =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="st" style="color: #20794D;">"http"</span>,<span class="st" style="color: #20794D;">"https"</span>,<span class="st" style="color: #20794D;">"dey"</span>,<span class="st" style="color: #20794D;">"de"</span>,<span class="st" style="color: #20794D;">"al"</span>,<span class="st" style="color: #20794D;">"url"</span>,<span class="st" style="color: #20794D;">"na"</span>,<span class="st" style="color: #20794D;">"t.co"</span>,<span class="st" style="color: #20794D;">"rt"</span>,<span class="st" style="color: #20794D;">"user"</span>,<span class="st" style="color: #20794D;">"users"</span>,<span class="st" style="color: #20794D;">"wey"</span>,<span class="st" style="color: #20794D;">"don"</span>,</span>
+<span id="cb8-5">                                <span class="fu" style="color: #4758AB;">as.character</span>(<span class="dv" style="color: #AD0000;">1</span><span class="sc" style="color: #5E5E5E;">:</span><span class="dv" style="color: #AD0000;">100</span>)))</span>
+<span id="cb8-6">                           </span>
+<span id="cb8-7"></span>
+<span id="cb8-8"><span class="co" style="color: #5E5E5E;"># make a stopword list of any 1-character words</span></span>
+<span id="cb8-9"><span class="co" style="color: #5E5E5E;"># this is a somewhat arbitrary rubric for African language stop words</span></span>
+<span id="cb8-10">stop_words_1char <span class="ot" style="color: #003B4F;">&lt;-</span> afrisenti_translated <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb8-11">  <span class="fu" style="color: #4758AB;">unnest_tokens</span>(word,tweet) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb8-12">  <span class="fu" style="color: #4758AB;">select</span>(word) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb8-13">  <span class="fu" style="color: #4758AB;">filter</span>(<span class="fu" style="color: #4758AB;">str_length</span>(word)<span class="sc" style="color: #5E5E5E;">&lt;</span><span class="dv" style="color: #AD0000;">2</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb8-14">  <span class="fu" style="color: #4758AB;">unique</span>()</span>
+<span id="cb8-15"></span>
+<span id="cb8-16">full_stop_words <span class="ot" style="color: #003B4F;">&lt;-</span>  <span class="fu" style="color: #4758AB;">c</span>(</span>
+<span id="cb8-17">  tidytext<span class="sc" style="color: #5E5E5E;">::</span>stop_words<span class="sc" style="color: #5E5E5E;">$</span>word,</span>
+<span id="cb8-18">  my_stop_words<span class="sc" style="color: #5E5E5E;">$</span>word,</span>
+<span id="cb8-19">  stop_words_af<span class="sc" style="color: #5E5E5E;">$</span>word,</span>
+<span id="cb8-20">  stop_words_1char<span class="sc" style="color: #5E5E5E;">$</span>word</span>
+<span id="cb8-21">) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb8-22">  <span class="fu" style="color: #4758AB;">enframe</span>(<span class="at" style="color: #657422;">value =</span> <span class="st" style="color: #20794D;">"word"</span>)</span>
+<span id="cb8-23"></span>
+<span id="cb8-24">remove_stopwords <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="cf" style="color: #003B4F;">function</span>(tokens) {</span>
+<span id="cb8-25">  tokens <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb8-26">    <span class="co" style="color: #5E5E5E;"># remove stop words</span></span>
+<span id="cb8-27">    <span class="fu" style="color: #4758AB;">anti_join</span>(full_stop_words)</span>
+<span id="cb8-28">}</span></code></pre></div>
+</div>
+<p>Did we say every word? Well, not EVERY word. 260,000 is more than we can handle so let’s create a helper function to prune the data set to only the words with the highest frequency.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">only_top_words <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="cf" style="color: #003B4F;">function</span>(tokens, <span class="at" style="color: #657422;">word_count =</span> <span class="dv" style="color: #AD0000;">2000</span>) {</span>
+<span id="cb9-2">  chosen_words <span class="ot" style="color: #003B4F;">&lt;-</span> tokens <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb9-3">    <span class="fu" style="color: #4758AB;">ungroup</span>() <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb9-4">    <span class="fu" style="color: #4758AB;">select</span>(word) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb9-5">    <span class="fu" style="color: #4758AB;">count</span>(word) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb9-6">    <span class="fu" style="color: #4758AB;">slice_max</span>(<span class="at" style="color: #657422;">order_by =</span> n, <span class="at" style="color: #657422;">n =</span> word_count) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb9-7">    <span class="fu" style="color: #4758AB;">select</span>(<span class="sc" style="color: #5E5E5E;">-</span>n)</span>
+<span id="cb9-8">  <span class="fu" style="color: #4758AB;">return</span>(<span class="fu" style="color: #4758AB;">inner_join</span>(tokens,chosen_words))</span>
+<span id="cb9-9">}</span></code></pre></div>
+</div>
+<p>Even after pruning there are over 2,000 unique words in this set of tweets. 2,000 variables and over 110,000 tweets. That’s a pretty big matrix, over 120 million elements, but the vast majority of those elements are filled with zero. We can make the memory size of this monster manageable by using a <a href="https://www.tidyverse.org/blog/2020/11/tidymodels-sparse-support/">“sparse matrix.”</a> Such a matrix describes what elements are empty without actually populating them. Fortunately both <code>ranger</code> and <code>xgboost</code> understand sparse matrices.</p>
+<p>The function <code>make_dfm</code> is our workhorse. It takes the raw tweet data and turns it into sparse document feature matrix after applying our pre-processing steps. Note that the matrix does not contain our independent variable, “sentiment.” That is a separate vector we attach to the matrix as a <code>docvar</code>, part of a <code>quanteda::dfm</code> object.</p>
+<p>Note the order of our pre-processing matters. First we create negation tokens, then we prune stop words, then we compute the <em>tf-idf</em> and finally we take the top words. By trial and error I learned that computing each word’s <em>tf-idf</em> against the whole data set before choosing the top words yields a better result. Spoiler alert: around 2000 words is the sweet spot.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="co" style="color: #5E5E5E;"># make sparse document-feature matrix</span></span>
+<span id="cb10-2"></span>
+<span id="cb10-3">make_dfm <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="cf" style="color: #003B4F;">function</span>(tweet_data, <span class="at" style="color: #657422;">translated =</span> <span class="cn" style="color: #8f5902;">FALSE</span>, <span class="at" style="color: #657422;">num_words =</span> <span class="dv" style="color: #AD0000;">1000</span>) {</span>
+<span id="cb10-4">    <span class="cf" style="color: #003B4F;">if</span> (translated) {</span>
+<span id="cb10-5">      tweet_tokens <span class="ot" style="color: #003B4F;">&lt;-</span> tweet_data <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb10-6">        <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">translatedText =</span> <span class="fu" style="color: #4758AB;">str_replace_all</span>(translatedText, <span class="st" style="color: #20794D;">"no |not "</span>, <span class="st" style="color: #20794D;">"not_"</span>)) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb10-7">        <span class="fu" style="color: #4758AB;">select</span>(tweet_num, translatedText) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb10-8">        <span class="fu" style="color: #4758AB;">unnest_tokens</span>(word, translatedText)</span>
+<span id="cb10-9">    } <span class="cf" style="color: #003B4F;">else</span>{</span>
+<span id="cb10-10">      tweet_tokens <span class="ot" style="color: #003B4F;">&lt;-</span> tweet_data <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb10-11">        <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">tweet =</span> <span class="fu" style="color: #4758AB;">str_replace_all</span>(tweet, <span class="st" style="color: #20794D;">"no |not "</span>, <span class="st" style="color: #20794D;">"not_"</span>)) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb10-12">        <span class="fu" style="color: #4758AB;">select</span>(tweet_num, tweet) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb10-13">        <span class="fu" style="color: #4758AB;">unnest_tokens</span>(word, tweet)</span>
+<span id="cb10-14">    }</span>
+<span id="cb10-15">    tweet_tokens <span class="ot" style="color: #003B4F;">&lt;-</span> tweet_tokens <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb10-16">  <span class="fu" style="color: #4758AB;">remove_stopwords</span>() <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb10-17">  <span class="fu" style="color: #4758AB;">count</span>(tweet_num, word) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb10-18">  <span class="fu" style="color: #4758AB;">bind_tf_idf</span>(word, tweet_num, n) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb10-19">  <span class="fu" style="color: #4758AB;">only_top_words</span>(num_words) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb10-20">  <span class="fu" style="color: #4758AB;">select</span>(tweet_num, word, tf_idf)</span>
+<span id="cb10-21"></span>
+<span id="cb10-22">sentiment_subset <span class="ot" style="color: #003B4F;">&lt;-</span> tweet_tokens <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb10-23">  <span class="fu" style="color: #4758AB;">slice_head</span>(<span class="at" style="color: #657422;">n=</span><span class="dv" style="color: #AD0000;">1</span>,<span class="at" style="color: #657422;">by=</span>tweet_num) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb10-24">  <span class="fu" style="color: #4758AB;">left_join</span>(tweet_data) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb10-25">  <span class="fu" style="color: #4758AB;">pull</span>(sentiment)</span>
+<span id="cb10-26"></span>
+<span id="cb10-27">tweet_dfm <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">cast_dfm</span>(tweet_tokens,tweet_num,word,tf_idf)</span>
+<span id="cb10-28"><span class="co" style="color: #5E5E5E;"># add dependent variable to sparse matrix</span></span>
+<span id="cb10-29"><span class="fu" style="color: #4758AB;">docvars</span>(tweet_dfm,<span class="st" style="color: #20794D;">"sentiment"</span>) <span class="ot" style="color: #003B4F;">&lt;-</span> sentiment_subset</span>
+<span id="cb10-30"></span>
+<span id="cb10-31"><span class="fu" style="color: #4758AB;">return</span>(tweet_dfm)</span>
+<span id="cb10-32">}</span></code></pre></div>
+</div>
+</section>
+<section id="train-on-african-language-tweets" class="level2">
+<h2 class="anchored" data-anchor-id="train-on-african-language-tweets">Train on African Language Tweets</h2>
+<p>We’ll establish a baseline by training a model on the African-language tweets.</p>
+<p>Note that we don’t care what language the token is. It could be any language or no language. It could be an emoji, as long as it is associated with a sentiment. There is a risk that the same word could convey the opposite sentiment in two different languages but I assume it is rare enough to ignore.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="co" style="color: #5E5E5E;"># more words in common in the translated word list</span></span>
+<span id="cb11-2">translated <span class="ot" style="color: #003B4F;">=</span> <span class="cn" style="color: #8f5902;">FALSE</span></span>
+<span id="cb11-3">tweet_train_dfm <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">make_dfm</span>(tweet_train,<span class="at" style="color: #657422;">translated =</span> translated,<span class="at" style="color: #657422;">num_words =</span> <span class="dv" style="color: #AD0000;">2000</span>)</span>
+<span id="cb11-4">tweet_test_dfm <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">make_dfm</span>(tweet_test,<span class="at" style="color: #657422;">translated =</span> translated,<span class="at" style="color: #657422;">num_words =</span> <span class="dv" style="color: #AD0000;">2000</span>)</span></code></pre></div>
+</div>
+<p>How sparse is the training <em>DFM</em>? 99.8% of the the entries are zero.</p>
+<p>After creating <em>DFM</em>s for both training and testing we see that the <em>DFM</em>s have about 3/4 of the words in common so there is a good bit of information for prediction out-of-sample.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><span class="co" style="color: #5E5E5E;"># how close are the word lists?}</span></span>
+<span id="cb12-2"><span class="co" style="color: #5E5E5E;"># more words in common in the translated word list</span></span>
+<span id="cb12-3"><span class="fu" style="color: #4758AB;">inner_join</span>(<span class="fu" style="color: #4758AB;">enframe</span>(<span class="fu" style="color: #4758AB;">dimnames</span>(tweet_train_dfm)[[<span class="dv" style="color: #AD0000;">2</span>]]),</span>
+<span id="cb12-4">           <span class="fu" style="color: #4758AB;">enframe</span>(<span class="fu" style="color: #4758AB;">dimnames</span>(tweet_test_dfm)[[<span class="dv" style="color: #AD0000;">2</span>]]),</span>
+<span id="cb12-5">           <span class="at" style="color: #657422;">by =</span> <span class="st" style="color: #20794D;">"value"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> <span class="fu" style="color: #4758AB;">nrow</span>() <span class="sc" style="color: #5E5E5E;">|&gt;</span> <span class="fu" style="color: #4758AB;">paste</span>(<span class="st" style="color: #20794D;">"Words in both train and test sets"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "1508 Words in both train and test sets"</code></pre>
+</div>
+</div>
+<p>Running predictions on a test set requires the feature list of the training and test set be the same. Three quarters, but not all, of the tokens overlap in our <em>DFM</em>s. The <code>dfm_match</code> function will ensure the test set features are congruent with the training set.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="co" style="color: #5E5E5E;"># make sure test set has all variables in both train and test sets</span></span>
+<span id="cb14-2">tweet_test_dfm <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">dfm_match</span>(tweet_test_dfm, </span>
+<span id="cb14-3">                      <span class="at" style="color: #657422;">features =</span> <span class="fu" style="color: #4758AB;">featnames</span>(tweet_train_dfm))</span></code></pre></div>
+</div>
+<p>We will use the gradient boosted tree approach to training our model. An excellent introduction to the theory is contatined in the <a href="https://xgboost.readthedocs.io/en/stable/tutorials/model.html">documentation to the <code>xgboost</code> package</a>, which is available for many languages, by the way.</p>
+<p>This is a supervised model, meaning we know all the possible predictions ahead of time. In this case, “negative,” “neutral” and “positive.” A slight “gotcha” is <code>xgboost</code> requires numeric classifiers, with the first one as “0.” As such, we convert our dependent variable, which is a factor, to numeric and then covert it back after predicting.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="co" style="color: #5E5E5E;"># run the models</span></span>
+<span id="cb15-2"><span class="fu" style="color: #4758AB;">tic</span>()</span>
+<span id="cb15-3">xg_fit <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">xgboost</span>(</span>
+<span id="cb15-4">  <span class="at" style="color: #657422;">data =</span> tweet_train_dfm,</span>
+<span id="cb15-5">  <span class="at" style="color: #657422;">max.depth =</span> <span class="dv" style="color: #AD0000;">100</span>,</span>
+<span id="cb15-6">  <span class="at" style="color: #657422;">nrounds =</span> <span class="dv" style="color: #AD0000;">100</span>,</span>
+<span id="cb15-7">  <span class="at" style="color: #657422;">objective =</span> <span class="st" style="color: #20794D;">"multi:softmax"</span>,</span>
+<span id="cb15-8">  <span class="at" style="color: #657422;">num_class =</span> <span class="dv" style="color: #AD0000;">3</span>,</span>
+<span id="cb15-9">  <span class="at" style="color: #657422;">label =</span> <span class="fu" style="color: #4758AB;">as.numeric</span>(tweet_train_dfm<span class="sc" style="color: #5E5E5E;">$</span>sentiment)<span class="sc" style="color: #5E5E5E;">-</span><span class="dv" style="color: #AD0000;">1</span>,</span>
+<span id="cb15-10">  <span class="at" style="color: #657422;">print_every_n =</span> <span class="dv" style="color: #AD0000;">10</span></span>
+<span id="cb15-11">)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] train-mlogloss:0.984030 
+[11]    train-mlogloss:0.664378 
+[21]    train-mlogloss:0.579607 
+[31]    train-mlogloss:0.530083 
+[41]    train-mlogloss:0.493999 
+[51]    train-mlogloss:0.465732 
+[61]    train-mlogloss:0.441981 
+[71]    train-mlogloss:0.422400 
+[81]    train-mlogloss:0.404571 
+[91]    train-mlogloss:0.389673 
+[100]   train-mlogloss:0.377797 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><span class="fu" style="color: #4758AB;">toc</span>()</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>61.94 sec elapsed</code></pre>
+</div>
+</div>
+</section>
+<section id="results-with-native-language-tweets" class="level2">
+<h2 class="anchored" data-anchor-id="results-with-native-language-tweets">Results With Native Language Tweets</h2>
+<p>In the interest of space, we won’t go over tuning the model or cross validation, both of which are used to optimize performance. I played around with the parameters of the model and settled on the ones used here as roughly optimal. If we plot the loss function below we see the diminishing marginal return to additional training rounds. Adding more rounds continues to improve the fit to the training set (in theory we would ultimately achieve a perfect fit) but the fit to the test set doesn’t improve at all.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1">xg_fit<span class="sc" style="color: #5E5E5E;">$</span>evaluation_log <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb19-2">  <span class="fu" style="color: #4758AB;">ggplot</span>(<span class="fu" style="color: #4758AB;">aes</span>(iter,train_mlogloss)) <span class="sc" style="color: #5E5E5E;">+</span> <span class="fu" style="color: #4758AB;">geom_line</span>() <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb19-3">  <span class="fu" style="color: #4758AB;">theme_afri</span>()</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="outsiderdata.netlify.app/posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index_files/figure-html/plot native loss-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Alas, the accuracy of our machine learning model is not much better than our simple valence measurements from the last post.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><span class="co" style="color: #5E5E5E;"># predict and convert classes back to factors</span></span>
+<span id="cb20-2">predicted <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">predict</span>(xg_fit,tweet_test_dfm) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb20-3">  <span class="fu" style="color: #4758AB;">as.factor</span>()</span>
+<span id="cb20-4"><span class="fu" style="color: #4758AB;">levels</span>(predicted) <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">levels</span>(tweet_test<span class="sc" style="color: #5E5E5E;">$</span>sentiment)</span>
+<span id="cb20-5"></span>
+<span id="cb20-6">predicted_for_table <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">tibble</span>(<span class="at" style="color: #657422;">actual =</span> tweet_test_dfm<span class="sc" style="color: #5E5E5E;">$</span>sentiment,</span>
+<span id="cb20-7">                              predicted)</span>
+<span id="cb20-8"></span>
+<span id="cb20-9"></span>
+<span id="cb20-10">caret<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">confusionMatrix</span>(<span class="fu" style="color: #4758AB;">table</span>(predicted_for_table))</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+          predicted
+actual     negative neutral positive
+  negative     5524    4598     1261
+  neutral      2489    7011     1182
+  positive     2100    3287     4981
+
+Overall Statistics
+                                          
+               Accuracy : 0.5401          
+                 95% CI : (0.5346, 0.5455)
+    No Information Rate : 0.4593          
+    P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+                                          
+                  Kappa : 0.3095          
+                                          
+ Mcnemar's Test P-Value : &lt; 2.2e-16       
+
+Statistics by Class:
+
+                     Class: negative Class: neutral Class: positive
+Sensitivity                   0.5462         0.4707          0.6709
+Specificity                   0.7375         0.7907          0.7846
+Pos Pred Value                0.4853         0.6563          0.4804
+Neg Pred Value                0.7820         0.6375          0.8893
+Prevalence                    0.3118         0.4593          0.2289
+Detection Rate                0.1703         0.2162          0.1536
+Detection Prevalence          0.3510         0.3294          0.3197
+Balanced Accuracy             0.6419         0.6307          0.7278</code></pre>
+</div>
+</div>
+</section>
+<section id="train-on-english-translated-tweets" class="level2">
+<h2 class="anchored" data-anchor-id="train-on-english-translated-tweets">Train on English Translated Tweets</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><span class="co" style="color: #5E5E5E;"># more words in common in the translated word list</span></span>
+<span id="cb22-2">translated <span class="ot" style="color: #003B4F;">=</span> <span class="cn" style="color: #8f5902;">TRUE</span></span>
+<span id="cb22-3">tweet_train_dfm <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">make_dfm</span>(tweet_train,<span class="at" style="color: #657422;">translated =</span> translated,<span class="at" style="color: #657422;">num_words =</span> <span class="dv" style="color: #AD0000;">2000</span>)</span>
+<span id="cb22-4">tweet_test_dfm <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">make_dfm</span>(tweet_test,<span class="at" style="color: #657422;">translated =</span> translated,<span class="at" style="color: #657422;">num_words =</span> <span class="dv" style="color: #AD0000;">2000</span>)</span></code></pre></div>
+</div>
+<p>Now how many words are shared among the training and test sets? If there is a case to be made for a better outcome with the translated tweets, this is it. We have more words in common across the training and test sets since, by converting 13 languages to 1, we have fewer unique words and thus more information in each word. In practice this doesn’t make much of a difference. There are less than 200 additional words in common. Surprising.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><span class="co" style="color: #5E5E5E;"># how close are the word lists?}</span></span>
+<span id="cb23-2"><span class="co" style="color: #5E5E5E;"># more words in common in the translated word list</span></span>
+<span id="cb23-3"><span class="fu" style="color: #4758AB;">inner_join</span>(<span class="fu" style="color: #4758AB;">enframe</span>(<span class="fu" style="color: #4758AB;">dimnames</span>(tweet_train_dfm)[[<span class="dv" style="color: #AD0000;">2</span>]]),</span>
+<span id="cb23-4">           <span class="fu" style="color: #4758AB;">enframe</span>(<span class="fu" style="color: #4758AB;">dimnames</span>(tweet_test_dfm)[[<span class="dv" style="color: #AD0000;">2</span>]]),</span>
+<span id="cb23-5">           <span class="at" style="color: #657422;">by =</span> <span class="st" style="color: #20794D;">"value"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> <span class="fu" style="color: #4758AB;">nrow</span>() <span class="sc" style="color: #5E5E5E;">|&gt;</span> <span class="fu" style="color: #4758AB;">paste</span>(<span class="st" style="color: #20794D;">"Words in both train and test sets"</span>)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "1678 Words in both train and test sets"</code></pre>
+</div>
+</div>
+<p>Once again we match the features.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><span class="co" style="color: #5E5E5E;"># make sure test set has all variables in both train and test sets</span></span>
+<span id="cb25-2">tweet_test_dfm <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">dfm_match</span>(tweet_test_dfm, </span>
+<span id="cb25-3">                      <span class="at" style="color: #657422;">features =</span> <span class="fu" style="color: #4758AB;">featnames</span>(tweet_train_dfm))</span></code></pre></div>
+</div>
+<p>We will use the same model parameters as we did with the native tweets.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><span class="co" style="color: #5E5E5E;"># run the models</span></span>
+<span id="cb26-2"><span class="fu" style="color: #4758AB;">tic</span>()</span>
+<span id="cb26-3">xg_fit <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">xgboost</span>(</span>
+<span id="cb26-4">  <span class="at" style="color: #657422;">data =</span> tweet_train_dfm,</span>
+<span id="cb26-5">  <span class="at" style="color: #657422;">max.depth =</span> <span class="dv" style="color: #AD0000;">100</span>,</span>
+<span id="cb26-6">  <span class="at" style="color: #657422;">nrounds =</span> <span class="dv" style="color: #AD0000;">100</span>,</span>
+<span id="cb26-7">  <span class="at" style="color: #657422;">objective =</span> <span class="st" style="color: #20794D;">"multi:softmax"</span>,</span>
+<span id="cb26-8">  <span class="at" style="color: #657422;">num_class =</span> <span class="dv" style="color: #AD0000;">3</span>,</span>
+<span id="cb26-9">  <span class="at" style="color: #657422;">label =</span> <span class="fu" style="color: #4758AB;">as.numeric</span>(tweet_train_dfm<span class="sc" style="color: #5E5E5E;">$</span>sentiment)<span class="sc" style="color: #5E5E5E;">-</span><span class="dv" style="color: #AD0000;">1</span>,</span>
+<span id="cb26-10">  <span class="at" style="color: #657422;">print_every_n =</span> <span class="dv" style="color: #AD0000;">10</span></span>
+<span id="cb26-11">)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] train-mlogloss:1.000106 
+[11]    train-mlogloss:0.721196 
+[21]    train-mlogloss:0.647356 
+[31]    train-mlogloss:0.604540 
+[41]    train-mlogloss:0.573208 
+[51]    train-mlogloss:0.548874 
+[61]    train-mlogloss:0.528251 
+[71]    train-mlogloss:0.511289 
+[81]    train-mlogloss:0.495794 
+[91]    train-mlogloss:0.482234 
+[100]   train-mlogloss:0.470904 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><span class="fu" style="color: #4758AB;">toc</span>()</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>58.2 sec elapsed</code></pre>
+</div>
+</div>
+<p>The loss function looks the same</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1">xg_fit<span class="sc" style="color: #5E5E5E;">$</span>evaluation_log <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb30-2">  <span class="fu" style="color: #4758AB;">ggplot</span>(<span class="fu" style="color: #4758AB;">aes</span>(iter,train_mlogloss)) <span class="sc" style="color: #5E5E5E;">+</span> <span class="fu" style="color: #4758AB;">geom_line</span>() <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb30-3">  <span class="fu" style="color: #4758AB;">theme_afri</span>()</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="outsiderdata.netlify.app/posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="results-with-english-language-tweets" class="level2">
+<h2 class="anchored" data-anchor-id="results-with-english-language-tweets">Results With English Language Tweets</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><span class="co" style="color: #5E5E5E;"># predict and convert classes back to factors</span></span>
+<span id="cb31-2">predicted <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">predict</span>(xg_fit,tweet_test_dfm) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb31-3">  <span class="fu" style="color: #4758AB;">as.factor</span>()</span>
+<span id="cb31-4"><span class="fu" style="color: #4758AB;">levels</span>(predicted) <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">levels</span>(tweet_test<span class="sc" style="color: #5E5E5E;">$</span>sentiment)</span>
+<span id="cb31-5"></span>
+<span id="cb31-6">predicted_for_table <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">tibble</span>(<span class="at" style="color: #657422;">actual =</span> tweet_test_dfm<span class="sc" style="color: #5E5E5E;">$</span>sentiment,</span>
+<span id="cb31-7">                              predicted)</span>
+<span id="cb31-8"></span>
+<span id="cb31-9"></span>
+<span id="cb31-10">caret<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">confusionMatrix</span>(<span class="fu" style="color: #4758AB;">table</span>(predicted_for_table))</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Confusion Matrix and Statistics
+
+          predicted
+actual     negative neutral positive
+  negative     5678    4146     1432
+  neutral      2233    6607     1483
+  positive     1905    3245     5178
+
+Overall Statistics
+                                          
+               Accuracy : 0.5473          
+                 95% CI : (0.5418, 0.5528)
+    No Information Rate : 0.4387          
+    P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+                                          
+                  Kappa : 0.3217          
+                                          
+ Mcnemar's Test P-Value : &lt; 2.2e-16       
+
+Statistics by Class:
+
+                     Class: negative Class: neutral Class: positive
+Sensitivity                   0.5784         0.4720          0.6398
+Specificity                   0.7475         0.7925          0.7837
+Pos Pred Value                0.5044         0.6400          0.5014
+Neg Pred Value                0.7996         0.6576          0.8649
+Prevalence                    0.3076         0.4387          0.2536
+Detection Rate                0.1780         0.2071          0.1623
+Detection Prevalence          0.3528         0.3235          0.3237
+Balanced Accuracy             0.6630         0.6323          0.7118</code></pre>
+</div>
+</div>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>Again, we see a disappointing result. Machine learning did not significantly increase the accuracy of our sentiment measurement. It is interesting that translating the tweets to English DOES improve the model accuracy, but by a puny amount. I’m not sure the conclusion would survive cross-validation. Here’s the summary for all the methods we’ve done.</p>
+<table class="table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;"></th>
+<th style="text-align: center;">Valence by Word</th>
+<th style="text-align: center;">Valence by Sentence</th>
+<th style="text-align: center;">XGBoost - Native</th>
+<th style="text-align: center;">XGBoost - English</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">Accuracy</td>
+<td style="text-align: center;">51%</td>
+<td style="text-align: center;">51%</td>
+<td style="text-align: center;">54%</td>
+<td style="text-align: center;">55%</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">Kappa Statistic</td>
+<td style="text-align: center;">26%</td>
+<td style="text-align: center;">27%</td>
+<td style="text-align: center;">31%</td>
+<td style="text-align: center;">32%</td>
+</tr>
+</tbody>
+</table>
+<p>Obviously, we’re doing “toy” models. Serious researchers on this subject have achieved better results. In particular, a model called “AfroXLMR-Large” cited in the <a href="https://arxiv.org/pdf/2302.08956.pdf">original paper</a> <span class="citation" data-cites="Muhammad2023AfriSentiAT">(Muhammad et al. 2023)</span> achieved an average accuracy across all languages of 67.2% on this data set. This is a pre-trained model with over 270 million variables.</p>
+<p>Hopefully this was useful as a introduction to some of the techniques used in sentiment analysis and the R tools we can use for the task.</p>
+<p>In the final post in this series we’ll look at something of more general interest. There has been much talk about how the “Global South” feels neglected by the rich countries in the northern hemisphere. Can we use the sentiments expressed in the Afrisenti data set to get feelings about specific regions?</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-Muhammad2023AfriSentiAT" class="csl-entry">
+Muhammad, Shamsuddeen Hassan, Idris Abdulmumin, Abinew Ali Ayele, Nedjma Ousidhoum, David Ifeoluwa Adelani, Seid Muhie Yimam, Ibrahim Sa’id Ahmad, et al. 2023. <span>“AfriSenti: A Twitter Sentiment Analysis Benchmark for African Languages.”</span> In.
+</div>
+<div id="ref-Saifullah2021" class="csl-entry">
+Saifullah, Shoffan, Yuli Fauziah, and Agus Sasmito Aribowo. 2021. <span>“Comparison of Machine Learning for Sentiment Analysis in Detecting Anxiety Based on Social Media Data.”</span> <em>arXiv</em>. <a href="https://doi.org/10.48550/ARXIV.2101.06353">https://doi.org/10.48550/ARXIV.2101.06353</a>.
+</div>
+</div></section></div> ]]></description>
+  <category>tidytext</category>
+  <category>twitter</category>
+  <category>machine learning</category>
+  <category>xgboost</category>
+  <guid>outsiderdata.netlify.app/posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index.html</guid>
+  <pubDate>Sat, 22 Apr 2023 04:00:00 GMT</pubDate>
+  <media:content url="outsiderdata.netlify.app/posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/img/eda1.png" medium="image" type="image/png" height="103" width="144"/>
+</item>
 <item>
   <title>Sentiment Analysis Using Google Translate (Pt. 2)</title>
   <dc:creator>Art Steinmetz</dc:creator>
@@ -193,7 +723,7 @@
 10 negative       "This is the appropriate response that deserves the likes of …</code></pre>
 </div>
 </div>
-<p>Our scoring looks pretty good. Where we disagree with Afrisenti, I side with tidytext for the most part.</p>
+<p>Our scoring looks pretty good. Where we disagree with Afrisenti, I side with tidytext for the most part. Having said that, the provided sentiments are human-curated with at least 2 out of 3 native language speakers agreeing on how to code each tweet. So who am I to argue?</p>
 <p>Here are samples of negative-scored tweets with along the original sentiment.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><span class="fu" style="color: #4758AB;">set.seed</span>(<span class="dv" style="color: #AD0000;">5</span>)</span>

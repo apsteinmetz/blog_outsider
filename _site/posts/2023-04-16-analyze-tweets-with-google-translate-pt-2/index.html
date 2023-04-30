@@ -9,7 +9,7 @@
 <meta name="author" content="Art Steinmetz">
 <meta name="dcterms.date" content="2023-04-16">
 
-<title>Outsider Data Science - Sentiment Analysis Using Google Translate (Pt. 2)</title>
+<title>Outsider Data Science - Sentiment Analysis Using Google Translate (Pt. 2 - Word Valence)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -443,7 +443,7 @@ div.csl-indent {
 10 negative       "This is the appropriate response that deserves the likes of …</code></pre>
 </div>
 </div>
-<p>Our scoring looks pretty good. Where we disagree with Afrisenti, I side with tidytext for the most part.</p>
+<p>Our scoring looks pretty good. Where we disagree with Afrisenti, I side with tidytext for the most part. Having said that, the provided sentiments are human-curated with at least 2 out of 3 native language speakers agreeing on how to code each tweet. So who am I to argue?</p>
 <p>Here are samples of negative-scored tweets with along the original sentiment.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">5</span>)</span>
