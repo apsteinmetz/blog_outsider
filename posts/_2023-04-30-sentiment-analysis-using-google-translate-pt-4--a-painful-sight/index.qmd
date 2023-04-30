@@ -1,0 +1,80 @@
+---
+title: "Sentiment Analysis Using Google Translate (Pt. 4 - A Painful Sight"
+description: |
+  
+author: Art Steinmetz
+date: 2023-04-30
+draft: true
+categories: 
+  - twitter
+  - tidytext
+format: html
+editor: visual
+bibliography: references.bib
+execute: 
+  eval: true
+  freeze: true
+  warning: false
+
+---
+## Introduction
+
+
+
+```{r}
+# topic modeling of sentiment
+library(tidyverse)
+library(tidytext)
+
+# the the previously translated tweets.
+afrisenti_translated <- readr::read_csv('https://raw.githubusercontent.com/apsteinmetz/tidytuesday/master/2023-02-28_african_language/data/afrisenti_translated.csv',
+                                        show_col_types = FALSE) |>
+  mutate(lang = as.factor(assigned_long)) |> 
+  mutate(sentiment = as.factor(label)) |> 
+  mutate(intended_use = as.factor(intended_use)) |> 
+  select(lang,tweet_num,sentiment,translatedText,tweet,intended_use)
+afrisenti_translated
+```
+
+
+```{r}
+north_countries <- c("usa","europe","russia","china")
+
+tokens <- afrisenti_translated %>%  
+  select(lang,tweet_num,translatedText, sentiment) %>% 
+  # can we separate "US" from "us"?
+  mutate(translatedText = str_replace(translatedText," US "," usa ")) |> 
+  mutate(translatedText = tolower(translatedText)) |> 
+  mutate(translatedText = str_replace(translatedText,"united states","usa")) |> 
+  unnest_tokens(word, translatedText ) %>% 
+  mutate(word = str_replace(word,"eu$","europe")) |> 
+  mutate(word = str_replace(word,"america","usa")) |> 
+  count(word,sentiment, sort = TRUE) |>
+  filter(word %in% north_countries) |> 
+  mutate(Area = str_to_title(word)) |> 
+  mutate(Area = str_replace(Area,"Usa","USA")) |> 
+  arrange(word)
+```
+
+
+```{r}
+col_set <-   c("#952038","#F7C608","#319400")
+  
+# feelings about world powers
+tokens |>
+  ggplot(aes(Area,n,fill = sentiment)) + 
+  geom_col(position = "dodge") + 
+  scale_fill_manual(values =  col_set) + 
+  labs(title = 'Q:How Does Africa Feel About the Global North?\nA: Not great, but Tweets mentioning Russia are mostly "neutral"',
+       subtitle = "WARNING: Sample size is not large. Other caveats apply.",
+       y = "Tweet Count",
+       caption = "Source: Afrisenti data set") +
+  coord_flip() +
+  annotate("text",x = 2.5,y = 70,label = "Alternate names for\nareas are combined.\ne.g. EU = Europe") +
+  theme(plot.background = element_rect(fill = "#FDECCD", color = NA),
+      legend.background = element_blank(),
+      axis.ticks = element_blank(),
+      axis.text.y = element_text(face = "bold"),
+      plot.subtitle = element_text(face = "italic"),
+      panel.background = element_blank())
+```
