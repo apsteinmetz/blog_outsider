@@ -2,12 +2,13 @@
 title: "Sentiment Analysis Using Google Translate (Pt. 4 - A Painful Sight)"
 author: Art Steinmetz
 date: 2023-04-30
-draft: true
+draft: false
 categories: 
   - twitter
   - tidytext
 format: html
 editor: visual
+image: img/preview.png
 bibliography: references.bib
 execute: 
   eval: true
@@ -17,7 +18,7 @@ execute:
 
 ## Introduction
 
-Many of us in the U.S. have been surprised by the indifference many in less developed countries have shown about the Ukraine war. There has been much talk lately about how the "Global South" is feeling slighted by the rich countries in the northern hemisphere. The [Afrisenti data set](https://arxiv.org/abs/2302.08956) [@Muhammad2023] isa collection of over 110,000 tweets from Africa.  It's purpose is to train language sentiment models but maybe it can give us some insight into how Africans view different regions of the "Global North."
+Many of us in the U.S. have been surprised by the indifference many in less developed countries have shown about the Ukraine war. There has been much talk lately about how the "Global South" is feeling slighted by the rich countries in the northern hemisphere. The [Afrisenti data set](https://arxiv.org/abs/2302.08956) [@Muhammad2023] is a collection of over 110,000 tweets from Africa. Its purpose is to train language sentiment models but maybe it can give us some insight into how Africans view different regions of the "Global North."
 
 For the final bite of the apple in this series, we'll look at the translated tweets and tally the sentiment expressed in each tweet mentioning the U.S., Russia, China and/or Europe. What is the balance of sentiment expressed in this data set about each of these regions?
 
@@ -65,9 +66,11 @@ afrisenti_translated <-
   select(lang, tweet_num, sentiment, translatedText)
 
 ```
+
 ## Data Wrangling
 
-We'll do some light data wranglng to bring some consistency to how areas are referred to.  China and Russia are easy to spot.  What does "us" mean?  We capture a few variants but there will be some false positives and negatives, I suspect.
+We'll do some light data wranglng to bring some consistency to how areas are referred to. China and Russia are easy to spot. What does "us" mean? We capture a few variants but there will be some false positives and negatives, I suspect.
+
 ```{r}
 afrisenti_translated <- afrisenti_translated |>
   # can we separate "US" from "us"?
@@ -91,6 +94,7 @@ afrisenti_translated <- afrisenti_translated |>
   mutate(text = str_replace(text, "chinese", "china"))  |> 
   mutate(text = str_replace(text, " eu ", " europe "))
 ```
+
 Let's look at a few random tweets mentioning our areas of interest. We can compare `text` to the unaltered `translatedText` to see how well our wrangling worked.
 
 ```{r}
@@ -99,9 +103,11 @@ afrisenti_translated |>
   filter(str_detect(text,"china|russia|united_states|europe")) |> 
   slice_sample(n=10)
 ```
+
 ## Split the Tweets into Words and Tally Results
 
 As sort of a control, let's include "Africa" as one of our areas.
+
 ```{r}
 areas <- c("united_states","europe","russia","china","africa")
 tokens <- afrisenti_translated %>%  
@@ -112,9 +118,11 @@ tokens <- afrisenti_translated %>%
   mutate(Area = str_to_title(Area)) |> 
   mutate(Area = str_replace(Area,"United_states","USA"))
 ```
+
 ## Results: The Higher Up the Tree the Monkey Climbs, the More Its Ass Shows
 
-Sadly, among tweets mentioning the Global North, there are more tagged with negative than positive sentiment.  In contrast, the balance of sentiment is positive in tweets mentioning "Africa" (as opposed to particular African countries).  It's perhaps not surprising the the United States is the most mentioned area. It aslo has the worst balance of sentiment.  Alone among the areas, Russia has more neutral sentiment tweets than any other sentiment.
+Sadly, among tweets mentioning the Global North, there are more tagged with negative than positive sentiment. In contrast, the balance of sentiment is positive in tweets mentioning "Africa" (as opposed to particular African countries). It's perhaps not surprising the the United States is the most mentioned area. It aslo has the worst balance of sentiment. Alone among the areas, Russia has more neutral sentiment tweets than any other sentiment.
+
 ```{r}
 col_set <-   c("#952038","#F7C608","#319400")
   
@@ -132,7 +140,7 @@ tokens |>
   theme_afri(plot.subtitle = element_text(face = "italic"))
 ```
 
-We can calculate a net sentiment ratio as the positive minus negative divided by the sum of all tweets. This shows in stark terms how the balance of sentiment is worse for the United States than the other regions we are looking at.  Further, both while both Russia and China are viewed negatively, on balance, they are viewed less poorly than both the USA and Europe.
+We can calculate a net sentiment ratio as the positive minus negative divided by the sum of all tweets. This shows in stark terms how the balance of sentiment is worse for the United States than the other regions we are looking at. Further, both while both Russia and China are viewed negatively, on balance, they are viewed less poorly than both the USA and Europe.
 
 ```{r}
 tokens |> 
@@ -146,10 +154,9 @@ tokens |>
        subtitle = "Net Sentiment of Tweets from Africa Mentioning a Northern Area or Africa",
        caption = "Source: Afrisenti Data Set")
 ```
+
 ## Conclusion
 
-While I think these results are truly interesting, please don't read too much into them. This is not a carefully designed social science research project. The results do align with our intuition gleaned from recent news about the "Global South" vs. the "Global North."  Given that this data set spans roughly ten years, this tension is not a new phenomenon.
+While I think these results are truly interesting, please don't read too much into them. This is not a carefully designed social science research project. The results do align with our intuition gleaned from recent news about the "Global South" vs. the "Global North." Given that this data set spans roughly ten years, this tension is not a new phenomenon.
 
-The Afrisenti data set is a fascinating corpus and there are many more explorations we might do in it.  As I write, it looks like Twitter is going to put its academic API behind a paywall. This is quite sad and will stifle the kind of important explorations serious researchers are able to do, not to mention curious amateurs like us.
-
-
+The Afrisenti data set is a fascinating corpus and there are many more explorations we might do in it. As I write, it looks like Twitter is going to put its academic API behind a paywall. This is quite sad and will stifle the kind of important explorations serious researchers are able to do, not to mention curious amateurs like us.

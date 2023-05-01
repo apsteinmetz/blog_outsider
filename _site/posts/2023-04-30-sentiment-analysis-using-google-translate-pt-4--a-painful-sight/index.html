@@ -9,7 +9,7 @@
 <meta name="author" content="Art Steinmetz">
 <meta name="dcterms.date" content="2023-04-30">
 
-<title>Sentiment Analysis Using Google Translate (Pt. 4 - A Painful Sight)</title>
+<title>Outsider Data Science - Sentiment Analysis Using Google Translate (Pt. 4 - A Painful Sight)</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -107,24 +107,131 @@ div.csl-indent {
 </style>
 
 
-<script src="index_files/libs/clipboard/clipboard.min.js"></script>
-<script src="index_files/libs/quarto-html/quarto.js"></script>
-<script src="index_files/libs/quarto-html/popper.min.js"></script>
-<script src="index_files/libs/quarto-html/tippy.umd.min.js"></script>
-<script src="index_files/libs/quarto-html/anchor.min.js"></script>
-<link href="index_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="index_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="index_files/libs/bootstrap/bootstrap.min.js"></script>
-<link href="index_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="index_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/quarto-contrib/fontawesome6-0.1.0/all.css" rel="stylesheet">
+<link href="../../site_libs/quarto-contrib/fontawesome6-0.1.0/latex-fontsize.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
 
 
+<link rel="stylesheet" href="../../styles.css">
 </head>
 
-<body class="fullcontent">
+<body class="nav-fixed">
 
-<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Outsider Data Science</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html">
+ <span class="menu-text">Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/asteinmetz/"><i class="bi bi-linkedin" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/adababbage"><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://fosstodon.org/@adababbage"><i class="bi bi-mastodon" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/apsteinmetz"><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml"><i class="bi bi-rss" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../blogroll.html">
+ <span class="menu-text"><i class="fa-solid fa-blog" aria-label="blog"></i></span></a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a></li>
+  <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup">Setup</a></li>
+  <li><a href="#data-wrangling" id="toc-data-wrangling" class="nav-link" data-scroll-target="#data-wrangling">Data Wrangling</a></li>
+  <li><a href="#split-the-tweets-into-words-and-tally-results" id="toc-split-the-tweets-into-words-and-tally-results" class="nav-link" data-scroll-target="#split-the-tweets-into-words-and-tally-results">Split the Tweets into Words and Tally Results</a></li>
+  <li><a href="#results-the-higher-up-the-tree-the-monkey-climbs-the-more-its-ass-shows" id="toc-results-the-higher-up-the-tree-the-monkey-climbs-the-more-its-ass-shows" class="nav-link" data-scroll-target="#results-the-higher-up-the-tree-the-monkey-climbs-the-more-its-ass-shows">Results: The Higher Up the Tree the Monkey Climbs, the More Its Ass Shows</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
@@ -162,7 +269,7 @@ div.csl-indent {
 
 <section id="introduction" class="level2">
 <h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<p>Many of us in the U.S. have been surprised by the indifference many in less developed countries have shown about the Ukraine war. There has been much talk lately about how the “Global South” is feeling slighted by the rich countries in the northern hemisphere. The <a href="https://arxiv.org/abs/2302.08956">Afrisenti data set</a> <span class="citation" data-cites="Muhammad2023">(<a href="#ref-Muhammad2023" role="doc-biblioref">Muhammad et al. 2023</a>)</span>, a collection of over 110,000 tweets from Africa, can give us some insight into how Africans view different regions of the “Global North.”</p>
+<p>Many of us in the U.S. have been surprised by the indifference many in less developed countries have shown about the Ukraine war. There has been much talk lately about how the “Global South” is feeling slighted by the rich countries in the northern hemisphere. The <a href="https://arxiv.org/abs/2302.08956">Afrisenti data set</a> <span class="citation" data-cites="Muhammad2023">(<a href="#ref-Muhammad2023" role="doc-biblioref">Muhammad et al. 2023</a>)</span> is a collection of over 110,000 tweets from Africa. Its purpose is to train language sentiment models but maybe it can give us some insight into how Africans view different regions of the “Global North.”</p>
 <p>For the final bite of the apple in this series, we’ll look at the translated tweets and tally the sentiment expressed in each tweet mentioning the U.S., Russia, China and/or Europe. What is the balance of sentiment expressed in this data set about each of these regions?</p>
 <p>There are some major caveats with this social science experiment. First, while we are using the sentiments coded by native language-speaking curators, there is no stipulation that the sentiment toward a region and the sentiment of the tweet are the same. “I hate enemies of Russia” is a negative tweet, although positive toward Russia. Second, the sample size, while large overall, contains merely hundreds of tweets mentioning our regions of interest. We can’t claim this is representative. Finally, we don’t know the dates of the tweets. We know by some of the news events they reference they probably span the period from 2012 to sometime in 2022. The start of the Ukraine war at the beginning of 2022 and other World events may have shifted attitudes but we can’t split up the tweets by time.</p>
 <p>Unlike our previous posts in this series, this one will be mercifully short.</p>
@@ -227,7 +334,7 @@ div.csl-indent {
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">text =</span> <span class="fu">str_replace</span>(text, <span class="st">"south america"</span>, <span class="st">"south_america"</span>)) <span class="sc">|&gt;</span></span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">text =</span> <span class="fu">str_replace</span>(text, <span class="st">" america"</span>, <span class="st">" united_states "</span>))  <span class="sc">|&gt;</span> </span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">text =</span> <span class="fu">str_replace</span>(text, <span class="st">"^america"</span>, <span class="st">"united_states "</span>))  <span class="sc">|&gt;</span> </span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># "American" and "Russian" are stemmed to America and Russia, not so Chinese</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># "American" "European" and "Russian" are stemmed to area name, not so Chinese</span></span>
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">text =</span> <span class="fu">str_replace</span>(text, <span class="st">"chinese"</span>, <span class="st">"china"</span>))  <span class="sc">|&gt;</span> </span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">text =</span> <span class="fu">str_replace</span>(text, <span class="st">" eu "</span>, <span class="st">" europe "</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -241,16 +348,16 @@ div.csl-indent {
 <pre><code># A tibble: 10 × 3
    sentiment text                                                 translatedText
    &lt;fct&gt;     &lt;chr&gt;                                                &lt;chr&gt;         
- 1 negative  "'@user is what you are against. if the united_stat… "'@user is wh…
- 2 neutral   "a senior delegation led by ethiopia's minister of … "A senior del…
- 3 neutral   "alkyra in ukraine. russia struck more than 90 targ… "Alkyra in Uk…
- 4 neutral   "@user i'm afraid ali nuhu did a china movie, i'm n… "@user I'm af…
- 5 neutral   "'@user @user @user @user we believe in the truth a… "'@user @user…
- 6 neutral   "the railways borrow 200 million euros from the eur… "The railways…
- 7 negative  "@user, what will happen to the military members wh… "@user, What …
- 8 neutral   "@user there is no other way than to hold their han… "@user There …
- 9 negative  "it's like picking a bag and going to nigeria to ti… "It's like pi…
-10 positive  "all the best in football this month: live @user eu… "All the best…</code></pre>
+ 1 negative  in addition to this, it is necessary to stop the re… In addition t…
+ 2 negative  don't touch united_states , jokes and conspiracy wi… Don't touch A…
+ 3 negative  intimidating the people is a policy practiced by ri… Intimidating …
+ 4 neutral   russian foreign minister: kane is making positive p… Russian Forei…
+ 5 neutral   a disappointing blow to the far-right candidate, co… A disappointi…
+ 6 neutral   dr. bashiru will discuss four issues with  united_s… Dr. Bashiru w…
+ 7 negative  the grandchildren of the generation that followed e… The grandchil…
+ 8 neutral   a senior delegation led by ethiopia's minister of n… A senior dele…
+ 9 positive  wow your shoes are nice responses united_states ns … wow your shoe…
+10 positive  in the marathon held in china, ethiopian athletes w… In the marath…</code></pre>
 </div>
 </div>
 </section>
@@ -312,14 +419,15 @@ div.csl-indent {
 <p>While I think these results are truly interesting, please don’t read too much into them. This is not a carefully designed social science research project. The results do align with our intuition gleaned from recent news about the “Global South” vs.&nbsp;the “Global North.” Given that this data set spans roughly ten years, this tension is not a new phenomenon.</p>
 <p>The Afrisenti data set is a fascinating corpus and there are many more explorations we might do in it. As I write, it looks like Twitter is going to put its academic API behind a paywall. This is quite sad and will stifle the kind of important explorations serious researchers are able to do, not to mention curious amateurs like us.</p>
 
+
+
 </section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
 <div id="ref-Muhammad2023" class="csl-entry" role="doc-biblioentry">
 Muhammad, Shamsuddeen Hassan, Idris Abdulmumin, Abinew Ali Ayele, Nedjma Ousidhoum, David Ifeoluwa Adelani, Seid Muhie Yimam, Ibrahim Sa’id Ahmad, et al. 2023. <span>“AfriSenti: A Twitter Sentiment Analysis Benchmark for African Languages.”</span> <a href="https://doi.org/10.48550/ARXIV.2302.08956">https://doi.org/10.48550/ARXIV.2302.08956</a>.
 </div>
-</div></section></div></main>
-<!-- /main column -->
+</div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -340,6 +448,121 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
   toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'alternate';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
   const icon = "";
   const anchorJS = new window.AnchorJS();
   anchorJS.options = {
