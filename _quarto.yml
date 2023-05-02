@@ -4,6 +4,7 @@ project:
 website:
   title: "Outsider Data Science"
   site-url: "outsiderdata.netlify.app"
+  twitter-card: true
   navbar:
     left:
       - text: Blog
