@@ -9,6 +9,7 @@ draft: true
 ```{r}
 library(tidyverse)
 library(rayshader)
+library(plotly)
 ```
 Take the confusion matrices from the sentiment analysis posts and turn them into a single data frame.
 
@@ -30,15 +31,15 @@ sv <- tribble(
 
 mln <- tribble(
 ~ method, ~truth,   ~negative, ~neutral, ~positive,
-"Machine Learning Native", "negative",   5524,  4598,   1261,
-"Machine Learning Native", "neutral",   2489,  7011,   1182,
-"Machine Learning Native", "positive",   2100,  3287,   4981
+"ML Native", "negative",   5524,  4598,   1261,
+"ML Native", "neutral",   2489,  7011,   1182,
+"ML Native", "positive",   2100,  3287,   4981
 )
 mle <- tribble(
 ~ method, ~truth,   ~negative, ~neutral, ~positive,
-"Machine Learning Translated","negative",   5678,  4146,   1432,
-"Machine Learning Translated","neutral",   2233,  6607,   1483,
-"Machine Learning Translated","positive",   1905,  3245,   5178
+"ML Translated","negative",   5678,  4146,   1432,
+"ML Translated","neutral",   2233,  6607,   1483,
+"ML Translated","positive",   1905,  3245,   5178
 )
 
 perfect <- tribble(
@@ -82,10 +83,11 @@ gg
 
 
 ```{r}
-plot_gg(gg, width = 5, height = 5, multicore = TRUE, scale = 250, 
+plot_gg(gg, width = 6, height = 6, multicore = TRUE, scale = 250, 
   zoom = 0.7, theta =10, phi = 30, windowsize = c(800, 800))
-#  zoom = 0.7, theta = 10, phi = 30, windowsize = c(800, 800))
 
-
+render_movie()
 ```
+
+
 
