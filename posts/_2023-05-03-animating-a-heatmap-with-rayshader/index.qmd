@@ -1,0 +1,91 @@
+---
+title: "Animating a Heatmap with Rayshader"
+description: |
+ 
+author: Art Steinmetz
+date: 2023-05-03
+draft: true
+---
+```{r}
+library(tidyverse)
+library(rayshader)
+```
+Take the confusion matrices from the sentiment analysis posts and turn them into a single data frame.
+
+```{r}
+# word valence 
+wv <- tribble( 
+~ method, ~truth,   ~negative, ~neutral, ~positive,
+"Word Valence" ,"negative",  15083,  14619,   6862,
+"Word Valence" ,"neutral" ,   7761,  23921,   7469,
+"Word Valence" ,"positive" ,  4720,  13148,  18137
+)
+
+sv <- tribble(
+~ method, ~truth,   ~negative, ~neutral, ~positive,
+"Sentence Valence" ,"negative", 17776,  11510,   7278,
+"Sentence Valence" ,"neutral",   9624,  18651,  10876,
+"Sentence Valence" ,"positive",   5558,  9859,  20588
+)
+
+mln <- tribble(
+~ method, ~truth,   ~negative, ~neutral, ~positive,
+"Machine Learning Native", "negative",   5524,  4598,   1261,
+"Machine Learning Native", "neutral",   2489,  7011,   1182,
+"Machine Learning Native", "positive",   2100,  3287,   4981
+)
+mle <- tribble(
+~ method, ~truth,   ~negative, ~neutral, ~positive,
+"Machine Learning Translated","negative",   5678,  4146,   1432,
+"Machine Learning Translated","neutral",   2233,  6607,   1483,
+"Machine Learning Translated","positive",   1905,  3245,   5178
+)
+
+perfect <- tribble(
+~ method, ~truth,   ~negative, ~neutral, ~positive,
+"Perfection","negative",   100,  0,   0,
+"Perfection","neutral",   0,  100,   0,
+"Perfection","positive",   0, 0,   100
+)
+
+
+xt <- bind_rows(wv,sv,mln,mle,perfect) |> 
+  pivot_longer(cols = 3:5,names_to = "predicted",values_to = "count") |> 
+  group_by(method) |> 
+  mutate(proportion = count/sum(count))
+xt
+
+```
+
+
+```{r}
+gg <- xt %>% 
+ # filter(method != "Perfection") |> 
+ ggplot(aes(truth,predicted,fill=proportion)) + geom_tile() +
+ facet_wrap(vars(method)) + 
+ labs(title = "African Languages Tweets",
+  subtitle = "Multiple Prediction Models",
+  x = "Actual Sentiment",
+  y= "Predicted Sentiment",
+  caption = "source: Afrisenti Data Set") + 
+ scale_fill_gradient(low = "#FFBF00",high = "#007000") +
+ theme(plot.background = element_rect(fill = "#FDECCD", color = NA),
+  legend.background = element_blank(),
+  axis.ticks = element_blank(),
+  panel.background = element_blank(),
+  panel.grid = element_blank())
+
+gg
+
+# gg + geom_text(aes(label = paste0(as.character(prop),"%")))
+```
+
+
+```{r}
+plot_gg(gg, width = 5, height = 5, multicore = TRUE, scale = 250, 
+  zoom = 0.7, theta =10, phi = 30, windowsize = c(800, 800))
+#  zoom = 0.7, theta = 10, phi = 30, windowsize = c(800, 800))
+
+
+```
+
