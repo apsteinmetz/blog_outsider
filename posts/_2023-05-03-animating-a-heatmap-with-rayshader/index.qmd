@@ -6,47 +6,53 @@ author: Art Steinmetz
 date: 2023-05-03
 draft: true
 ---
+
 ```{r}
 library(tidyverse)
 library(rayshader)
-library(plotly)
+library(gifski)
 ```
-Take the confusion matrices from the sentiment analysis posts and turn them into a single data frame.
+
+The best part of any analysis are the visualizations.  I couldn't resist taking the results of our [earlier sentiment analysis](https://outsiderdata.netlify.app/posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/) and turning it into some appealing eye candy.
+
+You'll recall we tried several different approaches to predicting the sentiment of tweets in various African languages. The main test of fit was a "confusion matrix," a cross tab of the "true" sentiment vs. what we predicted.  The results for each were far from perfect.
+
+For this post we'll just cut and paste the confusion matrices from each method of sentiment analysis and turn them into a single data frame.  While we're at it, we'll add a method called "Perfection" which would be the result of a perfect match.  To normalize the data we'll compute the proportion of outcomes in each cell, rather than the count.  The perfect match would see 33% of the  outcomes in each correct cell and zero in all the others.
 
 ```{r}
 # word valence 
 wv <- tribble( 
-~ method, ~truth,   ~negative, ~neutral, ~positive,
-"Word Valence" ,"negative",  15083,  14619,   6862,
-"Word Valence" ,"neutral" ,   7761,  23921,   7469,
-"Word Valence" ,"positive" ,  4720,  13148,  18137
+~ method, ~truth, ~negative, ~neutral, ~positive,
+"Word Valence" ,"negative", 15083, 14619, 6862,
+"Word Valence" ,"neutral" , 7761, 23921, 7469,
+"Word Valence" ,"positive" , 4720, 13148, 18137
 )
 
 sv <- tribble(
-~ method, ~truth,   ~negative, ~neutral, ~positive,
-"Sentence Valence" ,"negative", 17776,  11510,   7278,
-"Sentence Valence" ,"neutral",   9624,  18651,  10876,
-"Sentence Valence" ,"positive",   5558,  9859,  20588
+~ method, ~truth, ~negative, ~neutral, ~positive,
+"Sentence Valence" ,"negative", 17776, 11510, 7278,
+"Sentence Valence" ,"neutral", 9624, 18651, 10876,
+"Sentence Valence" ,"positive", 5558, 9859, 20588
 )
 
 mln <- tribble(
-~ method, ~truth,   ~negative, ~neutral, ~positive,
-"ML Native", "negative",   5524,  4598,   1261,
-"ML Native", "neutral",   2489,  7011,   1182,
-"ML Native", "positive",   2100,  3287,   4981
+~ method, ~truth, ~negative, ~neutral, ~positive,
+"ML Native", "negative", 5524, 4598, 1261,
+"ML Native", "neutral", 2489, 7011, 1182,
+"ML Native", "positive", 2100, 3287, 4981
 )
 mle <- tribble(
-~ method, ~truth,   ~negative, ~neutral, ~positive,
-"ML Translated","negative",   5678,  4146,   1432,
-"ML Translated","neutral",   2233,  6607,   1483,
-"ML Translated","positive",   1905,  3245,   5178
+~ method, ~truth, ~negative, ~neutral, ~positive,
+"ML Translated","negative", 5678, 4146, 1432,
+"ML Translated","neutral", 2233, 6607, 1483,
+"ML Translated","positive", 1905, 3245, 5178
 )
 
 perfect <- tribble(
-~ method, ~truth,   ~negative, ~neutral, ~positive,
-"Perfection","negative",   100,  0,   0,
-"Perfection","neutral",   0,  100,   0,
-"Perfection","positive",   0, 0,   100
+~ method, ~truth, ~negative, ~neutral, ~positive,
+"Perfection","negative", 100, 0, 0,
+"Perfection","neutral", 0, 100, 0,
+"Perfection","positive", 0, 0, 100
 )
 
 
@@ -57,8 +63,7 @@ xt <- bind_rows(wv,sv,mln,mle,perfect) |>
 xt
 
 ```
-
-
+Now we can use ggplot2 to create a facet plot that shows the heatmaps of each of our methods.  This clearly shows that our methods were sort of on the right track though, as we see, far from "Perfection."
 ```{r}
 gg <- xt %>% 
  # filter(method != "Perfection") |> 
@@ -68,7 +73,7 @@ gg <- xt %>%
   subtitle = "Multiple Prediction Models",
   x = "Actual Sentiment",
   y= "Predicted Sentiment",
-  caption = "source: Afrisenti Data Set") + 
+  caption = "source: Afrisenti Data Set, outsiderdata.net") + 
  scale_fill_gradient(low = "#FFBF00",high = "#007000") +
  theme(plot.background = element_rect(fill = "#FDECCD", color = NA),
   legend.background = element_blank(),
@@ -77,17 +82,41 @@ gg <- xt %>%
   panel.grid = element_blank())
 
 gg
-
-# gg + geom_text(aes(label = paste0(as.character(prop),"%")))
 ```
-
+Good data visualizations clearly tell the story and are ideally more compelling than a grid of numbers.  The plot above is good for seeing the difference between our methods and "Perfection" but it's a little harder to divine differences among the methods.
 
 ```{r}
-plot_gg(gg, width = 6, height = 6, multicore = TRUE, scale = 250, 
-  zoom = 0.7, theta =10, phi = 30, windowsize = c(800, 800))
+#| eval: false
+render_confusion <- function(theta, first_image = FALSE,orig_shadow = NULL){
+shadow_matrix <-
+  plot_gg(
+    gg,
+    width = 6,
+    height = 6,
+    multicore = TRUE,
+    save_shadow_matrix = first_image,
+    saved_shadow_matrix = orig_shadow,
+    scale = 250,
+    zoom = 0.7,
+    theta = theta,
+    phi = 45,
+    windowsize = c(800, 800)
+  )
+return(shadow_matrix)
+}
 
-render_movie()
+orig_shadow = render_confusion(20,first_image = TRUE)
+
+destdir = tempdir()
+for (n in 0:40){
+  fname <- paste0("img_",formatC(n,width = 2,flag = "0"),".png")
+  print(fname)
+render_confusion(theta=n-20,first_image = FALSE,orig_shadow = orig_shadow)
+rayshader::render_snapshot(paste0(destdir,"/",filename = fname))
+} 
+
+fnames <- paste0(destdir,"\\",c(dir(destdir),sort(dir(destdir),decreasing = TRUE)))
+gifski(fnames,"img/confusion.gif",delay = 1/10,loop = TRUE)
 ```
 
-
-
+![](img/confusion.gif)
