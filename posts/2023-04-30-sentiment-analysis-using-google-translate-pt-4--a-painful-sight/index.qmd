@@ -6,6 +6,7 @@ draft: false
 categories: 
   - twitter
   - tidytext
+  - text mining
 format: html
 editor: visual
 image: img/preview.png

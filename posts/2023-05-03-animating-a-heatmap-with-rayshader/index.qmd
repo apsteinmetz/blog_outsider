@@ -124,10 +124,7 @@ Good data visualizations clearly tell the story and are ideally more compelling 
 ```{r show 3d plot}
 #| eval: false
 render_confusion <-
-  function(theta,
-           sunangle = 315,
-           first_image = FALSE,
-           orig_shadow = NULL) {
+  function(theta = 45, sunangle = 315) {
     print(sunangle)
     shadow_matrix <-
       plot_gg(
@@ -135,9 +132,7 @@ render_confusion <-
         width = 7,
         height = 7,
         multicore = TRUE,
-        sunangle = 270,
-        save_shadow_matrix = first_image,
-        saved_shadow_matrix = orig_shadow,
+        sunangle = sunangle,
         scale = 250,
         zoom = 0.7,
         phi = 50,
@@ -147,7 +142,7 @@ render_confusion <-
     return(shadow_matrix)
   }
 
-orig_shadow = render_confusion(20,first_image = TRUE)
+orig_shadow = render_confusion(20)
 render_snapshot(file = "img/3dmap.png")
 ```
 
@@ -155,7 +150,7 @@ render_snapshot(file = "img/3dmap.png")
 
 ## Move It!
 
-By creating the illusion of height and depth we can more clearly see diagonal where our predictions match the true sentiment and how many false predictions there are. There is still one problem. The height of the bars has the potential to obscure some other bars and some labels. The way to get around this is to animate the chart to change the point of view. This will complete the 3D illusion.
+By creating the illusion of height and depth we can more clearly see the diagonal where our predictions match the true sentiment and how many false predictions there are. There is still one problem. The height of the bars has the potential to obscure some other bars and some labels. The way to get around this is to animate the chart to change the point of view. This will complete the 3D illusion.
 
 If you are running this code interactively, a separate graphics window will open and you can manipulate the view with your mouse. For this web document, we'll save individual frames and splice them together into an animation. Each frame is rendered from a different angle ("theta"). We use `rendercamera()` to move the rendered image for us and take snapshots as we move. Alternatively, we could change the `sunangle` for every frame so the shadows would move as we rotate the plot, but that would drastically increase rendering time.
 

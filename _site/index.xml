@@ -106,23 +106,23 @@
 <span id="cb5-6">    <span class="fu" style="color: #4758AB;">fmt_number</span>(<span class="at" style="color: #657422;">columns =</span> <span class="fu" style="color: #4758AB;">where</span>(is.numeric),<span class="at" style="color: #657422;">decimals =</span> <span class="dv" style="color: #AD0000;">0</span>)</span></code></pre></div>
 <div class="cell-output-display">
 
-<div id="odtppkrumk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#odtppkrumk table {
+<div id="hexlllhzid" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#hexlllhzid table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#odtppkrumk thead, #odtppkrumk tbody, #odtppkrumk tfoot, #odtppkrumk tr, #odtppkrumk td, #odtppkrumk th {
+#hexlllhzid thead, #hexlllhzid tbody, #hexlllhzid tfoot, #hexlllhzid tr, #hexlllhzid td, #hexlllhzid th {
   border-style: none;
 }
 
-#odtppkrumk p {
+#hexlllhzid p {
   margin: 0;
   padding: 0;
 }
 
-#odtppkrumk .gt_table {
+#hexlllhzid .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -148,12 +148,12 @@
   border-left-color: #D3D3D3;
 }
 
-#odtppkrumk .gt_caption {
+#hexlllhzid .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#odtppkrumk .gt_title {
+#hexlllhzid .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -165,7 +165,7 @@
   border-bottom-width: 0;
 }
 
-#odtppkrumk .gt_subtitle {
+#hexlllhzid .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -177,7 +177,7 @@
   border-top-width: 0;
 }
 
-#odtppkrumk .gt_heading {
+#hexlllhzid .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -189,13 +189,13 @@
   border-right-color: #D3D3D3;
 }
 
-#odtppkrumk .gt_bottom_border {
+#hexlllhzid .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#odtppkrumk .gt_col_headings {
+#hexlllhzid .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -210,7 +210,7 @@
   border-right-color: #D3D3D3;
 }
 
-#odtppkrumk .gt_col_heading {
+#hexlllhzid .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -230,7 +230,7 @@
   overflow-x: hidden;
 }
 
-#odtppkrumk .gt_column_spanner_outer {
+#hexlllhzid .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -242,15 +242,15 @@
   padding-right: 4px;
 }
 
-#odtppkrumk .gt_column_spanner_outer:first-child {
+#hexlllhzid .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#odtppkrumk .gt_column_spanner_outer:last-child {
+#hexlllhzid .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#odtppkrumk .gt_column_spanner {
+#hexlllhzid .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -262,11 +262,11 @@
   width: 100%;
 }
 
-#odtppkrumk .gt_spanner_row {
+#hexlllhzid .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#odtppkrumk .gt_group_heading {
+#hexlllhzid .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -292,7 +292,7 @@
   text-align: left;
 }
 
-#odtppkrumk .gt_empty_group_heading {
+#hexlllhzid .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -307,15 +307,15 @@
   vertical-align: middle;
 }
 
-#odtppkrumk .gt_from_md > :first-child {
+#hexlllhzid .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#odtppkrumk .gt_from_md > :last-child {
+#hexlllhzid .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#odtppkrumk .gt_row {
+#hexlllhzid .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -334,7 +334,7 @@
   overflow-x: hidden;
 }
 
-#odtppkrumk .gt_stub {
+#hexlllhzid .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -347,7 +347,7 @@
   padding-right: 5px;
 }
 
-#odtppkrumk .gt_stub_row_group {
+#hexlllhzid .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -361,15 +361,15 @@
   vertical-align: top;
 }
 
-#odtppkrumk .gt_row_group_first td {
+#hexlllhzid .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#odtppkrumk .gt_row_group_first th {
+#hexlllhzid .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#odtppkrumk .gt_summary_row {
+#hexlllhzid .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -379,16 +379,16 @@
   padding-right: 5px;
 }
 
-#odtppkrumk .gt_first_summary_row {
+#hexlllhzid .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#odtppkrumk .gt_first_summary_row.thick {
+#hexlllhzid .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#odtppkrumk .gt_last_summary_row {
+#hexlllhzid .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -398,7 +398,7 @@
   border-bottom-color: #D3D3D3;
 }
 
-#odtppkrumk .gt_grand_summary_row {
+#hexlllhzid .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -408,7 +408,7 @@
   padding-right: 5px;
 }
 
-#odtppkrumk .gt_first_grand_summary_row {
+#hexlllhzid .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -418,7 +418,7 @@
   border-top-color: #D3D3D3;
 }
 
-#odtppkrumk .gt_last_grand_summary_row_top {
+#hexlllhzid .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -428,11 +428,11 @@
   border-bottom-color: #D3D3D3;
 }
 
-#odtppkrumk .gt_striped {
+#hexlllhzid .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#odtppkrumk .gt_table_body {
+#hexlllhzid .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -441,7 +441,7 @@
   border-bottom-color: #D3D3D3;
 }
 
-#odtppkrumk .gt_footnotes {
+#hexlllhzid .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -455,7 +455,7 @@
   border-right-color: #D3D3D3;
 }
 
-#odtppkrumk .gt_footnote {
+#hexlllhzid .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -464,7 +464,7 @@
   padding-right: 5px;
 }
 
-#odtppkrumk .gt_sourcenotes {
+#hexlllhzid .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -478,7 +478,7 @@
   border-right-color: #D3D3D3;
 }
 
-#odtppkrumk .gt_sourcenote {
+#hexlllhzid .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -486,63 +486,63 @@
   padding-right: 5px;
 }
 
-#odtppkrumk .gt_left {
+#hexlllhzid .gt_left {
   text-align: left;
 }
 
-#odtppkrumk .gt_center {
+#hexlllhzid .gt_center {
   text-align: center;
 }
 
-#odtppkrumk .gt_right {
+#hexlllhzid .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#odtppkrumk .gt_font_normal {
+#hexlllhzid .gt_font_normal {
   font-weight: normal;
 }
 
-#odtppkrumk .gt_font_bold {
+#hexlllhzid .gt_font_bold {
   font-weight: bold;
 }
 
-#odtppkrumk .gt_font_italic {
+#hexlllhzid .gt_font_italic {
   font-style: italic;
 }
 
-#odtppkrumk .gt_super {
+#hexlllhzid .gt_super {
   font-size: 65%;
 }
 
-#odtppkrumk .gt_footnote_marks {
+#hexlllhzid .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#odtppkrumk .gt_asterisk {
+#hexlllhzid .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#odtppkrumk .gt_indent_1 {
+#hexlllhzid .gt_indent_1 {
   text-indent: 5px;
 }
 
-#odtppkrumk .gt_indent_2 {
+#hexlllhzid .gt_indent_2 {
   text-indent: 10px;
 }
 
-#odtppkrumk .gt_indent_3 {
+#hexlllhzid .gt_indent_3 {
   text-indent: 15px;
 }
 
-#odtppkrumk .gt_indent_4 {
+#hexlllhzid .gt_indent_4 {
   text-indent: 20px;
 }
 
-#odtppkrumk .gt_indent_5 {
+#hexlllhzid .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -615,37 +615,32 @@
 <p>Good data visualizations clearly tell the story and are ideally more compelling than a grid of numbers. The plot above is good for seeing the difference between our methods and “Perfection” but it’s a little harder to divine differences among the methods. If we create a 3D heatmap it will bring the addition of depth to the heat map.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">render_confusion <span class="ot" style="color: #003B4F;">&lt;-</span></span>
-<span id="cb7-2">  <span class="cf" style="color: #003B4F;">function</span>(theta,</span>
-<span id="cb7-3">           <span class="at" style="color: #657422;">sunangle =</span> <span class="dv" style="color: #AD0000;">315</span>,</span>
-<span id="cb7-4">           <span class="at" style="color: #657422;">first_image =</span> <span class="cn" style="color: #8f5902;">FALSE</span>,</span>
-<span id="cb7-5">           <span class="at" style="color: #657422;">orig_shadow =</span> <span class="cn" style="color: #8f5902;">NULL</span>) {</span>
-<span id="cb7-6">    <span class="fu" style="color: #4758AB;">print</span>(sunangle)</span>
-<span id="cb7-7">    shadow_matrix <span class="ot" style="color: #003B4F;">&lt;-</span></span>
-<span id="cb7-8">      <span class="fu" style="color: #4758AB;">plot_gg</span>(</span>
-<span id="cb7-9">        gg,</span>
-<span id="cb7-10">        <span class="at" style="color: #657422;">width =</span> <span class="dv" style="color: #AD0000;">7</span>,</span>
-<span id="cb7-11">        <span class="at" style="color: #657422;">height =</span> <span class="dv" style="color: #AD0000;">7</span>,</span>
-<span id="cb7-12">        <span class="at" style="color: #657422;">multicore =</span> <span class="cn" style="color: #8f5902;">TRUE</span>,</span>
-<span id="cb7-13">        <span class="at" style="color: #657422;">sunangle =</span> <span class="dv" style="color: #AD0000;">270</span>,</span>
-<span id="cb7-14">        <span class="at" style="color: #657422;">save_shadow_matrix =</span> first_image,</span>
-<span id="cb7-15">        <span class="at" style="color: #657422;">saved_shadow_matrix =</span> orig_shadow,</span>
-<span id="cb7-16">        <span class="at" style="color: #657422;">scale =</span> <span class="dv" style="color: #AD0000;">250</span>,</span>
-<span id="cb7-17">        <span class="at" style="color: #657422;">zoom =</span> <span class="fl" style="color: #AD0000;">0.7</span>,</span>
-<span id="cb7-18">        <span class="at" style="color: #657422;">phi =</span> <span class="dv" style="color: #AD0000;">50</span>,</span>
-<span id="cb7-19">        <span class="at" style="color: #657422;">theta =</span> theta,</span>
-<span id="cb7-20">        <span class="at" style="color: #657422;">windowsize =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="dv" style="color: #AD0000;">800</span>, <span class="dv" style="color: #AD0000;">800</span>)</span>
-<span id="cb7-21">      )</span>
-<span id="cb7-22">    <span class="fu" style="color: #4758AB;">return</span>(shadow_matrix)</span>
-<span id="cb7-23">  }</span>
-<span id="cb7-24"></span>
-<span id="cb7-25">orig_shadow <span class="ot" style="color: #003B4F;">=</span> <span class="fu" style="color: #4758AB;">render_confusion</span>(<span class="dv" style="color: #AD0000;">20</span>,<span class="at" style="color: #657422;">first_image =</span> <span class="cn" style="color: #8f5902;">TRUE</span>)</span>
-<span id="cb7-26"><span class="fu" style="color: #4758AB;">render_snapshot</span>(<span class="at" style="color: #657422;">file =</span> <span class="st" style="color: #20794D;">"img/3dmap.png"</span>)</span></code></pre></div>
+<span id="cb7-2">  <span class="cf" style="color: #003B4F;">function</span>(<span class="at" style="color: #657422;">theta =</span> <span class="dv" style="color: #AD0000;">45</span>, <span class="at" style="color: #657422;">sunangle =</span> <span class="dv" style="color: #AD0000;">315</span>) {</span>
+<span id="cb7-3">    <span class="fu" style="color: #4758AB;">print</span>(sunangle)</span>
+<span id="cb7-4">    shadow_matrix <span class="ot" style="color: #003B4F;">&lt;-</span></span>
+<span id="cb7-5">      <span class="fu" style="color: #4758AB;">plot_gg</span>(</span>
+<span id="cb7-6">        gg,</span>
+<span id="cb7-7">        <span class="at" style="color: #657422;">width =</span> <span class="dv" style="color: #AD0000;">7</span>,</span>
+<span id="cb7-8">        <span class="at" style="color: #657422;">height =</span> <span class="dv" style="color: #AD0000;">7</span>,</span>
+<span id="cb7-9">        <span class="at" style="color: #657422;">multicore =</span> <span class="cn" style="color: #8f5902;">TRUE</span>,</span>
+<span id="cb7-10">        <span class="at" style="color: #657422;">sunangle =</span> sunangle,</span>
+<span id="cb7-11">        <span class="at" style="color: #657422;">scale =</span> <span class="dv" style="color: #AD0000;">250</span>,</span>
+<span id="cb7-12">        <span class="at" style="color: #657422;">zoom =</span> <span class="fl" style="color: #AD0000;">0.7</span>,</span>
+<span id="cb7-13">        <span class="at" style="color: #657422;">phi =</span> <span class="dv" style="color: #AD0000;">50</span>,</span>
+<span id="cb7-14">        <span class="at" style="color: #657422;">theta =</span> theta,</span>
+<span id="cb7-15">        <span class="at" style="color: #657422;">windowsize =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="dv" style="color: #AD0000;">800</span>, <span class="dv" style="color: #AD0000;">800</span>)</span>
+<span id="cb7-16">      )</span>
+<span id="cb7-17">    <span class="fu" style="color: #4758AB;">return</span>(shadow_matrix)</span>
+<span id="cb7-18">  }</span>
+<span id="cb7-19"></span>
+<span id="cb7-20">orig_shadow <span class="ot" style="color: #003B4F;">=</span> <span class="fu" style="color: #4758AB;">render_confusion</span>(<span class="dv" style="color: #AD0000;">20</span>)</span>
+<span id="cb7-21"><span class="fu" style="color: #4758AB;">render_snapshot</span>(<span class="at" style="color: #657422;">file =</span> <span class="st" style="color: #20794D;">"img/3dmap.png"</span>)</span></code></pre></div>
 </div>
 <p><img src="outsiderdata.netlify.app/posts/2023-05-03-animating-a-heatmap-with-rayshader/img/3dmap.png" class="img-fluid" width="640"></p>
 </section>
 <section id="move-it" class="level2">
 <h2 class="anchored" data-anchor-id="move-it">Move It!</h2>
-<p>By creating the illusion of height and depth we can more clearly see diagonal where our predictions match the true sentiment and how many false predictions there are. There is still one problem. The height of the bars has the potential to obscure some other bars and some labels. The way to get around this is to animate the chart to change the point of view. This will complete the 3D illusion.</p>
+<p>By creating the illusion of height and depth we can more clearly see the diagonal where our predictions match the true sentiment and how many false predictions there are. There is still one problem. The height of the bars has the potential to obscure some other bars and some labels. The way to get around this is to animate the chart to change the point of view. This will complete the 3D illusion.</p>
 <p>If you are running this code interactively, a separate graphics window will open and you can manipulate the view with your mouse. For this web document, we’ll save individual frames and splice them together into an animation. Each frame is rendered from a different angle (“theta”). We use <code>rendercamera()</code> to move the rendered image for us and take snapshots as we move. Alternatively, we could change the <code>sunangle</code> for every frame so the shadows would move as we rotate the plot, but that would drastically increase rendering time.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">destdir <span class="ot" style="color: #003B4F;">=</span> <span class="fu" style="color: #4758AB;">tempdir</span>()</span>
@@ -866,6 +861,7 @@ Muhammad, Shamsuddeen Hassan, Idris Abdulmumin, Abinew Ali Ayele, Nedjma Ousidho
 </div></section></div> ]]></description>
   <category>twitter</category>
   <category>tidytext</category>
+  <category>text mining</category>
   <guid>outsiderdata.netlify.app/posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/index.html</guid>
   <pubDate>Sun, 30 Apr 2023 04:00:00 GMT</pubDate>
   <media:content url="outsiderdata.netlify.app/posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/img/preview.png" medium="image" type="image/png" height="89" width="144"/>
