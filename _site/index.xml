@@ -10,7 +10,691 @@
 <atom:link href="outsiderdata.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Putting what&#39;s in there, out there. With R!</description>
 <generator>quarto-1.2.335</generator>
-<lastBuildDate>Sun, 30 Apr 2023 04:00:00 GMT</lastBuildDate>
+<lastBuildDate>Wed, 03 May 2023 04:00:00 GMT</lastBuildDate>
+<item>
+  <title>Animating a Heatmap with Rayshader</title>
+  <dc:creator>Art Steinmetz</dc:creator>
+  <link>outsiderdata.netlify.app/posts/2023-05-03-animating-a-heatmap-with-rayshader/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<section id="wrangle-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="wrangle-the-data">Wrangle the Data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;">suppressPackageStartupMessages</span>({</span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;">library</span>(tidyverse)</span>
+<span id="cb1-3"><span class="fu" style="color: #4758AB;">library</span>(rayshader)</span>
+<span id="cb1-4"><span class="fu" style="color: #4758AB;">library</span>(gt)</span>
+<span id="cb1-5"><span class="fu" style="color: #4758AB;">library</span>(gifski)</span>
+<span id="cb1-6">})</span></code></pre></div>
+</div>
+<p>The best part of any analysis are the visualizations. I couldn’t resist taking the results of our <a href="https://outsiderdata.netlify.app/posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/">earlier sentiment analysis</a> and turning it into some appealing eye candy.</p>
+<p>You’ll recall we tried several different approaches to predicting the sentiment of tweets in various African languages. The main test of fit was a “confusion matrix,” a cross tab of the “true” sentiment vs.&nbsp;what we predicted. The results for each were far from perfect.</p>
+<p>For this post we’ll just cut and paste the confusion matrices from each method of sentiment analysis and turn them into a single data frame. While we’re at it, we’ll add a method called “Perfection” which would be the result of a perfect match.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="co" style="color: #5E5E5E;"># word valence </span></span>
+<span id="cb2-2">wv <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">tribble</span>( </span>
+<span id="cb2-3"><span class="sc" style="color: #5E5E5E;">~</span> method, <span class="sc" style="color: #5E5E5E;">~</span>truth, <span class="sc" style="color: #5E5E5E;">~</span>negative, <span class="sc" style="color: #5E5E5E;">~</span>neutral, <span class="sc" style="color: #5E5E5E;">~</span>positive,</span>
+<span id="cb2-4"><span class="st" style="color: #20794D;">"Word Valence"</span> ,<span class="st" style="color: #20794D;">"negative"</span>, <span class="dv" style="color: #AD0000;">15083</span>, <span class="dv" style="color: #AD0000;">14619</span>, <span class="dv" style="color: #AD0000;">6862</span>,</span>
+<span id="cb2-5"><span class="st" style="color: #20794D;">"Word Valence"</span> ,<span class="st" style="color: #20794D;">"neutral"</span> , <span class="dv" style="color: #AD0000;">7761</span>, <span class="dv" style="color: #AD0000;">23921</span>, <span class="dv" style="color: #AD0000;">7469</span>,</span>
+<span id="cb2-6"><span class="st" style="color: #20794D;">"Word Valence"</span> ,<span class="st" style="color: #20794D;">"positive"</span> , <span class="dv" style="color: #AD0000;">4720</span>, <span class="dv" style="color: #AD0000;">13148</span>, <span class="dv" style="color: #AD0000;">18137</span></span>
+<span id="cb2-7">)</span>
+<span id="cb2-8"></span>
+<span id="cb2-9">sv <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">tribble</span>(</span>
+<span id="cb2-10"><span class="sc" style="color: #5E5E5E;">~</span> method, <span class="sc" style="color: #5E5E5E;">~</span>truth, <span class="sc" style="color: #5E5E5E;">~</span>negative, <span class="sc" style="color: #5E5E5E;">~</span>neutral, <span class="sc" style="color: #5E5E5E;">~</span>positive,</span>
+<span id="cb2-11"><span class="st" style="color: #20794D;">"Sentence Valence"</span> ,<span class="st" style="color: #20794D;">"negative"</span>, <span class="dv" style="color: #AD0000;">17776</span>, <span class="dv" style="color: #AD0000;">11510</span>, <span class="dv" style="color: #AD0000;">7278</span>,</span>
+<span id="cb2-12"><span class="st" style="color: #20794D;">"Sentence Valence"</span> ,<span class="st" style="color: #20794D;">"neutral"</span>, <span class="dv" style="color: #AD0000;">9624</span>, <span class="dv" style="color: #AD0000;">18651</span>, <span class="dv" style="color: #AD0000;">10876</span>,</span>
+<span id="cb2-13"><span class="st" style="color: #20794D;">"Sentence Valence"</span> ,<span class="st" style="color: #20794D;">"positive"</span>, <span class="dv" style="color: #AD0000;">5558</span>, <span class="dv" style="color: #AD0000;">9859</span>, <span class="dv" style="color: #AD0000;">20588</span></span>
+<span id="cb2-14">)</span>
+<span id="cb2-15"></span>
+<span id="cb2-16">mln <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">tribble</span>(</span>
+<span id="cb2-17"><span class="sc" style="color: #5E5E5E;">~</span> method, <span class="sc" style="color: #5E5E5E;">~</span>truth, <span class="sc" style="color: #5E5E5E;">~</span>negative, <span class="sc" style="color: #5E5E5E;">~</span>neutral, <span class="sc" style="color: #5E5E5E;">~</span>positive,</span>
+<span id="cb2-18"><span class="st" style="color: #20794D;">"ML Native"</span>, <span class="st" style="color: #20794D;">"negative"</span>, <span class="dv" style="color: #AD0000;">5524</span>, <span class="dv" style="color: #AD0000;">4598</span>, <span class="dv" style="color: #AD0000;">1261</span>,</span>
+<span id="cb2-19"><span class="st" style="color: #20794D;">"ML Native"</span>, <span class="st" style="color: #20794D;">"neutral"</span>, <span class="dv" style="color: #AD0000;">2489</span>, <span class="dv" style="color: #AD0000;">7011</span>, <span class="dv" style="color: #AD0000;">1182</span>,</span>
+<span id="cb2-20"><span class="st" style="color: #20794D;">"ML Native"</span>, <span class="st" style="color: #20794D;">"positive"</span>, <span class="dv" style="color: #AD0000;">2100</span>, <span class="dv" style="color: #AD0000;">3287</span>, <span class="dv" style="color: #AD0000;">4981</span></span>
+<span id="cb2-21">)</span>
+<span id="cb2-22">mle <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">tribble</span>(</span>
+<span id="cb2-23"><span class="sc" style="color: #5E5E5E;">~</span> method, <span class="sc" style="color: #5E5E5E;">~</span>truth, <span class="sc" style="color: #5E5E5E;">~</span>negative, <span class="sc" style="color: #5E5E5E;">~</span>neutral, <span class="sc" style="color: #5E5E5E;">~</span>positive,</span>
+<span id="cb2-24"><span class="st" style="color: #20794D;">"ML Translated"</span>,<span class="st" style="color: #20794D;">"negative"</span>, <span class="dv" style="color: #AD0000;">5678</span>, <span class="dv" style="color: #AD0000;">4146</span>, <span class="dv" style="color: #AD0000;">1432</span>,</span>
+<span id="cb2-25"><span class="st" style="color: #20794D;">"ML Translated"</span>,<span class="st" style="color: #20794D;">"neutral"</span>, <span class="dv" style="color: #AD0000;">2233</span>, <span class="dv" style="color: #AD0000;">6607</span>, <span class="dv" style="color: #AD0000;">1483</span>,</span>
+<span id="cb2-26"><span class="st" style="color: #20794D;">"ML Translated"</span>,<span class="st" style="color: #20794D;">"positive"</span>, <span class="dv" style="color: #AD0000;">1905</span>, <span class="dv" style="color: #AD0000;">3245</span>, <span class="dv" style="color: #AD0000;">5178</span></span>
+<span id="cb2-27">)</span>
+<span id="cb2-28"></span>
+<span id="cb2-29">perfect <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">tribble</span>(</span>
+<span id="cb2-30"><span class="sc" style="color: #5E5E5E;">~</span> method, <span class="sc" style="color: #5E5E5E;">~</span>truth, <span class="sc" style="color: #5E5E5E;">~</span>negative, <span class="sc" style="color: #5E5E5E;">~</span>neutral, <span class="sc" style="color: #5E5E5E;">~</span>positive,</span>
+<span id="cb2-31"><span class="st" style="color: #20794D;">"Perfection"</span>,<span class="st" style="color: #20794D;">"negative"</span>, <span class="dv" style="color: #AD0000;">100</span>, <span class="dv" style="color: #AD0000;">0</span>, <span class="dv" style="color: #AD0000;">0</span>,</span>
+<span id="cb2-32"><span class="st" style="color: #20794D;">"Perfection"</span>,<span class="st" style="color: #20794D;">"neutral"</span>, <span class="dv" style="color: #AD0000;">0</span>, <span class="dv" style="color: #AD0000;">100</span>, <span class="dv" style="color: #AD0000;">0</span>,</span>
+<span id="cb2-33"><span class="st" style="color: #20794D;">"Perfection"</span>,<span class="st" style="color: #20794D;">"positive"</span>, <span class="dv" style="color: #AD0000;">0</span>, <span class="dv" style="color: #AD0000;">0</span>, <span class="dv" style="color: #AD0000;">100</span></span>
+<span id="cb2-34">)</span></code></pre></div>
+</div>
+<p>To normalize the data we’ll compute the proportion of outcomes in each cell, rather than the count. The perfect match would see 33% of the outcomes in each correct cell and zero in all the others.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1">xt <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">bind_rows</span>(wv,sv,mln,mle,perfect) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb3-2">  <span class="fu" style="color: #4758AB;">pivot_longer</span>(<span class="at" style="color: #657422;">cols =</span> <span class="dv" style="color: #AD0000;">3</span><span class="sc" style="color: #5E5E5E;">:</span><span class="dv" style="color: #AD0000;">5</span>,<span class="at" style="color: #657422;">names_to =</span> <span class="st" style="color: #20794D;">"predicted"</span>,<span class="at" style="color: #657422;">values_to =</span> <span class="st" style="color: #20794D;">"count"</span>) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb3-3">  <span class="fu" style="color: #4758AB;">group_by</span>(method) <span class="sc" style="color: #5E5E5E;">|&gt;</span> </span>
+<span id="cb3-4">  <span class="fu" style="color: #4758AB;">mutate</span>(<span class="at" style="color: #657422;">proportion =</span> count<span class="sc" style="color: #5E5E5E;">/</span><span class="fu" style="color: #4758AB;">sum</span>(count))</span>
+<span id="cb3-5">xt</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 45 × 5
+# Groups:   method [5]
+   method           truth    predicted count proportion
+   &lt;chr&gt;            &lt;chr&gt;    &lt;chr&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+ 1 Word Valence     negative negative  15083     0.135 
+ 2 Word Valence     negative neutral   14619     0.131 
+ 3 Word Valence     negative positive   6862     0.0614
+ 4 Word Valence     neutral  negative   7761     0.0695
+ 5 Word Valence     neutral  neutral   23921     0.214 
+ 6 Word Valence     neutral  positive   7469     0.0669
+ 7 Word Valence     positive negative   4720     0.0422
+ 8 Word Valence     positive neutral   13148     0.118 
+ 9 Word Valence     positive positive  18137     0.162 
+10 Sentence Valence negative negative  17776     0.159 
+# ℹ 35 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="get-confused" class="level2">
+<h2 class="anchored" data-anchor-id="get-confused">Get Confused</h2>
+<p>Now consider some approaches to visualization. First, we might look at the conventional crosstab or, in this particular case, also called a confusion matrix which tabulates the number of correct and incorrect classifications. It’s a super simple viz but let’s use the <code>gt</code> package so we can label the table nicely. This shows just one of our methods.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">mle <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb5-2">  <span class="fu" style="color: #4758AB;">select</span>(<span class="sc" style="color: #5E5E5E;">-</span>method) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb5-3">  <span class="fu" style="color: #4758AB;">gt</span>() <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb5-4">    <span class="fu" style="color: #4758AB;">tab_header</span>(<span class="at" style="color: #657422;">title =</span> mle<span class="sc" style="color: #5E5E5E;">$</span>method[<span class="dv" style="color: #AD0000;">1</span>]) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb5-5">    <span class="fu" style="color: #4758AB;">tab_spanner</span>(<span class="at" style="color: #657422;">label =</span> <span class="st" style="color: #20794D;">"predicted"</span>, <span class="at" style="color: #657422;">columns =</span> <span class="fu" style="color: #4758AB;">where</span>(is.numeric)) <span class="sc" style="color: #5E5E5E;">|&gt;</span></span>
+<span id="cb5-6">    <span class="fu" style="color: #4758AB;">fmt_number</span>(<span class="at" style="color: #657422;">columns =</span> <span class="fu" style="color: #4758AB;">where</span>(is.numeric),<span class="at" style="color: #657422;">decimals =</span> <span class="dv" style="color: #AD0000;">0</span>)</span></code></pre></div>
+<div class="cell-output-display">
+
+<div id="odtppkrumk" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#odtppkrumk table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#odtppkrumk thead, #odtppkrumk tbody, #odtppkrumk tfoot, #odtppkrumk tr, #odtppkrumk td, #odtppkrumk th {
+  border-style: none;
+}
+
+#odtppkrumk p {
+  margin: 0;
+  padding: 0;
+}
+
+#odtppkrumk .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#odtppkrumk .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#odtppkrumk .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#odtppkrumk .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#odtppkrumk .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#odtppkrumk .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#odtppkrumk .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#odtppkrumk .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#odtppkrumk .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#odtppkrumk .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#odtppkrumk .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#odtppkrumk .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#odtppkrumk .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#odtppkrumk .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#odtppkrumk .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#odtppkrumk .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#odtppkrumk .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#odtppkrumk .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#odtppkrumk .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#odtppkrumk .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#odtppkrumk .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#odtppkrumk .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#odtppkrumk .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#odtppkrumk .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#odtppkrumk .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#odtppkrumk .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#odtppkrumk .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#odtppkrumk .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#odtppkrumk .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#odtppkrumk .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#odtppkrumk .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#odtppkrumk .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#odtppkrumk .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#odtppkrumk .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#odtppkrumk .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#odtppkrumk .gt_left {
+  text-align: left;
+}
+
+#odtppkrumk .gt_center {
+  text-align: center;
+}
+
+#odtppkrumk .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#odtppkrumk .gt_font_normal {
+  font-weight: normal;
+}
+
+#odtppkrumk .gt_font_bold {
+  font-weight: bold;
+}
+
+#odtppkrumk .gt_font_italic {
+  font-style: italic;
+}
+
+#odtppkrumk .gt_super {
+  font-size: 65%;
+}
+
+#odtppkrumk .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#odtppkrumk .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#odtppkrumk .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#odtppkrumk .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#odtppkrumk .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#odtppkrumk .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#odtppkrumk .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    <tr class="gt_heading">
+      <td colspan="4" class="gt_heading gt_title gt_font_normal gt_bottom_border" style="">ML Translated</td>
+    </tr>
+    
+    <tr class="gt_col_headings gt_spanner_row">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="2" colspan="1" scope="col" id="truth">truth</th>
+      <th class="gt_center gt_columns_top_border gt_column_spanner_outer" rowspan="1" colspan="3" scope="colgroup" id="predicted">
+        <span class="gt_column_spanner">predicted</span>
+      </th>
+    </tr>
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="negative">negative</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="neutral">neutral</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="positive">positive</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="truth" class="gt_row gt_left">negative</td>
+<td headers="negative" class="gt_row gt_right">5,678</td>
+<td headers="neutral" class="gt_row gt_right">4,146</td>
+<td headers="positive" class="gt_row gt_right">1,432</td></tr>
+    <tr><td headers="truth" class="gt_row gt_left">neutral</td>
+<td headers="negative" class="gt_row gt_right">2,233</td>
+<td headers="neutral" class="gt_row gt_right">6,607</td>
+<td headers="positive" class="gt_row gt_right">1,483</td></tr>
+    <tr><td headers="truth" class="gt_row gt_left">positive</td>
+<td headers="negative" class="gt_row gt_right">1,905</td>
+<td headers="neutral" class="gt_row gt_right">3,245</td>
+<td headers="positive" class="gt_row gt_right">5,178</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="a-picture-is-worth-1000-numbers" class="level1">
+<h1>A Picture is Worth 1000 Numbers</h1>
+<p>Careful examination of the table reveals that, yes, the predictions agree with “truth” more often than not but it’s not obvious at first glance. If we were to add all our methods the table would get quite busy. A plot will obviously help.</p>
+<p>So let’s use ggplot2 to create a facet plot that shows the heat maps of each of our methods. This clearly shows that our methods were sort of on the right track though, as we see, far from “Perfection.”</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">gg <span class="ot" style="color: #003B4F;">&lt;-</span> xt <span class="sc" style="color: #5E5E5E;">%&gt;%</span> </span>
+<span id="cb6-2"> <span class="fu" style="color: #4758AB;">ggplot</span>(<span class="fu" style="color: #4758AB;">aes</span>(truth,predicted,<span class="at" style="color: #657422;">fill=</span>proportion)) <span class="sc" style="color: #5E5E5E;">+</span> <span class="fu" style="color: #4758AB;">geom_tile</span>() <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb6-3"> <span class="fu" style="color: #4758AB;">facet_wrap</span>(<span class="fu" style="color: #4758AB;">vars</span>(method)) <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb6-4"> <span class="fu" style="color: #4758AB;">labs</span>(<span class="at" style="color: #657422;">title =</span> <span class="st" style="color: #20794D;">"African Languages Tweets"</span>,</span>
+<span id="cb6-5">  <span class="at" style="color: #657422;">subtitle =</span> <span class="st" style="color: #20794D;">"Multiple Prediction Models"</span>,</span>
+<span id="cb6-6">  <span class="at" style="color: #657422;">x =</span> <span class="st" style="color: #20794D;">"Actual Sentiment"</span>,</span>
+<span id="cb6-7">  <span class="at" style="color: #657422;">y=</span> <span class="st" style="color: #20794D;">"Predicted Sentiment"</span>,</span>
+<span id="cb6-8">  <span class="at" style="color: #657422;">caption =</span> <span class="st" style="color: #20794D;">"source: Afrisenti Data Set, outsiderdata.net"</span>) <span class="sc" style="color: #5E5E5E;">+</span> </span>
+<span id="cb6-9"> <span class="fu" style="color: #4758AB;">scale_fill_gradient</span>(<span class="at" style="color: #657422;">low =</span> <span class="st" style="color: #20794D;">"#FFBF00"</span>,<span class="at" style="color: #657422;">high =</span> <span class="st" style="color: #20794D;">"#007000"</span>) <span class="sc" style="color: #5E5E5E;">+</span></span>
+<span id="cb6-10"> <span class="fu" style="color: #4758AB;">theme</span>(<span class="at" style="color: #657422;">plot.background =</span> <span class="fu" style="color: #4758AB;">element_rect</span>(<span class="at" style="color: #657422;">fill =</span> <span class="st" style="color: #20794D;">"#FDECCD"</span>, <span class="at" style="color: #657422;">color =</span> <span class="cn" style="color: #8f5902;">NA</span>),</span>
+<span id="cb6-11">  <span class="at" style="color: #657422;">legend.background =</span> <span class="fu" style="color: #4758AB;">element_blank</span>(),</span>
+<span id="cb6-12">  <span class="at" style="color: #657422;">axis.ticks =</span> <span class="fu" style="color: #4758AB;">element_blank</span>(),</span>
+<span id="cb6-13">  <span class="at" style="color: #657422;">panel.background =</span> <span class="fu" style="color: #4758AB;">element_blank</span>(),</span>
+<span id="cb6-14">  <span class="at" style="color: #657422;">panel.grid =</span> <span class="fu" style="color: #4758AB;">element_blank</span>())</span>
+<span id="cb6-15"></span>
+<span id="cb6-16">gg</span></code></pre></div>
+<div class="cell-output-display">
+<p><img src="outsiderdata.netlify.app/posts/2023-05-03-animating-a-heatmap-with-rayshader/index_files/figure-html/show 2d plot-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<section id="no-3d-glasses-needed" class="level2">
+<h2 class="anchored" data-anchor-id="no-3d-glasses-needed">No 3D Glasses Needed</h2>
+<p>Good data visualizations clearly tell the story and are ideally more compelling than a grid of numbers. The plot above is good for seeing the difference between our methods and “Perfection” but it’s a little harder to divine differences among the methods. If we create a 3D heatmap it will bring the addition of depth to the heat map.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">render_confusion <span class="ot" style="color: #003B4F;">&lt;-</span></span>
+<span id="cb7-2">  <span class="cf" style="color: #003B4F;">function</span>(theta,</span>
+<span id="cb7-3">           <span class="at" style="color: #657422;">sunangle =</span> <span class="dv" style="color: #AD0000;">315</span>,</span>
+<span id="cb7-4">           <span class="at" style="color: #657422;">first_image =</span> <span class="cn" style="color: #8f5902;">FALSE</span>,</span>
+<span id="cb7-5">           <span class="at" style="color: #657422;">orig_shadow =</span> <span class="cn" style="color: #8f5902;">NULL</span>) {</span>
+<span id="cb7-6">    <span class="fu" style="color: #4758AB;">print</span>(sunangle)</span>
+<span id="cb7-7">    shadow_matrix <span class="ot" style="color: #003B4F;">&lt;-</span></span>
+<span id="cb7-8">      <span class="fu" style="color: #4758AB;">plot_gg</span>(</span>
+<span id="cb7-9">        gg,</span>
+<span id="cb7-10">        <span class="at" style="color: #657422;">width =</span> <span class="dv" style="color: #AD0000;">7</span>,</span>
+<span id="cb7-11">        <span class="at" style="color: #657422;">height =</span> <span class="dv" style="color: #AD0000;">7</span>,</span>
+<span id="cb7-12">        <span class="at" style="color: #657422;">multicore =</span> <span class="cn" style="color: #8f5902;">TRUE</span>,</span>
+<span id="cb7-13">        <span class="at" style="color: #657422;">sunangle =</span> <span class="dv" style="color: #AD0000;">270</span>,</span>
+<span id="cb7-14">        <span class="at" style="color: #657422;">save_shadow_matrix =</span> first_image,</span>
+<span id="cb7-15">        <span class="at" style="color: #657422;">saved_shadow_matrix =</span> orig_shadow,</span>
+<span id="cb7-16">        <span class="at" style="color: #657422;">scale =</span> <span class="dv" style="color: #AD0000;">250</span>,</span>
+<span id="cb7-17">        <span class="at" style="color: #657422;">zoom =</span> <span class="fl" style="color: #AD0000;">0.7</span>,</span>
+<span id="cb7-18">        <span class="at" style="color: #657422;">phi =</span> <span class="dv" style="color: #AD0000;">50</span>,</span>
+<span id="cb7-19">        <span class="at" style="color: #657422;">theta =</span> theta,</span>
+<span id="cb7-20">        <span class="at" style="color: #657422;">windowsize =</span> <span class="fu" style="color: #4758AB;">c</span>(<span class="dv" style="color: #AD0000;">800</span>, <span class="dv" style="color: #AD0000;">800</span>)</span>
+<span id="cb7-21">      )</span>
+<span id="cb7-22">    <span class="fu" style="color: #4758AB;">return</span>(shadow_matrix)</span>
+<span id="cb7-23">  }</span>
+<span id="cb7-24"></span>
+<span id="cb7-25">orig_shadow <span class="ot" style="color: #003B4F;">=</span> <span class="fu" style="color: #4758AB;">render_confusion</span>(<span class="dv" style="color: #AD0000;">20</span>,<span class="at" style="color: #657422;">first_image =</span> <span class="cn" style="color: #8f5902;">TRUE</span>)</span>
+<span id="cb7-26"><span class="fu" style="color: #4758AB;">render_snapshot</span>(<span class="at" style="color: #657422;">file =</span> <span class="st" style="color: #20794D;">"img/3dmap.png"</span>)</span></code></pre></div>
+</div>
+<p><img src="outsiderdata.netlify.app/posts/2023-05-03-animating-a-heatmap-with-rayshader/img/3dmap.png" class="img-fluid" width="640"></p>
+</section>
+<section id="move-it" class="level2">
+<h2 class="anchored" data-anchor-id="move-it">Move It!</h2>
+<p>By creating the illusion of height and depth we can more clearly see diagonal where our predictions match the true sentiment and how many false predictions there are. There is still one problem. The height of the bars has the potential to obscure some other bars and some labels. The way to get around this is to animate the chart to change the point of view. This will complete the 3D illusion.</p>
+<p>If you are running this code interactively, a separate graphics window will open and you can manipulate the view with your mouse. For this web document, we’ll save individual frames and splice them together into an animation. Each frame is rendered from a different angle (“theta”). We use <code>rendercamera()</code> to move the rendered image for us and take snapshots as we move. Alternatively, we could change the <code>sunangle</code> for every frame so the shadows would move as we rotate the plot, but that would drastically increase rendering time.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">destdir <span class="ot" style="color: #003B4F;">=</span> <span class="fu" style="color: #4758AB;">tempdir</span>()</span>
+<span id="cb8-2">n <span class="ot" style="color: #003B4F;">=</span> <span class="dv" style="color: #AD0000;">0</span></span>
+<span id="cb8-3"><span class="co" style="color: #5E5E5E;"># rotate</span></span>
+<span id="cb8-4"><span class="cf" style="color: #003B4F;">for</span> (i <span class="cf" style="color: #003B4F;">in</span> <span class="dv" style="color: #AD0000;">0</span><span class="sc" style="color: #5E5E5E;">:-</span><span class="dv" style="color: #AD0000;">20</span>){</span>
+<span id="cb8-5">  fname <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">paste0</span>(<span class="st" style="color: #20794D;">"img_"</span>, <span class="fu" style="color: #4758AB;">formatC</span>(n, <span class="at" style="color: #657422;">width =</span> <span class="dv" style="color: #AD0000;">3</span>, <span class="at" style="color: #657422;">flag =</span> <span class="st" style="color: #20794D;">"0"</span>), <span class="st" style="color: #20794D;">".png"</span>)</span>
+<span id="cb8-6">  <span class="fu" style="color: #4758AB;">print</span>(fname)</span>
+<span id="cb8-7">  <span class="fu" style="color: #4758AB;">render_camera</span>(<span class="at" style="color: #657422;">theta =</span> i, <span class="at" style="color: #657422;">phi =</span> <span class="dv" style="color: #AD0000;">90</span>)</span>
+<span id="cb8-8">  rayshader<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">render_snapshot</span>(<span class="fu" style="color: #4758AB;">paste0</span>(destdir, <span class="st" style="color: #20794D;">"</span><span class="sc" style="color: #5E5E5E;">\\</span><span class="st" style="color: #20794D;">"</span>, <span class="at" style="color: #657422;">filename =</span> fname))</span>
+<span id="cb8-9">  n <span class="ot" style="color: #003B4F;">&lt;-</span> n <span class="sc" style="color: #5E5E5E;">+</span> <span class="dv" style="color: #AD0000;">1</span></span>
+<span id="cb8-10">}</span>
+<span id="cb8-11"></span>
+<span id="cb8-12"><span class="co" style="color: #5E5E5E;"># tilt</span></span>
+<span id="cb8-13"><span class="cf" style="color: #003B4F;">for</span> (j <span class="cf" style="color: #003B4F;">in</span> <span class="dv" style="color: #AD0000;">90</span><span class="sc" style="color: #5E5E5E;">:</span><span class="dv" style="color: #AD0000;">50</span>){</span>
+<span id="cb8-14">  fname <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">paste0</span>(<span class="st" style="color: #20794D;">"img_"</span>, <span class="fu" style="color: #4758AB;">formatC</span>(n, <span class="at" style="color: #657422;">width =</span> <span class="dv" style="color: #AD0000;">3</span>, <span class="at" style="color: #657422;">flag =</span> <span class="st" style="color: #20794D;">"0"</span>), <span class="st" style="color: #20794D;">".png"</span>)</span>
+<span id="cb8-15">  <span class="fu" style="color: #4758AB;">print</span>(fname)</span>
+<span id="cb8-16">  <span class="fu" style="color: #4758AB;">render_camera</span>(<span class="at" style="color: #657422;">theta =</span> i, <span class="at" style="color: #657422;">phi =</span> j)</span>
+<span id="cb8-17">  rayshader<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">render_snapshot</span>(<span class="fu" style="color: #4758AB;">paste0</span>(destdir, <span class="st" style="color: #20794D;">"</span><span class="sc" style="color: #5E5E5E;">\\</span><span class="st" style="color: #20794D;">"</span>, <span class="at" style="color: #657422;">filename =</span> fname))</span>
+<span id="cb8-18">  n <span class="ot" style="color: #003B4F;">&lt;-</span> n <span class="sc" style="color: #5E5E5E;">+</span> <span class="dv" style="color: #AD0000;">1</span></span>
+<span id="cb8-19">}</span>
+<span id="cb8-20"></span>
+<span id="cb8-21"><span class="co" style="color: #5E5E5E;"># rotate</span></span>
+<span id="cb8-22"><span class="cf" style="color: #003B4F;">for</span> (i <span class="cf" style="color: #003B4F;">in</span> <span class="sc" style="color: #5E5E5E;">-</span><span class="dv" style="color: #AD0000;">20</span><span class="sc" style="color: #5E5E5E;">:</span><span class="dv" style="color: #AD0000;">20</span>) {</span>
+<span id="cb8-23">  fname <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">paste0</span>(<span class="st" style="color: #20794D;">"img_"</span>, <span class="fu" style="color: #4758AB;">formatC</span>(n, <span class="at" style="color: #657422;">width =</span> <span class="dv" style="color: #AD0000;">3</span>, <span class="at" style="color: #657422;">flag =</span> <span class="st" style="color: #20794D;">"0"</span>), <span class="st" style="color: #20794D;">".png"</span>)</span>
+<span id="cb8-24">  <span class="fu" style="color: #4758AB;">print</span>(fname)</span>
+<span id="cb8-25">  <span class="fu" style="color: #4758AB;">render_camera</span>(<span class="at" style="color: #657422;">theta =</span> i, <span class="at" style="color: #657422;">phi =</span> j)</span>
+<span id="cb8-26">  rayshader<span class="sc" style="color: #5E5E5E;">::</span><span class="fu" style="color: #4758AB;">render_snapshot</span>(<span class="fu" style="color: #4758AB;">paste0</span>(destdir, <span class="st" style="color: #20794D;">"</span><span class="sc" style="color: #5E5E5E;">\\</span><span class="st" style="color: #20794D;">"</span>, <span class="at" style="color: #657422;">filename =</span> fname))</span>
+<span id="cb8-27">  n <span class="ot" style="color: #003B4F;">&lt;-</span> n <span class="sc" style="color: #5E5E5E;">+</span> <span class="dv" style="color: #AD0000;">1</span></span>
+<span id="cb8-28">}</span>
+<span id="cb8-29"></span>
+<span id="cb8-30">fnames <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">dir</span>(destdir)</span>
+<span id="cb8-31">fnames <span class="ot" style="color: #003B4F;">&lt;-</span> fnames[<span class="fu" style="color: #4758AB;">str_detect</span>(fnames,<span class="st" style="color: #20794D;">"img_"</span>)]</span>
+<span id="cb8-32">fnames <span class="ot" style="color: #003B4F;">&lt;-</span> <span class="fu" style="color: #4758AB;">paste0</span>(destdir,<span class="st" style="color: #20794D;">"</span><span class="sc" style="color: #5E5E5E;">\\</span><span class="st" style="color: #20794D;">"</span>,<span class="fu" style="color: #4758AB;">c</span>(<span class="fu" style="color: #4758AB;">sort</span>(fnames),<span class="fu" style="color: #4758AB;">sort</span>(fnames,<span class="at" style="color: #657422;">decreasing =</span> <span class="cn" style="color: #8f5902;">TRUE</span>))) </span>
+<span id="cb8-33"><span class="fu" style="color: #4758AB;">gifski</span>(fnames,<span class="st" style="color: #20794D;">"img/confusion.gif"</span>,<span class="at" style="color: #657422;">delay =</span> <span class="dv" style="color: #AD0000;">1</span><span class="sc" style="color: #5E5E5E;">/</span><span class="dv" style="color: #AD0000;">10</span>,<span class="at" style="color: #657422;">loop =</span> <span class="cn" style="color: #8f5902;">TRUE</span>)</span></code></pre></div>
+</div>
+<p><img src="outsiderdata.netlify.app/posts/2023-05-03-animating-a-heatmap-with-rayshader/img/confusion.gif" class="img-fluid"></p>
+<p>It’s clear from this view that none of our approaches to predict the true sentiment are very good. The best approach, by a little bit, is the machine learning model using the translated tweets.</p>
+<p>Just because we can do something cool doesn’t mean that we are adding to our understanding of a question. I am the first to admit that some data visualizations can get gratuitous. In this post I have sequentially evolved the presentation of the results of our analysis from a table to a 3D animation. I hope I have made the case that for our purpose this animation enhances our understanding.</p>
+
+
+</section>
+</section>
+
+ ]]></description>
+  <guid>outsiderdata.netlify.app/posts/2023-05-03-animating-a-heatmap-with-rayshader/index.html</guid>
+  <pubDate>Wed, 03 May 2023 04:00:00 GMT</pubDate>
+  <media:content url="outsiderdata.netlify.app/posts/2023-05-03-animating-a-heatmap-with-rayshader/img/confusion.gif" medium="image" type="image/gif"/>
+</item>
 <item>
   <title>Sentiment Analysis Using Google Translate (Pt. 4 - A Painful Sight)</title>
   <dc:creator>Art Steinmetz</dc:creator>
