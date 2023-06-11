@@ -23,7 +23,7 @@ Ironically, just as the destruction of the Kakhovka dam is an ecological tragedy
 
 ## Visualizing the Disaster
 
-Last week, as water surged through the gap where the Kakhovka dam used to be, water levels surged downstream. This was a rolling disaster, with the river delta where the river meets the Black Sea seeing the flow last. We can make a rough attempt to visualize the effect of the rising water with an animated inundation map. This is a pretty sophisticated undertaking. Fortunately, there are tools in the form of R packages that have been developed in the last several years that make it easy for anyone to make inundation maps. There are many pieces of the project below where I can not believe how few lines of code are needed.
+Last week, as water poured through the gap where the Kakhovka dam used to be, water levels surged downstream. This was a rolling disaster, with the river delta where the river meets the Black Sea seeing the flow last. We can make a rough attempt to visualize the effect of the rising water with an animated inundation map. This is a pretty sophisticated undertaking. Fortunately, there are tools in the form of R packages that have been developed in the last several years that make it easy for anyone to make inundation maps. There are many pieces of the project below where I can not believe how few lines of code are needed.
 
 Let's see how easy it is.
 
@@ -63,7 +63,13 @@ leaflet() |>
 
 ```
 
-This is an interactive map. We can pan and zoom to our heart's content. There are some interesting observations we can make. The dam is at the northeast corner of the image. We can see the swampy lowlands below the dam. They lie mainly to the south of the primary course of the river. Notice the crop circles to the east and south of the reservoir. There are many visible if we pan a bit to the east. This tells us that the crops grown there are irrigated by water pumped to center-pivot sprinkler systems. Presumably the water comes from the reservoir which is now disappearing. Just to the east of the dam we also see the Crimean canal stretching south, which is a major source of fresh water for the Crimean peninsula. This, too, will cease to function.
+This is an interactive map. We can pan and zoom to our heart's content. There are some interesting observations we can make. The dam is at the northeast corner of the image. We can see the swampy lowlands below the dam. They lie mainly to the south of the primary course of the river. Notice the crop circles to the east and south of the reservoir. There are many visible if we pan a bit to the east. This tells us that the crops grown there are irrigated by water pumped to center-pivot sprinkler systems. Presumably the water comes from the reservoir which is now disappearing.
+
+![](img/pivot_sprinkler.jpg)
+
+source: iStock
+
+Just to the east of the dam we also see the Crimean canal stretching south, which is a major source of fresh water for the Crimean peninsula. This, too, will cease to function.
 
 ### Modeling the Effects of the Disaster
 
@@ -154,7 +160,7 @@ Using this as a base, let's create a function that shows the impact of rising wa
 At this point we should be clear about what this is and isn't. The method we use here more properly would model rising sea levels. We don't know exactly how the water affected each area at what time. We don't know what the peak inundation level was for each area. Further, once the reservoir empties out, the water will recede. Let's call this a "dramatization." This does give a dramatic view of the scope of the destruction.
 :::
 
-The function below will render a view of our map with a water level rise of zero though ten meters. Again, this doesn't assume the water rose ten meters, only that it reached ten meters above sea level. That means a one meter rise for land at a nine meter elevation. We save each frame as a single image.
+The function below will render a view of our map with a water level rise of zero though ten meters. Again, this doesn't assume the water rose ten meters, only that it reached ten meters above sea level. That means land at an altitude of nine meters will be one meter underwater for a ten meter water rise. We save each a single image for each meter of water rise.
 
 ```{r}
 #| eval: false
@@ -184,13 +190,13 @@ plot_rising_water <- function(water_level = 0) {
   
   
 }
-```
-
-```{r}
-# -----------------------------------------------------------
 # generate frames
 0:10 |> walk(plot_rising_water)
+```
 
+Now that we have saved 11 still frames we can animate them into a short GIF file with almost no work at all.
+
+```{r}
 # make GIF
 target_dir <- "frames/kakhovka"
 fnames <- paste0("frames\\kakhovka\\", dir("frames/kakhovka"))
@@ -202,12 +208,10 @@ gifski(fnames,"frames/flood.gif",delay = 1/5,loop = TRUE)
 
 ![](img/flood.gif)
 
-## My Speculation
-
-It's irrelevant to our project today but as of this writing, we don't know for sure who blew up the dam. I certainly don't but I will make a couple observations. The dam is under Russian control and it looks like the explosion came from inside the structure. The Ukrainians control the Zaporizhzhia, dam and there has been no talk of blowing it up. As we saw in WWII, both sides blew up dams to impede enemy advancement. There is one side that is advancing today and it's the Ukrainians. Finally, this potentially has one benefit for the Ukrainians by cutting the fresh water canal to Crimea, but they could have destroyed the canal and prevented the Russians from rebuilding it without blowing the dam. We shall see in the fullness of time.
-
 ## Now You Try
 
-Here we will be modeling the disaster in Ukraine but you might use these techniques to visualize the risk of flooding where you are considering buying a house, for example.
+Here we modeled the disaster in Ukraine but you might use these techniques to visualize the risk of flooding where you are considering buying a house, for example. You might also check out the [USGS real-time stream gauge](https://waterdata.usgs.gov/nwis/rt) data to see what happens when the creek rises. All you need are four corners on a map to get started.
 
-Stream gauge data
+## My Speculation
+
+It's irrelevant to our project today but as of this writing, we don't know for sure who blew up the dam. I certainly don't but I will make a couple observations. The dam is under Russian control and it looks like the explosion came from inside the structure. The Ukrainians control the Zaporizhzhia, dam and there has been no talk of blowing it up. As we saw in WWII, both sides blew up dams to impede enemy advancement. There is one side that is advancing today and it's the Ukrainians. Finally, while this potentially has one benefit for the Ukrainians by cutting the fresh water canal to Crimea, they could have destroyed the canal and prevented the Russians from rebuilding it without blowing the dam. We shall see in the fullness of time.
