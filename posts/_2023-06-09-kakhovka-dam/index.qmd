@@ -208,6 +208,8 @@ gifski(fnames,"frames/flood.gif",delay = 1/5,loop = TRUE)
 
 ![](img/flood.gif)
 
+While we don't know what the maximum water height was or if all of the specific areas shown above got inundated but we know many did and this clearly shows the vulnerable areas.
+
 ## Now You Try
 
 Here we modeled the disaster in Ukraine but you might use these techniques to visualize the risk of flooding where you are considering buying a house, for example. You might also check out the [USGS real-time stream gauge](https://waterdata.usgs.gov/nwis/rt) data to see what happens when the creek rises. All you need are four corners on a map to get started.
