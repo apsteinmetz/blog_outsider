@@ -15,17 +15,17 @@ execute:
 
 The war in Ukraine has spawned yet another disaster, the destruction of the dam across the Dnipro river, upstream from Kherson City. This is an ecologial and humanitarian disaster as vast acres of settlements, farmlands and wetlands have been destroyed.
 
-This marks the third time a dam in this region has been destroyed. First in 1941, the Soviets blew up a dam to impede the advancing Germans in southern city of Zaporizhzhia, upstream of the present dam. [Tens of thousands of peopole were killed](https://www.rferl.org/a/european-remembrance-day-ukraine-little-known-ww2-tragedy/25083847.html)d among Ukranians and Red Army soldiers (not Germans). The Germans repaired it. Then, in 1943, the Germans blew it up again to thwart the advancing Soviets.
+This marks the third time a dam in this region has been destroyed. First in 1941, the Soviets blew up a dam to impede the advancing Germans in southern city of Zaporizhzhia, upstream of the present dam. [Tens of thousands of peopole were killed](https://www.rferl.org/a/european-remembrance-day-ukraine-little-known-ww2-tragedy/25083847.html) among Ukranians and Red Army soldiers (not Germans). The Germans repaired it. Then, in 1943, the Germans blew it up again to thwart the advancing Soviets.
 
 ![Source: Bundesarchiv](img/Bundesarchiv_B_145_Bild-F016197-0003_Wasserkraftwerk_am_Dnjepr-e1566129751457.jpg)
 
-Ironically, just as the destruction of the Kakhovka dam is an ecological tragedy, so too, was its construction. Many settlements and wetlands were submerged as the Dnipro river backed up.
+Ironically, just as the destruction of the Kakhovka dam is an ecological tragedy, so too, was its construction. Many settlements and wetlands were submerged as the Dnipro river backed up to serve Stalin's drive to collectivize and modernize agriculture.
 
 ## Visualizing the Disaster
 
-As water surged through the gap where the dam used to be, water levels surged downstream. This was a rolling disaster, with the river delta where the river meets the Black Sea seeing the flow last. We can make a rough attempt to visualize the effect of the rising water with an animated inundation map. This is a pretty sophisticated undertaking...or it used to be. Fortunately, there are tools in the form of R packages that have been developed in the last several years that make it easy for anyone to make inundation maps. There are many pieces of the project below where I can not believe how few lines of code are needed.
+Last week, as water surged through the gap where the Kakhovka dam used to be, water levels surged downstream. This was a rolling disaster, with the river delta where the river meets the Black Sea seeing the flow last. We can make a rough attempt to visualize the effect of the rising water with an animated inundation map. This is a pretty sophisticated undertaking. Fortunately, there are tools in the form of R packages that have been developed in the last several years that make it easy for anyone to make inundation maps. There are many pieces of the project below where I can not believe how few lines of code are needed.
 
-Let's go.
+Let's see how easy it is.
 
 ### Load the Region of Interest.
 
@@ -80,14 +80,14 @@ load(file="data/kherson_elev.rdata")
 kherson_elev
 ```
 
-A quick and dirty plot of the matrix shows the flood situation. Bright green is high ground. The color scale is in meters above sea level. South of the river are mostly very low-lying areas. Notably, these areas are Russian controlled today. The north side is in Ukrainian hands.
+A quick and dirty plot of the matrix shows the flood situation. Bright green is high ground. The blue isn't necessarily water, just water and land very nearly at sea level. The color scale is in meters above sea level. South of the river are mostly very low-lying areas. Notably, these areas are Russian controlled today. The north side is in Ukrainian hands.
 
 ```{r}
 pal <- colorRampPalette(c("darkblue","limegreen"))
 plot(kherson_elev, col = pal(10))
 ```
 
-Now let's create a more realistic view of the ground and show the rising water. To do this we'll use the `rayshader` package. When Tyler Morgan-Wall released this package a few years ago, it opened up huge visualization vistas to the R community. We will just be touching the surface of its capabilities here. We'll use two key features, the ability to shade the surface for a 3D effect and to detect and color bodies of water. Let's exaggerate the z-axis a bit since this is generally very flat ground and we want to see subtle terrain changes. Like the `ggplot2` package, we can start with a base plot and add layers.
+Now let's create a more realistic view of the ground and show the rising water. To do this we'll use the `rayshader` package. When [Tyler Morgan-Wall](https://twitter.com/tylermorganwall) released this package a few years ago, he opened up huge visualization vistas to the R community. We will just be touching the surface of its capabilities here. We'll use two key features, the ability to shade the surface for a 3D effect and to detect and color bodies of water. Let's exaggerate the z-axis a bit since this is generally very flat ground and we want to see subtle terrain changes. Like the `ggplot2` package, we can start with a base plot and add layers.
 
 ```{r}
 #| message: false
@@ -102,7 +102,7 @@ base_map |>
 
 We can clearly see the reservoir in the east, the delta in the west, the (exaggerated) canyons carved by the Dnipro tributaries and the narrow river connecting them.
 
-What we don't see is where the people are but this tragedy is very much a human one. We can get a sense of human presence by creating a road overlay using OpenStreetMap data. Again, the code needed to do this is trivially simple. Note the object returns has several layers but we are only interested in the `osm_points`.
+What we don't see are where the people are and this tragedy is very much a human one. We can get a sense of human presence by creating a road overlay using OpenStreetMap data. Again, the code needed to do this is trivially simple. Note the returned object has several layers but we are only interested in the `osm_points`.
 
 ```{r}
 # kherson_roads <- osmdata::opq(st_bbox(kherson_dnipro)) %>% 
@@ -118,7 +118,7 @@ kherson_lines <- sf::st_transform(kherson_roads$osm_lines,
 kherson_roads
 ```
 
-Once again we do a quick and dirtly plot to visualize the new layer.
+Once again we do a quick and dirty plot to visualize the new layer. This is also super easy with the `geom_sf` geom in ggplot2.
 
 ```{r}
 # View streets as a ggplot2 render 
@@ -148,7 +148,11 @@ We can see the city of Kherson on the north side, the settlements on the south s
 
 Using this as a base, let's create a function that shows the impact of rising water levels. Rayshader will color totally flat areas as water so we mimic rising water by setting the elevations of any point below the rising water level to zero. We can iterate by setting the water level higher and higher to put more of the land "under water."
 
+::: callout-note
+## Note:
+
 At this point we should be clear about what this is and isn't. The method we use here more properly would model rising sea levels. We don't know exactly how the water affected each area at what time. We don't know what the peak inundation level was for each area. Further, once the reservoir empties out, the water will recede. Let's call this a "dramatization." This does give a dramatic view of the scope of the destruction.
+:::
 
 The function below will render a view of our map with a water level rise of zero though ten meters. Again, this doesn't assume the water rose ten meters, only that it reached ten meters above sea level. That means a one meter rise for land at a nine meter elevation. We save each frame as a single image.
 
