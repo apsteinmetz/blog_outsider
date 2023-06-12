@@ -350,7 +350,7 @@ values     : -51, 107  (min, max)</code></pre>
 </section>
 <section id="the-human-dimension" class="level3">
 <h3 class="anchored" data-anchor-id="the-human-dimension">The Human Dimension</h3>
-<p>What we don’t see are where the people are and this tragedy is very much a human one. We can get a sense of human presence by creating a road overlay using OpenStreetMap data. Again, the code needed to do this is trivially simple. Note the returned object has several layers but we are only interested in the <code>osm_points</code>.</p>
+<p>What we don’t see are where the people are and this tragedy is very much a human one. We can get a sense of human presence by creating a road overlay using OpenStreetMap data. Again, the code needed to do this is trivially simple. Note the returned object has several layers but we are only interested in the <code>osm_lines</code>.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>kherson_roads <span class="ot">&lt;-</span> osmdata<span class="sc">::</span><span class="fu">opq</span>(<span class="fu">st_bbox</span>(kherson_dnipro)) <span class="sc">%&gt;%</span> </span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>   osmdata<span class="sc">::</span><span class="fu">add_osm_feature</span>(<span class="st">"highway"</span>) <span class="sc">%&gt;%</span> </span>
