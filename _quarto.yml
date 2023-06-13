@@ -5,6 +5,7 @@ website:
   title: "Outsider Data Science"
   site-url: "outsiderdata.netlify.app"
   twitter-card: true
+  google-analytics: "G-BVDKXJLKEL"
   navbar:
     left:
       - text: Blog
