@@ -10,7 +10,9 @@ tags:
   - rayshader
   - ukraine
   - maps
-format: html
+format: 
+  html:
+    code-fold: true
 execute: 
   eval: true
   freeze: true
@@ -20,7 +22,7 @@ execute:
 
 ## Some History
 
-The war in Ukraine has spawned yet another disaster, the destruction of the dam across the Dnipro river, upstream from Kherson City. This is an ecologial and humanitarian disaster as vast acres of settlements, farmlands and wetlands have been destroyed.
+The war in Ukraine has spawned yet another disaster, the destruction of the dam across the Dnipro river, upstream from Kherson City. This is an ecological and humanitarian disaster as vast acres of settlements, farmlands and wetlands have been destroyed.
 
 This marks the third time a dam in this region has been destroyed. First in 1941, the Soviets blew up a dam to impede the advancing Germans in southern city of Zaporizhzhia, upstream of the present dam. [Tens of thousands of people were killed](https://www.rferl.org/a/european-remembrance-day-ukraine-little-known-ww2-tragedy/25083847.html) among Ukrainians and Red Army soldiers (the Germans were not yet in the area). The Germans repaired it. Then, in 1943, the Germans blew it up again to thwart the advancing Soviets.
 
@@ -30,7 +32,7 @@ Ironically, just as the destruction of the Kakhovka dam is an ecological tragedy
 
 ## Modeling the Disaster
 
-Last week, as water poured through the gap where the Kakhovka dam used to be, water levels surged downstream. This was a rolling disaster, with the river delta at the Black Sea seeing the flow last. We can make a rough attempt to visualize the effect of the rising water with an animated inundation map. This is a pretty sophisticated undertaking. Fortunately, there are tools in the form of R packages that have been developed in the last several years that make it easy for anyone to make inundation maps. There are many pieces of the project below where I can not believe how few lines of code are needed.
+Last week, as water poured through the gap where the Kakhovka dam used to be, water levels surged downstream. This was a rolling disaster, with the river delta at the Black Sea seeing the flow last. We can make a rough attempt to visualize the effect of the rising water with an animated inundation map. This is a pretty sophisticated undertaking. Fortunately, there are tools in the form of R packages that have been developed in the last several years that make it easy for anyone to make inundation maps. There are many pieces of the project below where I can not believe how few lines of code are needed. Since there may be some readers not interested in the coding, the code is hidden by default and you may click on the *code* buttons to make it visible.
 
 Let's see how easy it is.
 
@@ -43,6 +45,7 @@ As usual, we load the required packages. Then I just looked at Google Maps to fi
 #| message: false
 
 library(tidyverse)
+library(fs)
 # GIS packages
 library(elevatr)
 library(rayshader)
@@ -91,11 +94,17 @@ kherson_dnipro <- kh_loc |>
   st_as_sf(coords = c("lon","lat"),crs = 4326)
 
 # get the topo matrix
+if (fs::file_exists('data/kherson_elev.rdata')){
+  load('data/kherson_elev.rdata')
+} else {
 kherson_elev <- get_elev_raster(kherson_dnipro, 
                                 src = "gl1", 
                                 clip = "bbox",
                                 verbose = FALSE,
                                 serial=TRUE) 
+save(kherson_elev,file='data/kherson_elev.rdata')
+
+}
 kherson_elev
 ```
 
@@ -126,10 +135,16 @@ We can clearly see the reservoir in the east, the delta in the west, the (exagge
 What we don't see are where the people are and this tragedy is very much a human one. We can get a sense of human presence by creating a road overlay using OpenStreetMap data. Again, the code needed to do this is trivially simple. Note the returned object has several layers but we are only interested in the `osm_points`.
 
 ```{r get roads}
-kherson_roads <- osmdata::opq(st_bbox(kherson_dnipro)) %>% 
-   osmdata::add_osm_feature("highway") %>% 
-   osmdata::osmdata_sf() 
- 
+if (fs::file_exists('data/kherson_roads.rdata')){
+  load('data/kherson_roads.rdata')
+} else {
+  
+  kherson_roads <- osmdata::opq(st_bbox(kherson_dnipro)) %>%
+    osmdata::add_osm_feature("highway") %>%
+    osmdata::osmdata_sf()
+  save(kherson_roads,file='data/kherson_roads.rdata')
+}
+
 # Take just the road layer and transform coordinates to our existing projection
 kherson_lines <- sf::st_transform(kherson_roads$osm_lines,
                                   crs = raster::crs(kherson_dnipro))
@@ -252,7 +267,7 @@ image_read(fnames[1:9]) |>
 
 ```
 
-![](img/flood.gif)
+![](img/flood.gif){width="1002"}
 
 While we don't know what the maximum water height was or if all of the specific areas shown above got inundated but we do know many did and this clearly shows the vulnerable areas and where people have been potentially displaced.
 
@@ -262,4 +277,4 @@ Here we modeled the disaster in Ukraine but you might use these techniques to vi
 
 ## My Speculation
 
-It's irrelevant to our project today but as of this writing, we don't know for sure who blew up the dam. I certainly don't know but I will make a couple observations. The dam is under Russian control and it looks like the explosion came from inside the structure. The Ukrainians control the Zaporizhzhia dam and there has been no talk of blowing that up. As we saw in WWII, both sides blew up dams to impede enemy advancement. There is one side that is advancing today and it's the Ukrainians. The Russians would like to slow them down. Finally, while this potentially has one benefit for the Ukrainians by cutting the fresh water canal to Crimea, the Ukrainians could have destroyed just the canal and prevented the Russians from rebuilding it without blowing the dam. We shall see in the fullness of time.
+It's irrelevant to our project today but as of this writing, we don't know for sure who blew up the dam. I certainly don't know but I will make a couple observations. The dam is under Russian control and it looks like the explosion came from inside the structure. The Ukrainians control the Zaporizhzhia dam and there has been no talk of blowing that up. As we saw in WWII, both sides blew up dams to impede enemy advancement. There is one side that is advancing today and it's the Ukrainians. The Russians would like to slow them down. While the water will recede the river basin will still be muddy, though note the area close to the dam did not widen much. Finally, while this potentially has one benefit for the Ukrainians by cutting the fresh water canal to Crimea, the Ukrainians could have destroyed just the canal and prevented the Russians from rebuilding it without blowing the dam. We shall see in the fullness of time.
