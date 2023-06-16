@@ -9,8 +9,8 @@
 <link>outsiderdata.netlify.app/index.html</link>
 <atom:link href="outsiderdata.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Putting what&#39;s in there, out there. With R!</description>
-<generator>quarto-1.3.353</generator>
-<lastBuildDate>Fri, 09 Jun 2023 04:00:00 GMT</lastBuildDate>
+<generator>quarto-1.3.361</generator>
+<lastBuildDate>Fri, 09 Jun 2023 06:00:00 GMT</lastBuildDate>
 <item>
   <title>Kakhovka Dam Disaster</title>
   <dc:creator>Art Steinmetz</dc:creator>
@@ -21,7 +21,7 @@
 
 <section id="some-history" class="level2">
 <h2 class="anchored" data-anchor-id="some-history">Some History</h2>
-<p>The war in Ukraine has spawned yet another disaster, the destruction of the dam across the Dnipro river, upstream from Kherson City. This is an ecological and humanitarian disaster as vast acres of settlements, farmlands and wetlands have been destroyed.</p>
+<p>The war in Ukraine has spawned yet another disaster, the destruction of the dam across the Dnipro river, upstream from Kherson City. This is an ecologial and humanitarian disaster as vast acres of settlements, farmlands and wetlands have been destroyed.</p>
 <p>This marks the third time a dam in this region has been destroyed. First in 1941, the Soviets blew up a dam to impede the advancing Germans in southern city of Zaporizhzhia, upstream of the present dam. <a href="https://www.rferl.org/a/european-remembrance-day-ukraine-little-known-ww2-tragedy/25083847.html">Tens of thousands of people were killed</a> among Ukrainians and Red Army soldiers (the Germans were not yet in the area). The Germans repaired it. Then, in 1943, the Germans blew it up again to thwart the advancing Soviets.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -33,52 +33,47 @@
 </section>
 <section id="modeling-the-disaster" class="level2">
 <h2 class="anchored" data-anchor-id="modeling-the-disaster">Modeling the Disaster</h2>
-<p>Last week, as water poured through the gap where the Kakhovka dam used to be, water levels surged downstream. This was a rolling disaster, with the river delta at the Black Sea seeing the flow last. We can make a rough attempt to visualize the effect of the rising water with an animated inundation map. This is a pretty sophisticated undertaking. Fortunately, there are tools in the form of R packages that have been developed in the last several years that make it easy for anyone to make inundation maps. There are many pieces of the project below where I can not believe how few lines of code are needed. Since there may be some readers not interested in the coding, the code is hidden by default and you may click on the <em>code</em> buttons to make it visible.</p>
+<p>Last week, as water poured through the gap where the Kakhovka dam used to be, water levels surged downstream. This was a rolling disaster, with the river delta at the Black Sea seeing the flow last. We can make a rough attempt to visualize the effect of the rising water with an animated inundation map. This is a pretty sophisticated undertaking. Fortunately, there are tools in the form of R packages that have been developed in the last several years that make it easy for anyone to make inundation maps. There are many pieces of the project below where I can not believe how few lines of code are needed.</p>
 <p>Let’s see how easy it is.</p>
 <section id="get-the-lower-dnipro-river." class="level3">
 <h3 class="anchored" data-anchor-id="get-the-lower-dnipro-river.">Get the Lower Dnipro River.</h3>
 <p>As usual, we load the required packages. Then I just looked at Google Maps to find the coordinates of a region spanning from the Kakhovka dam in the east to the Dnipro delta in the west. Since they were displayed in degrees, minutes and seconds, I wrote a quickie function to convert them to decimal. Note that longitude west of zero and latitude south of zero are expressed as negative, neither of which is true here. Longitudes in the United States, for instance, have a negative sign.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">library</span>(tidyverse)</span>
-<span id="cb1-2"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">library</span>(fs)</span>
-<span id="cb1-3"><span class="co" style="color: #5E5E5E;
+<span id="cb1-2"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># GIS packages</span></span>
-<span id="cb1-4"><span class="fu" style="color: #4758AB;
+<span id="cb1-3"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">library</span>(elevatr)</span>
-<span id="cb1-5"><span class="fu" style="color: #4758AB;
+<span id="cb1-4"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">library</span>(rayshader)</span>
-<span id="cb1-6"><span class="fu" style="color: #4758AB;
+<span id="cb1-5"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">library</span>(sf)</span>
-<span id="cb1-7"><span class="fu" style="color: #4758AB;
+<span id="cb1-6"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">library</span>(raster)</span>
-<span id="cb1-8"><span class="fu" style="color: #4758AB;
+<span id="cb1-7"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">library</span>(leaflet)</span>
-<span id="cb1-9"><span class="fu" style="color: #4758AB;
+<span id="cb1-8"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">library</span>(osmdata)</span>
-<span id="cb1-10"><span class="fu" style="color: #4758AB;
+<span id="cb1-9"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">library</span>(basemaps)</span>
-<span id="cb1-11"><span class="co" style="color: #5E5E5E;
+<span id="cb1-10"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Make GIFs</span></span>
-<span id="cb1-12"><span class="fu" style="color: #4758AB;
+<span id="cb1-11"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">library</span>(magick)</span>
-<span id="cb1-13"></span>
-<span id="cb1-14">dms_to_dec <span class="ot" style="color: #003B4F;
+<span id="cb1-12"></span>
+<span id="cb1-13">dms_to_dec <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
@@ -95,7 +90,7 @@ background-color: null;
 font-style: inherit;">sec=</span><span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0</span>) {</span>
-<span id="cb1-15">  <span class="fu" style="color: #4758AB;
+<span id="cb1-14">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">return</span>(deg <span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -110,8 +105,8 @@ background-color: null;
 font-style: inherit;">/</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">3600</span>)</span>
-<span id="cb1-16">}</span>
-<span id="cb1-17">kh_loc <span class="ot" style="color: #003B4F;
+<span id="cb1-15">}</span>
+<span id="cb1-16">kh_loc <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -136,7 +131,7 @@ background-color: null;
 font-style: inherit;">18</span>,<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">00</span>)),</span>
-<span id="cb1-18">                             <span class="at" style="color: #657422;
+<span id="cb1-17">                             <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">lon=</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -157,12 +152,9 @@ background-color: null;
 font-style: inherit;">25</span>,<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">00</span>)) )</span></code></pre></div>
-</details>
 </div>
 <p>Here is the first “wow, that was easy” moment. We can confirm our coordinates by quickly pulling in a map with multiple layers, one for geographic names, and one for the satellite image. This is done with the <code>leaflet</code> package.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">leaflet</span>() <span class="sc" style="color: #5E5E5E;
@@ -210,10 +202,9 @@ background-color: null;
 font-style: inherit;">opacity =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">1</span>))</span></code></pre></div>
-</details>
 <div class="cell-output-display">
-<div class="leaflet html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-c06e097b63301485f70c" style="width:100%;height:464px;"></div>
-<script type="application/json" data-for="htmlwidget-c06e097b63301485f70c">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"fitBounds":[46.85,32.15,46.3,33.41666666666666,[]],"calls":[{"method":"addProviderTiles","args":["Esri.WorldImagery",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addProviderTiles","args":["CartoDB.PositronOnlyLabels",null,null,{"errorTileUrl":"","noWrap":false,"opacity":1,"detectRetina":false}]}]},"evals":[],"jsHooks":[]}</script>
+<div class="leaflet html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-1941a832a5c9ac4f809d" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-1941a832a5c9ac4f809d">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"fitBounds":[46.85,32.15,46.3,33.41666666666666,[]],"calls":[{"method":"addProviderTiles","args":["Esri.WorldImagery",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addProviderTiles","args":["CartoDB.PositronOnlyLabels",null,null,{"errorTileUrl":"","noWrap":false,"opacity":1,"detectRetina":false}]}]},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 <p>This is an interactive map. We can pan and zoom to our heart’s content. There are some interesting observations we can make. The dam is at the northeast corner of the image. We can see the swampy lowlands below the dam. They lie mainly to the south of the primary course of the river. Notice the crop circles to the east and south of the reservoir. There are many visible if we pan a bit to the east. This tells us that the crops grown there are irrigated by water pumped to center-pivot sprinkler systems. Presumably the water comes from the reservoir which is now disappearing.</p>
@@ -225,8 +216,6 @@ font-style: inherit;">1</span>))</span></code></pre></div>
 <h3 class="anchored" data-anchor-id="get-the-elevations">Get the Elevations</h3>
 <p>We are interested in modeling which parts of the river basin got submerged after the destruction of the dam. Obviously we need to know the elevation of the land. Using the <code>elevatr</code> package it only takes one line of code to retrieve a topographic map from the OpenTopography data set. This gets us a raster object that contains a matrix with elevations at each point. It also contains metadata with the coordinate system.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1">kherson_dnipro <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> kh_loc <span class="sc" style="color: #5E5E5E;
@@ -251,59 +240,2209 @@ font-style: inherit;">4326</span>)</span>
 <span id="cb3-4"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># get the topo matrix</span></span>
-<span id="cb3-5"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">if</span> (fs<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">file_exists</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'data/kherson_elev.rdata'</span>)){</span>
-<span id="cb3-6">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">load</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'data/kherson_elev.rdata'</span>)</span>
-<span id="cb3-7">} <span class="cf" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">else</span> {</span>
-<span id="cb3-8">kherson_elev <span class="ot" style="color: #003B4F;
+<span id="cb3-5">kherson_elev <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">get_elev_raster</span>(kherson_dnipro, </span>
-<span id="cb3-9">                                <span class="at" style="color: #657422;
+<span id="cb3-6">                                <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">src =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"gl1"</span>, </span>
-<span id="cb3-10">                                <span class="at" style="color: #657422;
+<span id="cb3-7">                                <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">clip =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"bbox"</span>,</span>
-<span id="cb3-11">                                <span class="at" style="color: #657422;
+<span id="cb3-8">                                <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">verbose =</span> <span class="cn" style="color: #8f5902;
 background-color: null;
 font-style: inherit;">FALSE</span>,</span>
-<span id="cb3-12">                                <span class="at" style="color: #657422;
+<span id="cb3-9">                                <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">serial=</span><span class="cn" style="color: #8f5902;
 background-color: null;
-font-style: inherit;">TRUE</span>) </span>
-<span id="cb3-13"><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">save</span>(kherson_elev,<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">file=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'data/kherson_elev.rdata'</span>)</span>
-<span id="cb3-14"></span>
-<span id="cb3-15">}</span>
-<span id="cb3-16">kherson_elev</span></code></pre></div>
-</details>
+font-style: inherit;">TRUE</span>) </span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Downloading: 8.2 kB     
+Downloading: 8.2 kB     
+Downloading: 8.2 kB     
+Downloading: 8.2 kB     
+Downloading: 8.2 kB     
+Downloading: 8.2 kB     
+Downloading: 8.2 kB     
+Downloading: 8.2 kB     
+Downloading: 8.2 kB     
+Downloading: 8.2 kB     
+Downloading: 16 kB     
+Downloading: 16 kB     
+Downloading: 16 kB     
+Downloading: 16 kB     
+Downloading: 16 kB     
+Downloading: 16 kB     
+Downloading: 16 kB     
+Downloading: 16 kB     
+Downloading: 25 kB     
+Downloading: 25 kB     
+Downloading: 25 kB     
+Downloading: 25 kB     
+Downloading: 25 kB     
+Downloading: 25 kB     
+Downloading: 33 kB     
+Downloading: 33 kB     
+Downloading: 33 kB     
+Downloading: 33 kB     
+Downloading: 33 kB     
+Downloading: 33 kB     
+Downloading: 33 kB     
+Downloading: 33 kB     
+Downloading: 41 kB     
+Downloading: 41 kB     
+Downloading: 41 kB     
+Downloading: 41 kB     
+Downloading: 41 kB     
+Downloading: 41 kB     
+Downloading: 49 kB     
+Downloading: 49 kB     
+Downloading: 49 kB     
+Downloading: 49 kB     
+Downloading: 49 kB     
+Downloading: 49 kB     
+Downloading: 49 kB     
+Downloading: 49 kB     
+Downloading: 49 kB     
+Downloading: 49 kB     
+Downloading: 49 kB     
+Downloading: 49 kB     
+Downloading: 57 kB     
+Downloading: 57 kB     
+Downloading: 57 kB     
+Downloading: 57 kB     
+Downloading: 57 kB     
+Downloading: 57 kB     
+Downloading: 57 kB     
+Downloading: 57 kB     
+Downloading: 57 kB     
+Downloading: 57 kB     
+Downloading: 65 kB     
+Downloading: 65 kB     
+Downloading: 65 kB     
+Downloading: 65 kB     
+Downloading: 65 kB     
+Downloading: 65 kB     
+Downloading: 65 kB     
+Downloading: 65 kB     
+Downloading: 74 kB     
+Downloading: 74 kB     
+Downloading: 74 kB     
+Downloading: 74 kB     
+Downloading: 74 kB     
+Downloading: 74 kB     
+Downloading: 74 kB     
+Downloading: 74 kB     
+Downloading: 82 kB     
+Downloading: 82 kB     
+Downloading: 82 kB     
+Downloading: 82 kB     
+Downloading: 82 kB     
+Downloading: 82 kB     
+Downloading: 82 kB     
+Downloading: 82 kB     
+Downloading: 82 kB     
+Downloading: 82 kB     
+Downloading: 90 kB     
+Downloading: 90 kB     
+Downloading: 90 kB     
+Downloading: 90 kB     
+Downloading: 90 kB     
+Downloading: 90 kB     
+Downloading: 90 kB     
+Downloading: 90 kB     
+Downloading: 98 kB     
+Downloading: 98 kB     
+Downloading: 98 kB     
+Downloading: 98 kB     
+Downloading: 98 kB     
+Downloading: 98 kB     
+Downloading: 110 kB     
+Downloading: 110 kB     
+Downloading: 110 kB     
+Downloading: 110 kB     
+Downloading: 110 kB     
+Downloading: 110 kB     
+Downloading: 120 kB     
+Downloading: 120 kB     
+Downloading: 120 kB     
+Downloading: 120 kB     
+Downloading: 120 kB     
+Downloading: 120 kB     
+Downloading: 120 kB     
+Downloading: 120 kB     
+Downloading: 130 kB     
+Downloading: 130 kB     
+Downloading: 140 kB     
+Downloading: 140 kB     
+Downloading: 150 kB     
+Downloading: 150 kB     
+Downloading: 150 kB     
+Downloading: 150 kB     
+Downloading: 160 kB     
+Downloading: 160 kB     
+Downloading: 160 kB     
+Downloading: 160 kB     
+Downloading: 160 kB     
+Downloading: 160 kB     
+Downloading: 160 kB     
+Downloading: 160 kB     
+Downloading: 160 kB     
+Downloading: 160 kB     
+Downloading: 160 kB     
+Downloading: 160 kB     
+Downloading: 160 kB     
+Downloading: 160 kB     
+Downloading: 160 kB     
+Downloading: 160 kB     
+Downloading: 170 kB     
+Downloading: 170 kB     
+Downloading: 170 kB     
+Downloading: 170 kB     
+Downloading: 170 kB     
+Downloading: 170 kB     
+Downloading: 170 kB     
+Downloading: 170 kB     
+Downloading: 180 kB     
+Downloading: 180 kB     
+Downloading: 180 kB     
+Downloading: 180 kB     
+Downloading: 180 kB     
+Downloading: 180 kB     
+Downloading: 180 kB     
+Downloading: 180 kB     
+Downloading: 190 kB     
+Downloading: 190 kB     
+Downloading: 190 kB     
+Downloading: 190 kB     
+Downloading: 190 kB     
+Downloading: 190 kB     
+Downloading: 190 kB     
+Downloading: 190 kB     
+Downloading: 200 kB     
+Downloading: 200 kB     
+Downloading: 200 kB     
+Downloading: 200 kB     
+Downloading: 200 kB     
+Downloading: 200 kB     
+Downloading: 200 kB     
+Downloading: 200 kB     
+Downloading: 200 kB     
+Downloading: 200 kB     
+Downloading: 200 kB     
+Downloading: 200 kB     
+Downloading: 200 kB     
+Downloading: 200 kB     
+Downloading: 210 kB     
+Downloading: 210 kB     
+Downloading: 210 kB     
+Downloading: 210 kB     
+Downloading: 210 kB     
+Downloading: 210 kB     
+Downloading: 220 kB     
+Downloading: 220 kB     
+Downloading: 220 kB     
+Downloading: 220 kB     
+Downloading: 230 kB     
+Downloading: 230 kB     
+Downloading: 240 kB     
+Downloading: 240 kB     
+Downloading: 240 kB     
+Downloading: 240 kB     
+Downloading: 250 kB     
+Downloading: 250 kB     
+Downloading: 250 kB     
+Downloading: 250 kB     
+Downloading: 250 kB     
+Downloading: 250 kB     
+Downloading: 260 kB     
+Downloading: 260 kB     
+Downloading: 260 kB     
+Downloading: 260 kB     
+Downloading: 270 kB     
+Downloading: 270 kB     
+Downloading: 280 kB     
+Downloading: 280 kB     
+Downloading: 280 kB     
+Downloading: 280 kB     
+Downloading: 280 kB     
+Downloading: 280 kB     
+Downloading: 290 kB     
+Downloading: 290 kB     
+Downloading: 290 kB     
+Downloading: 290 kB     
+Downloading: 290 kB     
+Downloading: 290 kB     
+Downloading: 290 kB     
+Downloading: 290 kB     
+Downloading: 290 kB     
+Downloading: 290 kB     
+Downloading: 290 kB     
+Downloading: 290 kB     
+Downloading: 290 kB     
+Downloading: 290 kB     
+Downloading: 290 kB     
+Downloading: 290 kB     
+Downloading: 300 kB     
+Downloading: 300 kB     
+Downloading: 300 kB     
+Downloading: 300 kB     
+Downloading: 300 kB     
+Downloading: 300 kB     
+Downloading: 300 kB     
+Downloading: 300 kB     
+Downloading: 310 kB     
+Downloading: 310 kB     
+Downloading: 310 kB     
+Downloading: 310 kB     
+Downloading: 310 kB     
+Downloading: 310 kB     
+Downloading: 310 kB     
+Downloading: 310 kB     
+Downloading: 310 kB     
+Downloading: 310 kB     
+Downloading: 320 kB     
+Downloading: 320 kB     
+Downloading: 320 kB     
+Downloading: 320 kB     
+Downloading: 320 kB     
+Downloading: 320 kB     
+Downloading: 320 kB     
+Downloading: 320 kB     
+Downloading: 320 kB     
+Downloading: 320 kB     
+Downloading: 330 kB     
+Downloading: 330 kB     
+Downloading: 330 kB     
+Downloading: 330 kB     
+Downloading: 330 kB     
+Downloading: 330 kB     
+Downloading: 330 kB     
+Downloading: 330 kB     
+Downloading: 330 kB     
+Downloading: 330 kB     
+Downloading: 340 kB     
+Downloading: 340 kB     
+Downloading: 340 kB     
+Downloading: 340 kB     
+Downloading: 340 kB     
+Downloading: 340 kB     
+Downloading: 340 kB     
+Downloading: 340 kB     
+Downloading: 340 kB     
+Downloading: 340 kB     
+Downloading: 340 kB     
+Downloading: 340 kB     
+Downloading: 340 kB     
+Downloading: 340 kB     
+Downloading: 340 kB     
+Downloading: 340 kB     
+Downloading: 340 kB     
+Downloading: 340 kB     
+Downloading: 350 kB     
+Downloading: 350 kB     
+Downloading: 360 kB     
+Downloading: 360 kB     
+Downloading: 360 kB     
+Downloading: 360 kB     
+Downloading: 380 kB     
+Downloading: 380 kB     
+Downloading: 380 kB     
+Downloading: 380 kB     
+Downloading: 380 kB     
+Downloading: 380 kB     
+Downloading: 390 kB     
+Downloading: 390 kB     
+Downloading: 400 kB     
+Downloading: 400 kB     
+Downloading: 400 kB     
+Downloading: 400 kB     
+Downloading: 410 kB     
+Downloading: 410 kB     
+Downloading: 420 kB     
+Downloading: 420 kB     
+Downloading: 420 kB     
+Downloading: 420 kB     
+Downloading: 430 kB     
+Downloading: 430 kB     
+Downloading: 430 kB     
+Downloading: 430 kB     
+Downloading: 430 kB     
+Downloading: 430 kB     
+Downloading: 430 kB     
+Downloading: 430 kB     
+Downloading: 430 kB     
+Downloading: 430 kB     
+Downloading: 430 kB     
+Downloading: 430 kB     
+Downloading: 430 kB     
+Downloading: 430 kB     
+Downloading: 440 kB     
+Downloading: 440 kB     
+Downloading: 440 kB     
+Downloading: 440 kB     
+Downloading: 440 kB     
+Downloading: 440 kB     
+Downloading: 450 kB     
+Downloading: 450 kB     
+Downloading: 450 kB     
+Downloading: 450 kB     
+Downloading: 450 kB     
+Downloading: 450 kB     
+Downloading: 450 kB     
+Downloading: 450 kB     
+Downloading: 460 kB     
+Downloading: 460 kB     
+Downloading: 460 kB     
+Downloading: 460 kB     
+Downloading: 460 kB     
+Downloading: 460 kB     
+Downloading: 460 kB     
+Downloading: 460 kB     
+Downloading: 460 kB     
+Downloading: 460 kB     
+Downloading: 460 kB     
+Downloading: 460 kB     
+Downloading: 470 kB     
+Downloading: 470 kB     
+Downloading: 470 kB     
+Downloading: 470 kB     
+Downloading: 470 kB     
+Downloading: 470 kB     
+Downloading: 470 kB     
+Downloading: 470 kB     
+Downloading: 470 kB     
+Downloading: 470 kB     
+Downloading: 470 kB     
+Downloading: 470 kB     
+Downloading: 470 kB     
+Downloading: 470 kB     
+Downloading: 470 kB     
+Downloading: 470 kB     
+Downloading: 470 kB     
+Downloading: 470 kB     
+Downloading: 470 kB     
+Downloading: 470 kB     
+Downloading: 480 kB     
+Downloading: 480 kB     
+Downloading: 480 kB     
+Downloading: 480 kB     
+Downloading: 490 kB     
+Downloading: 490 kB     
+Downloading: 490 kB     
+Downloading: 490 kB     
+Downloading: 490 kB     
+Downloading: 490 kB     
+Downloading: 500 kB     
+Downloading: 500 kB     
+Downloading: 500 kB     
+Downloading: 500 kB     
+Downloading: 510 kB     
+Downloading: 510 kB     
+Downloading: 520 kB     
+Downloading: 520 kB     
+Downloading: 520 kB     
+Downloading: 520 kB     
+Downloading: 520 kB     
+Downloading: 520 kB     
+Downloading: 520 kB     
+Downloading: 520 kB     
+Downloading: 530 kB     
+Downloading: 530 kB     
+Downloading: 530 kB     
+Downloading: 530 kB     
+Downloading: 530 kB     
+Downloading: 530 kB     
+Downloading: 540 kB     
+Downloading: 540 kB     
+Downloading: 540 kB     
+Downloading: 540 kB     
+Downloading: 550 kB     
+Downloading: 550 kB     
+Downloading: 550 kB     
+Downloading: 550 kB     
+Downloading: 560 kB     
+Downloading: 560 kB     
+Downloading: 560 kB     
+Downloading: 560 kB     
+Downloading: 560 kB     
+Downloading: 560 kB     
+Downloading: 560 kB     
+Downloading: 560 kB     
+Downloading: 560 kB     
+Downloading: 560 kB     
+Downloading: 570 kB     
+Downloading: 570 kB     
+Downloading: 570 kB     
+Downloading: 570 kB     
+Downloading: 570 kB     
+Downloading: 570 kB     
+Downloading: 570 kB     
+Downloading: 570 kB     
+Downloading: 570 kB     
+Downloading: 570 kB     
+Downloading: 580 kB     
+Downloading: 580 kB     
+Downloading: 580 kB     
+Downloading: 580 kB     
+Downloading: 580 kB     
+Downloading: 580 kB     
+Downloading: 580 kB     
+Downloading: 580 kB     
+Downloading: 580 kB     
+Downloading: 580 kB     
+Downloading: 590 kB     
+Downloading: 590 kB     
+Downloading: 590 kB     
+Downloading: 590 kB     
+Downloading: 590 kB     
+Downloading: 590 kB     
+Downloading: 590 kB     
+Downloading: 590 kB     
+Downloading: 590 kB     
+Downloading: 590 kB     
+Downloading: 600 kB     
+Downloading: 600 kB     
+Downloading: 600 kB     
+Downloading: 600 kB     
+Downloading: 600 kB     
+Downloading: 600 kB     
+Downloading: 600 kB     
+Downloading: 600 kB     
+Downloading: 600 kB     
+Downloading: 600 kB     
+Downloading: 600 kB     
+Downloading: 600 kB     
+Downloading: 610 kB     
+Downloading: 610 kB     
+Downloading: 610 kB     
+Downloading: 610 kB     
+Downloading: 610 kB     
+Downloading: 610 kB     
+Downloading: 610 kB     
+Downloading: 610 kB     
+Downloading: 610 kB     
+Downloading: 610 kB     
+Downloading: 610 kB     
+Downloading: 610 kB     
+Downloading: 610 kB     
+Downloading: 610 kB     
+Downloading: 610 kB     
+Downloading: 610 kB     
+Downloading: 620 kB     
+Downloading: 620 kB     
+Downloading: 620 kB     
+Downloading: 620 kB     
+Downloading: 620 kB     
+Downloading: 620 kB     
+Downloading: 620 kB     
+Downloading: 620 kB     
+Downloading: 620 kB     
+Downloading: 620 kB     
+Downloading: 630 kB     
+Downloading: 630 kB     
+Downloading: 630 kB     
+Downloading: 630 kB     
+Downloading: 630 kB     
+Downloading: 630 kB     
+Downloading: 640 kB     
+Downloading: 640 kB     
+Downloading: 640 kB     
+Downloading: 640 kB     
+Downloading: 650 kB     
+Downloading: 650 kB     
+Downloading: 650 kB     
+Downloading: 650 kB     
+Downloading: 660 kB     
+Downloading: 660 kB     
+Downloading: 660 kB     
+Downloading: 660 kB     
+Downloading: 670 kB     
+Downloading: 670 kB     
+Downloading: 680 kB     
+Downloading: 680 kB     
+Downloading: 690 kB     
+Downloading: 690 kB     
+Downloading: 690 kB     
+Downloading: 690 kB     
+Downloading: 700 kB     
+Downloading: 700 kB     
+Downloading: 700 kB     
+Downloading: 700 kB     
+Downloading: 700 kB     
+Downloading: 700 kB     
+Downloading: 710 kB     
+Downloading: 710 kB     
+Downloading: 710 kB     
+Downloading: 710 kB     
+Downloading: 710 kB     
+Downloading: 710 kB     
+Downloading: 720 kB     
+Downloading: 720 kB     
+Downloading: 720 kB     
+Downloading: 720 kB     
+Downloading: 720 kB     
+Downloading: 720 kB     
+Downloading: 720 kB     
+Downloading: 720 kB     
+Downloading: 720 kB     
+Downloading: 720 kB     
+Downloading: 730 kB     
+Downloading: 730 kB     
+Downloading: 730 kB     
+Downloading: 730 kB     
+Downloading: 730 kB     
+Downloading: 730 kB     
+Downloading: 740 kB     
+Downloading: 740 kB     
+Downloading: 740 kB     
+Downloading: 740 kB     
+Downloading: 740 kB     
+Downloading: 740 kB     
+Downloading: 740 kB     
+Downloading: 740 kB     
+Downloading: 740 kB     
+Downloading: 740 kB     
+Downloading: 740 kB     
+Downloading: 740 kB     
+Downloading: 740 kB     
+Downloading: 740 kB     
+Downloading: 740 kB     
+Downloading: 740 kB     
+Downloading: 750 kB     
+Downloading: 750 kB     
+Downloading: 750 kB     
+Downloading: 750 kB     
+Downloading: 750 kB     
+Downloading: 750 kB     
+Downloading: 750 kB     
+Downloading: 750 kB     
+Downloading: 750 kB     
+Downloading: 750 kB     
+Downloading: 750 kB     
+Downloading: 750 kB     
+Downloading: 760 kB     
+Downloading: 760 kB     
+Downloading: 760 kB     
+Downloading: 760 kB     
+Downloading: 760 kB     
+Downloading: 760 kB     
+Downloading: 760 kB     
+Downloading: 760 kB     
+Downloading: 760 kB     
+Downloading: 760 kB     
+Downloading: 770 kB     
+Downloading: 770 kB     
+Downloading: 770 kB     
+Downloading: 770 kB     
+Downloading: 770 kB     
+Downloading: 770 kB     
+Downloading: 770 kB     
+Downloading: 770 kB     
+Downloading: 770 kB     
+Downloading: 770 kB     
+Downloading: 780 kB     
+Downloading: 780 kB     
+Downloading: 790 kB     
+Downloading: 790 kB     
+Downloading: 790 kB     
+Downloading: 790 kB     
+Downloading: 790 kB     
+Downloading: 790 kB     
+Downloading: 800 kB     
+Downloading: 800 kB     
+Downloading: 800 kB     
+Downloading: 800 kB     
+Downloading: 810 kB     
+Downloading: 810 kB     
+Downloading: 820 kB     
+Downloading: 820 kB     
+Downloading: 830 kB     
+Downloading: 830 kB     
+Downloading: 830 kB     
+Downloading: 830 kB     
+Downloading: 840 kB     
+Downloading: 840 kB     
+Downloading: 850 kB     
+Downloading: 850 kB     
+Downloading: 850 kB     
+Downloading: 850 kB     
+Downloading: 850 kB     
+Downloading: 850 kB     
+Downloading: 850 kB     
+Downloading: 850 kB     
+Downloading: 860 kB     
+Downloading: 860 kB     
+Downloading: 860 kB     
+Downloading: 860 kB     
+Downloading: 860 kB     
+Downloading: 860 kB     
+Downloading: 860 kB     
+Downloading: 860 kB     
+Downloading: 870 kB     
+Downloading: 870 kB     
+Downloading: 870 kB     
+Downloading: 870 kB     
+Downloading: 880 kB     
+Downloading: 880 kB     
+Downloading: 880 kB     
+Downloading: 880 kB     
+Downloading: 890 kB     
+Downloading: 890 kB     
+Downloading: 890 kB     
+Downloading: 890 kB     
+Downloading: 890 kB     
+Downloading: 890 kB     
+Downloading: 890 kB     
+Downloading: 890 kB     
+Downloading: 890 kB     
+Downloading: 890 kB     
+Downloading: 900 kB     
+Downloading: 900 kB     
+Downloading: 900 kB     
+Downloading: 900 kB     
+Downloading: 900 kB     
+Downloading: 900 kB     
+Downloading: 900 kB     
+Downloading: 900 kB     
+Downloading: 900 kB     
+Downloading: 900 kB     
+Downloading: 910 kB     
+Downloading: 910 kB     
+Downloading: 910 kB     
+Downloading: 910 kB     
+Downloading: 910 kB     
+Downloading: 910 kB     
+Downloading: 920 kB     
+Downloading: 920 kB     
+Downloading: 920 kB     
+Downloading: 920 kB     
+Downloading: 920 kB     
+Downloading: 920 kB     
+Downloading: 920 kB     
+Downloading: 920 kB     
+Downloading: 930 kB     
+Downloading: 930 kB     
+Downloading: 940 kB     
+Downloading: 940 kB     
+Downloading: 940 kB     
+Downloading: 940 kB     
+Downloading: 950 kB     
+Downloading: 950 kB     
+Downloading: 950 kB     
+Downloading: 950 kB     
+Downloading: 960 kB     
+Downloading: 960 kB     
+Downloading: 960 kB     
+Downloading: 960 kB     
+Downloading: 970 kB     
+Downloading: 970 kB     
+Downloading: 970 kB     
+Downloading: 970 kB     
+Downloading: 970 kB     
+Downloading: 970 kB     
+Downloading: 980 kB     
+Downloading: 980 kB     
+Downloading: 990 kB     
+Downloading: 990 kB     
+Downloading: 990 kB     
+Downloading: 990 kB     
+Downloading: 1,000 kB     
+Downloading: 1,000 kB     
+Downloading: 1,000 kB     
+Downloading: 1,000 kB     
+Downloading: 1,000 kB     
+Downloading: 1,000 kB     
+Downloading: 1,000 kB     
+Downloading: 1,000 kB     
+Downloading: 1,000 kB     
+Downloading: 1,000 kB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.1 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.2 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.3 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.4 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.5 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.6 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.7 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.8 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 1.9 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.1 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.2 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.3 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.4 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.5 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.6 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.7 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.8 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 2.9 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.1 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.2 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     
+Downloading: 3.3 MB     </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">kherson_elev</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>class      : RasterLayer 
 dimensions : 1980, 4560, 9028800  (nrow, ncol, ncell)
@@ -311,15 +2450,13 @@ resolution : 0.0002777778, 0.0002777778  (x, y)
 extent     : 32.14986, 33.41653, 46.30014, 46.85014  (xmin, xmax, ymin, ymax)
 crs        : +proj=longlat +datum=WGS84 +no_defs 
 source     : memory
-names      : file2c3031276412 
+names      : file39e847822350 
 values     : -51, 107  (min, max)</code></pre>
 </div>
 </div>
 <p>A quick and dirty plot of the matrix shows the flood situation. Bright green is high ground. The blue isn’t necessarily water, just water and land very nearly at sea level. The color scale is in meters above sea level. South of the river are mostly very low-lying areas. Notably, these areas are Russian controlled today. The north side is in Ukrainian hands.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1">pal <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1">pal <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -330,7 +2467,7 @@ background-color: null;
 font-style: inherit;">"darkblue"</span>,<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"limegreen"</span>))</span>
-<span id="cb5-2"><span class="fu" style="color: #4758AB;
+<span id="cb7-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">plot</span>(kherson_elev, <span class="at" style="color: #657422;
 background-color: null;
@@ -339,26 +2476,23 @@ background-color: null;
 font-style: inherit;">pal</span>(<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">10</span>))</span></code></pre></div>
-</details>
 <div class="cell-output-display">
 <p><img src="outsiderdata.netlify.app/posts/2023-06-09-kakhovka-dam/index_files/figure-html/view elevations-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 <p>Now let’s create a more realistic view of the ground and show the rising water. To do this we’ll use the <code>rayshader</code> package. When <a href="https://twitter.com/tylermorganwall">Tyler Morgan-Wall</a> released this package a few years ago, he opened up huge visualization vistas to the R community. We will just be touching the surface of its capabilities here. We’ll use two key features, the ability to shade the surface for a 3D effect and to detect and color bodies of water. Let’s exaggerate the z-axis a bit since this is generally very flat ground and we want to see subtle terrain changes. Like the <code>ggplot2</code> package, we can start with a base plot and add layers.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1">kh_elmat <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1">kh_elmat <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">raster_to_matrix</span>(kherson_elev)</span>
-<span id="cb6-2">base_map <span class="ot" style="color: #003B4F;
+<span id="cb8-2">base_map <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> kh_elmat <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-3">  <span class="fu" style="color: #4758AB;
+<span id="cb8-3">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">sphere_shade</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -369,11 +2503,11 @@ background-color: null;
 font-style: inherit;">zscale =</span> .<span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">8</span>)</span>
-<span id="cb6-4"></span>
-<span id="cb6-5">base_map <span class="sc" style="color: #5E5E5E;
+<span id="cb8-4"></span>
+<span id="cb8-5">base_map <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-6">  <span class="fu" style="color: #4758AB;
+<span id="cb8-6">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">add_water</span>(<span class="fu" style="color: #4758AB;
 background-color: null;
@@ -384,10 +2518,9 @@ background-color: null;
 font-style: inherit;">"desert"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb6-7">  <span class="fu" style="color: #4758AB;
+<span id="cb8-7">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">plot_map</span>()</span></code></pre></div>
-</details>
 <div class="cell-output-display">
 <p><img src="outsiderdata.netlify.app/posts/2023-06-09-kakhovka-dam/index_files/figure-html/preview water-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -398,27 +2531,7 @@ font-style: inherit;">plot_map</span>()</span></code></pre></div>
 <h3 class="anchored" data-anchor-id="the-human-dimension">The Human Dimension</h3>
 <p>What we don’t see are where the people are and this tragedy is very much a human one. We can get a sense of human presence by creating a road overlay using OpenStreetMap data. Again, the code needed to do this is trivially simple. Note the returned object has several layers but we are only interested in the <code>osm_points</code>.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><span class="cf" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">if</span> (fs<span class="sc" style="color: #5E5E5E;
-background-color: null;
-font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">file_exists</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'data/kherson_roads.rdata'</span>)){</span>
-<span id="cb7-2">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">load</span>(<span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'data/kherson_roads.rdata'</span>)</span>
-<span id="cb7-3">} <span class="cf" style="color: #003B4F;
-background-color: null;
-font-style: inherit;">else</span> {</span>
-<span id="cb7-4">  </span>
-<span id="cb7-5">  kherson_roads <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1">kherson_roads <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> osmdata<span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -428,8 +2541,8 @@ font-style: inherit;">opq</span>(<span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">st_bbox</span>(kherson_dnipro)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">%&gt;%</span></span>
-<span id="cb7-6">    osmdata<span class="sc" style="color: #5E5E5E;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb9-2">   osmdata<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
 background-color: null;
@@ -437,25 +2550,17 @@ font-style: inherit;">add_osm_feature</span>(<span class="st" style="color: #207
 background-color: null;
 font-style: inherit;">"highway"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
-font-style: inherit;">%&gt;%</span></span>
-<span id="cb7-7">    osmdata<span class="sc" style="color: #5E5E5E;
+font-style: inherit;">%&gt;%</span> </span>
+<span id="cb9-3">   osmdata<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
 background-color: null;
-font-style: inherit;">osmdata_sf</span>()</span>
-<span id="cb7-8">  <span class="fu" style="color: #4758AB;
-background-color: null;
-font-style: inherit;">save</span>(kherson_roads,<span class="at" style="color: #657422;
-background-color: null;
-font-style: inherit;">file=</span><span class="st" style="color: #20794D;
-background-color: null;
-font-style: inherit;">'data/kherson_roads.rdata'</span>)</span>
-<span id="cb7-9">}</span>
-<span id="cb7-10"></span>
-<span id="cb7-11"><span class="co" style="color: #5E5E5E;
+font-style: inherit;">osmdata_sf</span>() </span>
+<span id="cb9-4"> </span>
+<span id="cb9-5"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># Take just the road layer and transform coordinates to our existing projection</span></span>
-<span id="cb7-12">kherson_lines <span class="ot" style="color: #003B4F;
+<span id="cb9-6">kherson_lines <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> sf<span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -464,51 +2569,48 @@ background-color: null;
 font-style: inherit;">st_transform</span>(kherson_roads<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">$</span>osm_lines,</span>
-<span id="cb7-13">                                  <span class="at" style="color: #657422;
+<span id="cb9-7">                                  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">crs =</span> raster<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">::</span><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">crs</span>(kherson_dnipro))</span>
-<span id="cb7-14"></span>
-<span id="cb7-15"><span class="co" style="color: #5E5E5E;
+<span id="cb9-8"></span>
+<span id="cb9-9"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># a rayshader object we pre-generate now for speed later</span></span>
-<span id="cb7-16">roads <span class="ot" style="color: #003B4F;
+<span id="cb9-10">roads <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span>  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">generate_line_overlay</span>(</span>
-<span id="cb7-17">  kherson_lines,</span>
-<span id="cb7-18">  <span class="at" style="color: #657422;
+<span id="cb9-11">  kherson_lines,</span>
+<span id="cb9-12">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">heightmap =</span> kh_elmat,</span>
-<span id="cb7-19">  <span class="at" style="color: #657422;
+<span id="cb9-13">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">extent =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">extent</span>(<span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">extent</span>(kherson_dnipro)),</span>
-<span id="cb7-20">  <span class="at" style="color: #657422;
+<span id="cb9-14">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">linewidth =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">2</span></span>
-<span id="cb7-21">)</span>
-<span id="cb7-22"></span>
-<span id="cb7-23">kherson_roads</span></code></pre></div>
-</details>
+<span id="cb9-15">)</span>
+<span id="cb9-16"></span>
+<span id="cb9-17">kherson_roads</span></code></pre></div>
 </div>
 <p>Once again we do a quick and dirty plot to visualize the new layer. This is also super easy with the <code>geom_sf</code> geom in ggplot2.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># View streets as a ggplot2 render </span></span>
-<span id="cb8-2"><span class="fu" style="color: #4758AB;
+<span id="cb10-2"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">ggplot</span>(kherson_lines, <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -517,12 +2619,12 @@ background-color: null;
 font-style: inherit;">color =</span> osm_id)) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span> </span>
-<span id="cb8-3">  <span class="fu" style="color: #4758AB;
+<span id="cb10-3">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">geom_sf</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb8-4">  <span class="fu" style="color: #4758AB;
+<span id="cb10-4">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">theme</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -531,14 +2633,13 @@ background-color: null;
 font-style: inherit;">"none"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">+</span></span>
-<span id="cb8-5">  <span class="fu" style="color: #4758AB;
+<span id="cb10-5">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">labs</span>(<span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">title =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Kherson Roads from Open Street Map"</span>)</span></code></pre></div>
-</details>
 <div class="cell-output-display">
 <p><img src="outsiderdata.netlify.app/posts/2023-06-09-kakhovka-dam/index_files/figure-html/preview streets-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -548,46 +2649,43 @@ font-style: inherit;">"Kherson Roads from Open Street Map"</span>)</span></code>
 <h3 class="anchored" data-anchor-id="add-more-realism">Add More Realism</h3>
 <p>Let’s overlay a satellite image to lend more realism to the image. In particular this lets us see the individual farms. Once again, the task is trivially easy using the <code>basemaps</code> package and the freely available ESRI “World Imagery” maps. This is the same image we saw at the beginning of this project but now saved as a “PNG” file. Rayshader will automatically scale the image to match the other layers in the map.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># get image overlay</span></span>
-<span id="cb9-2">satview <span class="ot" style="color: #003B4F;
+<span id="cb11-2">satview <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">basemap_png</span>(</span>
-<span id="cb9-3">  <span class="at" style="color: #657422;
+<span id="cb11-3">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">ext =</span> kherson_dnipro,</span>
-<span id="cb9-4">  <span class="at" style="color: #657422;
+<span id="cb11-4">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">map_service =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"esri"</span>,</span>
-<span id="cb9-5">  <span class="at" style="color: #657422;
+<span id="cb11-5">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">map_type =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"world_imagery"</span>,</span>
-<span id="cb9-6">  <span class="at" style="color: #657422;
+<span id="cb11-6">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">map_res =</span> <span class="cn" style="color: #8f5902;
 background-color: null;
 font-style: inherit;">NULL</span>,</span>
-<span id="cb9-7">  <span class="at" style="color: #657422;
+<span id="cb11-7">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">verbose =</span> <span class="cn" style="color: #8f5902;
 background-color: null;
 font-style: inherit;">TRUE</span>,</span>
-<span id="cb9-8">  <span class="at" style="color: #657422;
+<span id="cb11-8">  <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">browse =</span> <span class="cn" style="color: #8f5902;
 background-color: null;
 font-style: inherit;">FALSE</span></span>
-<span id="cb9-9">)</span></code></pre></div>
-</details>
+<span id="cb11-9">)</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Loading basemap 'world_imagery' from map service 'esri'...</code></pre>
 </div>
@@ -597,21 +2695,19 @@ font-style: inherit;">FALSE</span></span>
 <h3 class="anchored" data-anchor-id="visualize-the-rising-water">Visualize the Rising Water</h3>
 <p>When we put it all together, what do we get?</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1">base_map <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1">base_map <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> base_map <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span></span>
-<span id="cb11-2">  <span class="fu" style="color: #4758AB;
+<span id="cb13-2">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">add_overlay</span>(satview)</span>
-<span id="cb11-3"></span>
-<span id="cb11-4">base_map <span class="sc" style="color: #5E5E5E;
+<span id="cb13-3"></span>
+<span id="cb13-4">base_map <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span></span>
-<span id="cb11-5">  <span class="fu" style="color: #4758AB;
+<span id="cb13-5">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">add_water</span>(<span class="fu" style="color: #4758AB;
 background-color: null;
@@ -622,15 +2718,14 @@ background-color: null;
 font-style: inherit;">"desert"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span></span>
-<span id="cb11-6">  <span class="fu" style="color: #4758AB;
+<span id="cb13-6">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">add_overlay</span>(roads)<span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span></span>
-<span id="cb11-7">  <span class="fu" style="color: #4758AB;
+<span id="cb13-7">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">plot_map</span>()</span></code></pre></div>
-</details>
 <div class="cell-output-display">
 <p><img src="outsiderdata.netlify.app/posts/2023-06-09-kakhovka-dam/index_files/figure-html/full preview-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -653,9 +2748,7 @@ Note:
 </div>
 <p>The function below will render a view of our map with a water level rise of zero though eight meters. Again, this doesn’t assume the water rose eight meters, only that it reached eight meters above sea level. That means land at an altitude of seven meters will be one meter underwater for an eight meter water rise. We save each a single image for each meter of water rise and speed things up by changing only the parts of the map which change with the water level.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1">plot_rising_water <span class="ot" style="color: #003B4F;
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1">plot_rising_water <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="cf" style="color: #003B4F;
 background-color: null;
@@ -664,11 +2757,11 @@ background-color: null;
 font-style: inherit;">water_level =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0</span>) {</span>
-<span id="cb12-2"></span>
-<span id="cb12-3">  <span class="co" style="color: #5E5E5E;
+<span id="cb14-2"></span>
+<span id="cb14-3">  <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># adjust elevations to simulate water</span></span>
-<span id="cb12-4">  flood_elmat <span class="ot" style="color: #003B4F;
+<span id="cb14-4">  flood_elmat <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -677,11 +2770,11 @@ background-color: null;
 font-style: inherit;">&lt;</span> water_level, <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0</span>, kh_elmat)</span>
-<span id="cb12-5">  </span>
-<span id="cb12-6">  base_map <span class="sc" style="color: #5E5E5E;
+<span id="cb14-5">  </span>
+<span id="cb14-6">  base_map <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span></span>
-<span id="cb12-7">    <span class="fu" style="color: #4758AB;
+<span id="cb14-7">    <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">add_water</span>(<span class="fu" style="color: #4758AB;
 background-color: null;
@@ -692,25 +2785,25 @@ background-color: null;
 font-style: inherit;">"desert"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span></span>
-<span id="cb12-8">    <span class="co" style="color: #5E5E5E;
+<span id="cb14-8">    <span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># add roads on top of water</span></span>
-<span id="cb12-9">    <span class="fu" style="color: #4758AB;
+<span id="cb14-9">    <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">add_overlay</span>(roads) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span></span>
-<span id="cb12-10">    <span class="fu" style="color: #4758AB;
+<span id="cb14-10">    <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">save_png</span>(</span>
-<span id="cb12-11">      <span class="at" style="color: #657422;
+<span id="cb14-11">      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">filename =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">paste0</span>(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"img/frames/flood_"</span>, </span>
-<span id="cb12-12">                        <span class="fu" style="color: #4758AB;
+<span id="cb14-12">                        <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">formatC</span>(water_level, <span class="at" style="color: #657422;
 background-color: null;
@@ -723,12 +2816,12 @@ background-color: null;
 font-style: inherit;">"0"</span>), <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">".png"</span>),</span>
-<span id="cb12-13">      <span class="at" style="color: #657422;
+<span id="cb14-13">      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">title_text =</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">paste0</span>(</span>
-<span id="cb12-14">        <span class="st" style="color: #20794D;
+<span id="cb14-14">        <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"Flood Inundation of the Dnipro</span><span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -739,7 +2832,7 @@ background-color: null;
 font-style: inherit;">\n</span><span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">Water Level:"</span>,</span>
-<span id="cb12-15">        <span class="fu" style="color: #4758AB;
+<span id="cb14-15">        <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">formatC</span>(water_level, <span class="at" style="color: #657422;
 background-color: null;
@@ -750,28 +2843,28 @@ background-color: null;
 font-style: inherit;">flag =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">" "</span>),</span>
-<span id="cb12-16">        <span class="st" style="color: #20794D;
+<span id="cb14-16">        <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">" Meters"</span></span>
-<span id="cb12-17">      ),</span>
-<span id="cb12-18">      <span class="at" style="color: #657422;
+<span id="cb14-17">      ),</span>
+<span id="cb14-18">      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">title_size =</span> <span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">60</span>,</span>
-<span id="cb12-19">      <span class="at" style="color: #657422;
+<span id="cb14-19">      <span class="at" style="color: #657422;
 background-color: null;
 font-style: inherit;">title_bar_color =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"white"</span></span>
-<span id="cb12-20">    )</span>
-<span id="cb12-21">  </span>
-<span id="cb12-22">  </span>
-<span id="cb12-23">}</span>
-<span id="cb12-24"><span class="co" style="color: #5E5E5E;
+<span id="cb14-20">    )</span>
+<span id="cb14-21">  </span>
+<span id="cb14-22">  </span>
+<span id="cb14-23">}</span>
+<span id="cb14-24"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># generate frames</span></span>
-<span id="cb12-25"><span class="dv" style="color: #AD0000;
+<span id="cb14-25"><span class="dv" style="color: #AD0000;
 background-color: null;
 font-style: inherit;">0</span><span class="sc" style="color: #5E5E5E;
 background-color: null;
@@ -782,7 +2875,6 @@ background-color: null;
 font-style: inherit;">|&gt;</span> <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">walk</span>(plot_rising_water)</span></code></pre></div>
-</details>
 </div>
 <p>Now that we have saved nine still frames we can animate them into a short GIF file with almost no work at all. There are many ways to save a GIF animation with R. Here we use the <code>magick</code> package because we can create a smooth morph between frames which simulates rising water well.</p>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -799,17 +2891,15 @@ Note:
 </div>
 </div>
 <div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><span class="co" style="color: #5E5E5E;
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><span class="co" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;"># make GIF</span></span>
-<span id="cb13-2">target_dir <span class="ot" style="color: #003B4F;
+<span id="cb15-2">target_dir <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"img/frames"</span></span>
-<span id="cb13-3">fnames <span class="ot" style="color: #003B4F;
+<span id="cb15-3">fnames <span class="ot" style="color: #003B4F;
 background-color: null;
 font-style: inherit;">&lt;-</span> <span class="fu" style="color: #4758AB;
 background-color: null;
@@ -828,7 +2918,7 @@ background-color: null;
 font-style: inherit;">dir</span>(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"img/frames"</span>))</span>
-<span id="cb13-4"><span class="fu" style="color: #4758AB;
+<span id="cb15-4"><span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">image_read</span>(fnames[<span class="dv" style="color: #AD0000;
 background-color: null;
@@ -839,24 +2929,24 @@ background-color: null;
 font-style: inherit;">9</span>]) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb13-5">  <span class="fu" style="color: #4758AB;
+<span id="cb15-5">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">image_resize</span>(<span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"1000x"</span>) <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb13-6">  <span class="fu" style="color: #4758AB;
+<span id="cb15-6">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">image_morph</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb13-7">  <span class="fu" style="color: #4758AB;
+<span id="cb15-7">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">image_animate</span>() <span class="sc" style="color: #5E5E5E;
 background-color: null;
 font-style: inherit;">|&gt;</span> </span>
-<span id="cb13-8">  <span class="fu" style="color: #4758AB;
+<span id="cb15-8">  <span class="fu" style="color: #4758AB;
 background-color: null;
 font-style: inherit;">image_write</span>(<span class="at" style="color: #657422;
 background-color: null;
@@ -867,9 +2957,8 @@ background-color: null;
 font-style: inherit;">format =</span> <span class="st" style="color: #20794D;
 background-color: null;
 font-style: inherit;">"gif"</span>)</span></code></pre></div>
-</details>
 </div>
-<p><img src="outsiderdata.netlify.app/posts/2023-06-09-kakhovka-dam/img/flood.gif" class="img-fluid" width="1002"></p>
+<p><img src="outsiderdata.netlify.app/posts/2023-06-09-kakhovka-dam/img/flood.gif" class="img-fluid"></p>
 <p>While we don’t know what the maximum water height was or if all of the specific areas shown above got inundated but we do know many did and this clearly shows the vulnerable areas and where people have been potentially displaced.</p>
 </section>
 </section>
@@ -879,14 +2968,14 @@ font-style: inherit;">"gif"</span>)</span></code></pre></div>
 </section>
 <section id="my-speculation" class="level2">
 <h2 class="anchored" data-anchor-id="my-speculation">My Speculation</h2>
-<p>It’s irrelevant to our project today but as of this writing, we don’t know for sure who blew up the dam. I certainly don’t know but I will make a couple observations. The dam is under Russian control and it looks like the explosion came from inside the structure. The Ukrainians control the Zaporizhzhia dam and there has been no talk of blowing that up. As we saw in WWII, both sides blew up dams to impede enemy advancement. There is one side that is advancing today and it’s the Ukrainians. The Russians would like to slow them down. While the water will recede the river basin will still be muddy, though note the area close to the dam did not widen much. Finally, while this potentially has one benefit for the Ukrainians by cutting the fresh water canal to Crimea, the Ukrainians could have destroyed just the canal and prevented the Russians from rebuilding it without blowing the dam. We shall see in the fullness of time.</p>
+<p>It’s irrelevant to our project today but as of this writing, we don’t know for sure who blew up the dam. I certainly don’t know but I will make a couple observations. The dam is under Russian control and it looks like the explosion came from inside the structure. The Ukrainians control the Zaporizhzhia dam and there has been no talk of blowing that up. As we saw in WWII, both sides blew up dams to impede enemy advancement. There is one side that is advancing today and it’s the Ukrainians. The Russians would like to slow them down. Finally, while this potentially has one benefit for the Ukrainians by cutting the fresh water canal to Crimea, the Ukrainians could have destroyed just the canal and prevented the Russians from rebuilding it without blowing the dam. We shall see in the fullness of time.</p>
 
 
 </section>
 
  ]]></description>
   <guid>outsiderdata.netlify.app/posts/2023-06-09-kakhovka-dam/index.html</guid>
-  <pubDate>Fri, 09 Jun 2023 04:00:00 GMT</pubDate>
+  <pubDate>Fri, 09 Jun 2023 06:00:00 GMT</pubDate>
   <media:content url="outsiderdata.netlify.app/posts/2023-06-09-kakhovka-dam/img/flood.gif" medium="image" type="image/gif"/>
 </item>
 <item>
@@ -2267,7 +4356,7 @@ font-style: inherit;">TRUE</span>)</span></code></pre></div>
 
  ]]></description>
   <guid>outsiderdata.netlify.app/posts/2023-05-03-animating-a-heatmap-with-rayshader/index.html</guid>
-  <pubDate>Wed, 03 May 2023 04:00:00 GMT</pubDate>
+  <pubDate>Wed, 03 May 2023 06:00:00 GMT</pubDate>
   <media:content url="outsiderdata.netlify.app/posts/2023-05-03-animating-a-heatmap-with-rayshader/img/confusion.gif" medium="image" type="image/gif"/>
 </item>
 <item>
@@ -2989,7 +5078,7 @@ Muhammad, Shamsuddeen Hassan, Idris Abdulmumin, Abinew Ali Ayele, Nedjma Ousidho
   <category>tidytext</category>
   <category>text mining</category>
   <guid>outsiderdata.netlify.app/posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/index.html</guid>
-  <pubDate>Sun, 30 Apr 2023 04:00:00 GMT</pubDate>
+  <pubDate>Sun, 30 Apr 2023 06:00:00 GMT</pubDate>
   <media:content url="outsiderdata.netlify.app/posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/img/preview.png" medium="image" type="image/png" height="89" width="144"/>
 </item>
 <item>
@@ -4381,7 +6470,7 @@ Saifullah, Shoffan, Yuli Fauziah, and Agus Sasmito Aribowo. 2021. <span>“Compa
   <category>machine learning</category>
   <category>xgboost</category>
   <guid>outsiderdata.netlify.app/posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index.html</guid>
-  <pubDate>Sat, 22 Apr 2023 04:00:00 GMT</pubDate>
+  <pubDate>Sat, 22 Apr 2023 06:00:00 GMT</pubDate>
   <media:content url="outsiderdata.netlify.app/posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/img/eda1.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
 <item>
@@ -6019,7 +8108,7 @@ Silge, Julia, and David Robinson. 2016. <span>“Tidytext: Text Mining and Analy
   <category>tidytext</category>
   <category>twitter</category>
   <guid>outsiderdata.netlify.app/posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index.html</guid>
-  <pubDate>Sun, 16 Apr 2023 04:00:00 GMT</pubDate>
+  <pubDate>Sun, 16 Apr 2023 06:00:00 GMT</pubDate>
   <media:content url="outsiderdata.netlify.app/posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/img/preview.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
 <item>
@@ -6910,7 +8999,7 @@ Muhammad, Shamsuddeen Hassan, Seid Yimam, Idris Abdulmumin, Ibrahim Sa’id Ahma
   <category>google translate</category>
   <category>twitter</category>
   <guid>outsiderdata.netlify.app/posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/index.html</guid>
-  <pubDate>Sat, 15 Apr 2023 04:00:00 GMT</pubDate>
+  <pubDate>Sat, 15 Apr 2023 06:00:00 GMT</pubDate>
   <media:content url="outsiderdata.netlify.app/posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/img/preview.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
 <item>
@@ -7078,7 +9167,7 @@ Thank you!
   <category>quarto</category>
   <category>blogging</category>
   <guid>outsiderdata.netlify.app/posts/2023-01-24_Switching-to-Quarto/2023-1-24_switching-to-quarto.html</guid>
-  <pubDate>Mon, 24 Jan 2022 05:00:00 GMT</pubDate>
+  <pubDate>Mon, 24 Jan 2022 07:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Covid Cases vs. Deaths</title>
@@ -8374,7 +10463,7 @@ What are the further avenues for modeling? There is a wealth of data around beha
   <category>tidyverse</category>
   <category>COVID</category>
   <guid>outsiderdata.netlify.app/posts/2020-12-06-covid-cases-vs-deaths/2020-12-06-covid-cases-vs-deaths.html</guid>
-  <pubDate>Sun, 06 Dec 2020 05:00:00 GMT</pubDate>
+  <pubDate>Sun, 06 Dec 2020 07:00:00 GMT</pubDate>
   <media:content url="outsiderdata.netlify.app/posts/2020-12-06-covid-cases-vs-deaths/img/unnamed-chunk-2-1.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
 <item>
@@ -8883,7 +10972,7 @@ It must be comforting to know the Ramones want you more than anything but they a
   <category>tidytext</category>
   <category>music</category>
   <guid>outsiderdata.netlify.app/posts/2020-01-15-what-do-the-ramones-want/2020-01-15-what-do-the-ramones-want.html</guid>
-  <pubDate>Wed, 15 Jan 2020 05:00:00 GMT</pubDate>
+  <pubDate>Wed, 15 Jan 2020 07:00:00 GMT</pubDate>
   <media:content url="outsiderdata.netlify.app/posts/2020-01-15-what-do-the-ramones-want/img/Wants4thEdition.jpg" medium="image" type="image/jpeg"/>
 </item>
 <item>
@@ -9334,7 +11423,7 @@ font-style: inherit;">'Property Tax'</span>)))</span></code></pre></div>
   <category>tax</category>
   <category>plotly</category>
   <guid>outsiderdata.netlify.app/posts/2019-12-08-state-taxes-it-s-not-just-about-income/2019-12-08-state-taxes-it-s-not-just-about-income.html</guid>
-  <pubDate>Sun, 08 Dec 2019 05:00:00 GMT</pubDate>
+  <pubDate>Sun, 08 Dec 2019 07:00:00 GMT</pubDate>
   <media:content url="outsiderdata.netlify.app/posts/2019-12-08-state-taxes-it-s-not-just-about-income/img/thumbnail.png" medium="image" type="image/png" height="131" width="144"/>
 </item>
 <item>
@@ -9936,7 +12025,7 @@ I welcome critiques of my methods or conclusions. I have a sneaky suspicion I go
   <category>github</category>
   <category>gender</category>
   <guid>outsiderdata.netlify.app/posts/2019-07-16-gender-diversity-in-r-and-python-package-contributors/2019-07-16-gender-diversity-in-r-and-python-package-contributors.html</guid>
-  <pubDate>Tue, 16 Jul 2019 04:00:00 GMT</pubDate>
+  <pubDate>Tue, 16 Jul 2019 06:00:00 GMT</pubDate>
   <media:content url="outsiderdata.netlify.app/posts/2019-07-16-gender-diversity-in-r-and-python-package-contributors/img/unnamed-chunk-13-1.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
 <item>
@@ -9975,7 +12064,7 @@ I welcome critiques of my methods or conclusions. I have a sneaky suspicion I go
   <category>R</category>
   <category>Excel</category>
   <guid>outsiderdata.netlify.app/posts/2019-06-12-why-i-migrated-from-excel-to-r/2019-06-12-why-i-migrated-from-excel-to-r.html</guid>
-  <pubDate>Wed, 12 Jun 2019 04:00:00 GMT</pubDate>
+  <pubDate>Wed, 12 Jun 2019 06:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Solving the Letterboxed Puzzle in the New York Times</title>
@@ -10448,7 +12537,7 @@ Naturally, you should only use this code to check your answer. No cheating!
   <category>puzzle</category>
   <category>recursion</category>
   <guid>outsiderdata.netlify.app/posts/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times.html</guid>
-  <pubDate>Tue, 16 Apr 2019 04:00:00 GMT</pubDate>
+  <pubDate>Tue, 16 Apr 2019 06:00:00 GMT</pubDate>
   <media:content url="outsiderdata.netlify.app/posts/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times/img/sample_board.png" medium="image" type="image/png" height="143" width="144"/>
 </item>
 <item>
@@ -11395,7 +13484,7 @@ UPDATE 2/8/2019: Based on feedback, I changed party colors and left/right positi
   <category>politics</category>
   <category>ggplot2</category>
   <guid>outsiderdata.netlify.app/posts/2019-02-07-where-are-the-libertarians/2019-02-07-where-are-the-libertarians.html</guid>
-  <pubDate>Thu, 07 Feb 2019 05:00:00 GMT</pubDate>
+  <pubDate>Thu, 07 Feb 2019 07:00:00 GMT</pubDate>
   <media:content url="outsiderdata.netlify.app/posts/2019-02-07-where-are-the-libertarians/img/unnamed-chunk-18-1.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
 <item>
@@ -11708,7 +13797,7 @@ Feel free to get schwifty with these palettes!
   <category>rick and morty</category>
   <category>palettes</category>
   <guid>outsiderdata.netlify.app/posts/2019-02-04-rick-and-morty-palettes/2019-02-04-rick-and-morty-palettes.html</guid>
-  <pubDate>Mon, 04 Feb 2019 05:00:00 GMT</pubDate>
+  <pubDate>Mon, 04 Feb 2019 07:00:00 GMT</pubDate>
   <media:content url="outsiderdata.netlify.app/posts/2019-02-04-rick-and-morty-palettes/img/rm2.jpg" medium="image" type="image/jpeg"/>
 </item>
 <item>
@@ -12218,7 +14307,7 @@ Thanks for reading! All errors are my own and I am not trying to make any politi
   <category>education</category>
   <category>maps</category>
   <guid>outsiderdata.netlify.app/posts/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich.html</guid>
-  <pubDate>Thu, 29 Nov 2018 05:00:00 GMT</pubDate>
+  <pubDate>Thu, 29 Nov 2018 07:00:00 GMT</pubDate>
   <media:content url="outsiderdata.netlify.app/posts/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich/img/unnamed-chunk-23-1.png" medium="image" type="image/png" height="103" width="144"/>
 </item>
 <item>
@@ -12754,7 +14843,7 @@ If we wanted to take this further, a more robust analysis would use several Olym
   <category>web scraping</category>
   <category>sports</category>
   <guid>outsiderdata.netlify.app/posts/2018-02-26-new-winter-sports-for-new-countries/2018-02-26-new-winter-sports-for-new-countries.html</guid>
-  <pubDate>Mon, 26 Feb 2018 05:00:00 GMT</pubDate>
+  <pubDate>Mon, 26 Feb 2018 07:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Live Fast, Die Young, Stay Pretty?</title>
@@ -13625,7 +15714,7 @@ Stay off the dope, kids!
   <category>health</category>
   <category>gapminder</category>
   <guid>outsiderdata.netlify.app/posts/2018-02-11-live-fast-die-young-stay-pretty/2018-02-11-live-fast-die-young-stay-pretty.html</guid>
-  <pubDate>Sun, 11 Feb 2018 05:00:00 GMT</pubDate>
+  <pubDate>Sun, 11 Feb 2018 07:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Plumbing the Depths of My Soul (in Facebook)</title>
@@ -16607,7 +18696,7 @@ font-style: inherit;">"gif"</span>)</span></code></pre></div>
   <category>text mining</category>
   <category>facebook</category>
   <guid>outsiderdata.netlify.app/posts/2017-11-25-summary-analysis-of-my-facebook-existence/2017-11-25-summary-analysis-of-my-facebook-existence.html</guid>
-  <pubDate>Sat, 25 Nov 2017 05:00:00 GMT</pubDate>
+  <pubDate>Sat, 25 Nov 2017 07:00:00 GMT</pubDate>
 </item>
 </channel>
 </rss>
