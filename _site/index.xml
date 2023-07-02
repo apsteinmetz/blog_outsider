@@ -6,15 +6,15 @@
       version="2.0">
 <channel>
 <title>Outsider Data Science</title>
-<link>outsiderdata.netlify.app/index.html</link>
-<atom:link href="outsiderdata.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
+<link>https://outsiderdata.netlify.app/index.html</link>
+<atom:link href="https://outsiderdata.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Putting what&#39;s in there, out there. With R!</description>
 <generator>quarto-1.3.353</generator>
 <lastBuildDate>Fri, 09 Jun 2023 04:00:00 GMT</lastBuildDate>
 <item>
   <title>Kakhovka Dam Disaster</title>
   <dc:creator>Art Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2023-06-09-kakhovka-dam/index.html</link>
+  <link>https://outsiderdata.netlify.app/posts/2023-06-09-kakhovka-dam/index.html</link>
   <description><![CDATA[ 
 
 
@@ -892,7 +892,7 @@ font-style: inherit;">"gif"</span>)</span></code></pre></div>
 <item>
   <title>Animating a Heatmap with Rayshader</title>
   <dc:creator>Art Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2023-05-03-animating-a-heatmap-with-rayshader/index.html</link>
+  <link>https://outsiderdata.netlify.app/posts/2023-05-03-animating-a-heatmap-with-rayshader/index.html</link>
   <description><![CDATA[ 
 
 
@@ -2273,7 +2273,7 @@ font-style: inherit;">TRUE</span>)</span></code></pre></div>
 <item>
   <title>Sentiment Analysis Using Google Translate (Pt. 4 - A Painful Sight)</title>
   <dc:creator>Art Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/index.html</link>
+  <link>https://outsiderdata.netlify.app/posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/index.html</link>
   <description><![CDATA[ 
 
 
@@ -2995,7 +2995,7 @@ Muhammad, Shamsuddeen Hassan, Idris Abdulmumin, Abinew Ali Ayele, Nedjma Ousidho
 <item>
   <title>Sentiment Analysis Using Google Translate (Pt. 3 - Machine Learning)</title>
   <dc:creator>Art Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index.html</link>
+  <link>https://outsiderdata.netlify.app/posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index.html</link>
   <description><![CDATA[ 
 
 
@@ -4387,7 +4387,7 @@ Saifullah, Shoffan, Yuli Fauziah, and Agus Sasmito Aribowo. 2021. <span>“Compa
 <item>
   <title>Sentiment Analysis Using Google Translate (Pt. 2)</title>
   <dc:creator>Art Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index.html</link>
+  <link>https://outsiderdata.netlify.app/posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index.html</link>
   <description><![CDATA[ 
 
 
@@ -6025,7 +6025,7 @@ Silge, Julia, and David Robinson. 2016. <span>“Tidytext: Text Mining and Analy
 <item>
   <title>Sentiment Analysis Using Google Translate (Pt. 1)</title>
   <dc:creator>Art Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/index.html</link>
+  <link>https://outsiderdata.netlify.app/posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/index.html</link>
   <description><![CDATA[ 
 
 
@@ -6916,7 +6916,7 @@ Muhammad, Shamsuddeen Hassan, Seid Yimam, Idris Abdulmumin, Ibrahim Sa’id Ahma
 <item>
   <title>Switching to Quarto from Blogdown</title>
   <dc:creator>Art Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2023-01-24_Switching-to-Quarto/2023-1-24_switching-to-quarto.html</link>
+  <link>https://outsiderdata.netlify.app/posts/2023-01-24_Switching-to-Quarto/2023-1-24_switching-to-quarto.html</link>
   <description><![CDATA[ 
 
 
@@ -7083,7 +7083,7 @@ Thank you!
 <item>
   <title>Covid Cases vs. Deaths</title>
   <dc:creator>Art Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2020-12-06-covid-cases-vs-deaths/2020-12-06-covid-cases-vs-deaths.html</link>
+  <link>https://outsiderdata.netlify.app/posts/2020-12-06-covid-cases-vs-deaths/2020-12-06-covid-cases-vs-deaths.html</link>
   <description><![CDATA[ 
 
 
@@ -8380,7 +8380,7 @@ What are the further avenues for modeling? There is a wealth of data around beha
 <item>
   <title>What Do The Ramones Want?</title>
   <dc:creator>Art Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2020-01-15-what-do-the-ramones-want/2020-01-15-what-do-the-ramones-want.html</link>
+  <link>https://outsiderdata.netlify.app/posts/2020-01-15-what-do-the-ramones-want/2020-01-15-what-do-the-ramones-want.html</link>
   <description><![CDATA[ 
 
 
@@ -8889,7 +8889,7 @@ It must be comforting to know the Ramones want you more than anything but they a
 <item>
   <title>State Taxes: It’s not just about Income</title>
   <dc:creator>Art Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2019-12-08-state-taxes-it-s-not-just-about-income/2019-12-08-state-taxes-it-s-not-just-about-income.html</link>
+  <link>https://outsiderdata.netlify.app/posts/2019-12-08-state-taxes-it-s-not-just-about-income/2019-12-08-state-taxes-it-s-not-just-about-income.html</link>
   <description><![CDATA[ 
 
 
@@ -9340,7 +9340,7 @@ font-style: inherit;">'Property Tax'</span>)))</span></code></pre></div>
 <item>
   <title>Gender Diversity in R and Python Package Contributors</title>
   <dc:creator>Art Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2019-07-16-gender-diversity-in-r-and-python-package-contributors/2019-07-16-gender-diversity-in-r-and-python-package-contributors.html</link>
+  <link>https://outsiderdata.netlify.app/posts/2019-07-16-gender-diversity-in-r-and-python-package-contributors/2019-07-16-gender-diversity-in-r-and-python-package-contributors.html</link>
   <description><![CDATA[ 
 
 
@@ -9942,7 +9942,7 @@ I welcome critiques of my methods or conclusions. I have a sneaky suspicion I go
 <item>
   <title>Why I migrated from Excel to R</title>
   <dc:creator>Art Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2019-06-12-why-i-migrated-from-excel-to-r/2019-06-12-why-i-migrated-from-excel-to-r.html</link>
+  <link>https://outsiderdata.netlify.app/posts/2019-06-12-why-i-migrated-from-excel-to-r/2019-06-12-why-i-migrated-from-excel-to-r.html</link>
   <description><![CDATA[ 
 
 
@@ -9980,7 +9980,7 @@ I welcome critiques of my methods or conclusions. I have a sneaky suspicion I go
 <item>
   <title>Solving the Letterboxed Puzzle in the New York Times</title>
   <dc:creator>Arthur Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times.html</link>
+  <link>https://outsiderdata.netlify.app/posts/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times.html</link>
   <description><![CDATA[ 
 
 
@@ -10454,7 +10454,7 @@ Naturally, you should only use this code to check your answer. No cheating!
 <item>
   <title>Where Are The Libertarians?</title>
   <dc:creator>Art Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2019-02-07-where-are-the-libertarians/2019-02-07-where-are-the-libertarians.html</link>
+  <link>https://outsiderdata.netlify.app/posts/2019-02-07-where-are-the-libertarians/2019-02-07-where-are-the-libertarians.html</link>
   <description><![CDATA[ 
 
 
@@ -11401,7 +11401,7 @@ UPDATE 2/8/2019: Based on feedback, I changed party colors and left/right positi
 <item>
   <title>Rick and Morty Palettes</title>
   <dc:creator>Art Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2019-02-04-rick-and-morty-palettes/2019-02-04-rick-and-morty-palettes.html</link>
+  <link>https://outsiderdata.netlify.app/posts/2019-02-04-rick-and-morty-palettes/2019-02-04-rick-and-morty-palettes.html</link>
   <description><![CDATA[ 
 
 
@@ -11714,7 +11714,7 @@ Feel free to get schwifty with these palettes!
 <item>
   <title>Is Free Pre-K in NYC Favoring the Rich?</title>
   <dc:creator>Art Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich.html</link>
+  <link>https://outsiderdata.netlify.app/posts/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich.html</link>
   <description><![CDATA[ 
 
 
@@ -12224,7 +12224,7 @@ Thanks for reading! All errors are my own and I am not trying to make any politi
 <item>
   <title>New Winter Sports for New Countries</title>
   <dc:creator>Art Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2018-02-26-new-winter-sports-for-new-countries/2018-02-26-new-winter-sports-for-new-countries.html</link>
+  <link>https://outsiderdata.netlify.app/posts/2018-02-26-new-winter-sports-for-new-countries/2018-02-26-new-winter-sports-for-new-countries.html</link>
   <description><![CDATA[ 
 
 
@@ -12759,7 +12759,7 @@ If we wanted to take this further, a more robust analysis would use several Olym
 <item>
   <title>Live Fast, Die Young, Stay Pretty?</title>
   <dc:creator>Art Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2018-02-11-live-fast-die-young-stay-pretty/2018-02-11-live-fast-die-young-stay-pretty.html</link>
+  <link>https://outsiderdata.netlify.app/posts/2018-02-11-live-fast-die-young-stay-pretty/2018-02-11-live-fast-die-young-stay-pretty.html</link>
   <description><![CDATA[ 
 
 
@@ -13630,7 +13630,7 @@ Stay off the dope, kids!
 <item>
   <title>Plumbing the Depths of My Soul (in Facebook)</title>
   <dc:creator>Art Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2017-11-25-summary-analysis-of-my-facebook-existence/2017-11-25-summary-analysis-of-my-facebook-existence.html</link>
+  <link>https://outsiderdata.netlify.app/posts/2017-11-25-summary-analysis-of-my-facebook-existence/2017-11-25-summary-analysis-of-my-facebook-existence.html</link>
   <description><![CDATA[ 
 
 
