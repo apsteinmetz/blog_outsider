@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.433">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Art Steinmetz">
+<meta name="dcterms.date" content="2023-06-09">
+<meta name="description" content="Animate Flood Inundation Along the Dnipro River">
+
+<title>Outsider Data Science - Kakhovka Dam Disaster</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/quarto-contrib/fontawesome6-0.1.0/all.css" rel="stylesheet">
+<link href="../../site_libs/quarto-contrib/fontawesome6-0.1.0/latex-fontsize.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-BVDKXJLKEL"></script>
+
+<script type="text/javascript">
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-BVDKXJLKEL', { 'anonymize_ip': true});
+</script>
+<script src="../../site_libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
+<script src="../../site_libs/jquery-1.12.4/jquery.min.js"></script>
+<link href="../../site_libs/leaflet-1.3.1/leaflet.css" rel="stylesheet">
+<script src="../../site_libs/leaflet-1.3.1/leaflet.js"></script>
+<link href="../../site_libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet">
+<script src="../../site_libs/proj4-2.6.2/proj4.min.js"></script>
+<script src="../../site_libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+<link href="../../site_libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet">
+<script src="../../site_libs/leaflet-binding-2.1.2/leaflet.js"></script>
+<script src="../../site_libs/leaflet-providers-1.9.0/leaflet-providers_1.9.0.js"></script>
+<script src="../../site_libs/leaflet-providers-plugin-2.1.2/leaflet-providers-plugin.js"></script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+<meta name="twitter:title" content="Outsider Data Science - Kakhovka Dam Disaster">
+<meta name="twitter:description" content="Animate Flood Inundation Along the Dnipro River">
+<meta name="twitter:image" content="outsiderdata.netlify.app/posts/2023-06-09-kakhovka-dam/img/flood.gif">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Outsider Data Science</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html" rel="" target="">
+ <span class="menu-text">Blog</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://www.linkedin.com/in/asteinmetz/" rel="" target=""><i class="bi bi-linkedin" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/adababbage" rel="" target=""><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://fosstodon.org/@adababbage" rel="" target=""><i class="bi bi-mastodon" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/apsteinmetz" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../index.xml" rel="" target=""><i class="bi bi-rss" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../blogroll.html" rel="" target="">
+ <span class="menu-text"><i class="fa-solid fa-blog" aria-label="blog"></i></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools ms-auto">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#some-history" id="toc-some-history" class="nav-link active" data-scroll-target="#some-history">Some History</a></li>
+  <li><a href="#modeling-the-disaster" id="toc-modeling-the-disaster" class="nav-link" data-scroll-target="#modeling-the-disaster">Modeling the Disaster</a>
+  <ul class="collapse">
+  <li><a href="#get-the-lower-dnipro-river." id="toc-get-the-lower-dnipro-river." class="nav-link" data-scroll-target="#get-the-lower-dnipro-river.">Get the Lower Dnipro River.</a></li>
+  <li><a href="#get-the-elevations" id="toc-get-the-elevations" class="nav-link" data-scroll-target="#get-the-elevations">Get the Elevations</a></li>
+  <li><a href="#the-human-dimension" id="toc-the-human-dimension" class="nav-link" data-scroll-target="#the-human-dimension">The Human Dimension</a></li>
+  <li><a href="#add-more-realism" id="toc-add-more-realism" class="nav-link" data-scroll-target="#add-more-realism">Add More Realism</a></li>
+  <li><a href="#visualize-the-rising-water" id="toc-visualize-the-rising-water" class="nav-link" data-scroll-target="#visualize-the-rising-water">Visualize the Rising Water</a></li>
+  </ul></li>
+  <li><a href="#now-you-try" id="toc-now-you-try" class="nav-link" data-scroll-target="#now-you-try">Now You Try</a></li>
+  <li><a href="#my-speculation" id="toc-my-speculation" class="nav-link" data-scroll-target="#my-speculation">My Speculation</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Kakhovka Dam Disaster</h1>
+</div>
+
+<div>
+  <div class="description">
+    <p>Animate Flood Inundation Along the Dnipro River</p>
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Art Steinmetz </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 9, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="some-history" class="level2">
+<h2 class="anchored" data-anchor-id="some-history">Some History</h2>
+<p>The war in Ukraine has spawned yet another disaster, the destruction of the dam across the Dnipro river, upstream from Kherson City. This is an ecological and humanitarian disaster as vast acres of settlements, farmlands and wetlands have been destroyed.</p>
+<p>This marks the third time a dam in this region has been destroyed. First in 1941, the Soviets blew up a dam to impede the advancing Germans in southern city of Zaporizhzhia, upstream of the present dam. <a href="https://www.rferl.org/a/european-remembrance-day-ukraine-little-known-ww2-tragedy/25083847.html">Tens of thousands of people were killed</a> among Ukrainians and Red Army soldiers (the Germans were not yet in the area). The Germans repaired it. Then, in 1943, the Germans blew it up again to thwart the advancing Soviets.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="img/Bundesarchiv_B_145_Bild-F016197-0003_Wasserkraftwerk_am_Dnjepr-e1566129751457.jpg" class="img-fluid figure-img"></p>
+<figcaption class="figure-caption">Source: Bundesarchiv</figcaption>
+</figure>
+</div>
+<p>Ironically, just as the destruction of the Kakhovka dam is an ecological tragedy, so too, was its construction. Many settlements and wetlands were submerged as the Dnipro river backed up to serve Stalin’s drive to collectivize and modernize agriculture.</p>
+</section>
+<section id="modeling-the-disaster" class="level2">
+<h2 class="anchored" data-anchor-id="modeling-the-disaster">Modeling the Disaster</h2>
+<p>Last week, as water poured through the gap where the Kakhovka dam used to be, water levels surged downstream. This was a rolling disaster, with the river delta at the Black Sea seeing the flow last. We can make a rough attempt to visualize the effect of the rising water with an animated inundation map. This is a pretty sophisticated undertaking. Fortunately, there are tools in the form of R packages that have been developed in the last several years that make it easy for anyone to make inundation maps. There are many pieces of the project below where I can not believe how few lines of code are needed. Since there may be some readers not interested in the coding, the code is hidden by default and you may click on the <em>code</em> buttons to make it visible.</p>
+<p>Let’s see how easy it is.</p>
+<section id="get-the-lower-dnipro-river." class="level3">
+<h3 class="anchored" data-anchor-id="get-the-lower-dnipro-river.">Get the Lower Dnipro River.</h3>
+<p>As usual, we load the required packages. Then I just looked at Google Maps to find the coordinates of a region spanning from the Kakhovka dam in the east to the Dnipro delta in the west. Since they were displayed in degrees, minutes and seconds, I wrote a quickie function to convert them to decimal. Note that longitude west of zero and latitude south of zero are expressed as negative, neither of which is true here. Longitudes in the United States, for instance, have a negative sign.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fs)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># GIS packages</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(elevatr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rayshader)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(raster)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(leaflet)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(osmdata)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(basemaps)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Make GIFs</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(magick)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>dms_to_dec <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">deg=</span><span class="dv">0</span>, <span class="at">min=</span><span class="dv">0</span>, <span class="at">sec=</span><span class="dv">0</span>) {</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(deg <span class="sc">+</span> min <span class="sc">/</span> <span class="dv">60</span> <span class="sc">+</span> sec <span class="sc">/</span> <span class="dv">3600</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>kh_loc <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">lat =</span> <span class="fu">c</span>(<span class="fu">dms_to_dec</span>(<span class="dv">46</span>,<span class="dv">51</span>,<span class="dv">00</span>),<span class="fu">dms_to_dec</span>(<span class="dv">46</span>,<span class="dv">18</span>,<span class="dv">00</span>)),</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>                             <span class="at">lon=</span> <span class="fu">c</span>(<span class="fu">dms_to_dec</span>(<span class="dv">32</span>,<span class="dv">09</span>,<span class="dv">00</span>),<span class="fu">dms_to_dec</span>(<span class="dv">33</span>,<span class="dv">25</span>,<span class="dv">00</span>)) )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Here is the first “wow, that was easy” moment. We can confirm our coordinates by quickly pulling in a map with multiple layers, one for geographic names, and one for the satellite image. This is done with the <code>leaflet</code> package.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">leaflet</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fitBounds</span>(kh_loc<span class="sc">$</span>lon[<span class="dv">1</span>],kh_loc<span class="sc">$</span>lat[<span class="dv">1</span>],kh_loc<span class="sc">$</span>lon[<span class="dv">2</span>],kh_loc<span class="sc">$</span>lat[<span class="dv">2</span>]) <span class="sc">|&gt;</span> </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">addProviderTiles</span>(providers<span class="sc">$</span>Esri.WorldImagery) <span class="sc">|&gt;</span> </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">addProviderTiles</span>(providers<span class="sc">$</span>CartoDB.PositronOnlyLabels,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">options =</span> <span class="fu">providerTileOptions</span>(<span class="at">opacity =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div class="leaflet html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-965740ba9fe02fb81927" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-965740ba9fe02fb81927">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"fitBounds":[46.85,32.15,46.3,33.41666666666666,[]],"calls":[{"method":"addProviderTiles","args":["Esri.WorldImagery",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addProviderTiles","args":["CartoDB.PositronOnlyLabels",null,null,{"errorTileUrl":"","noWrap":false,"opacity":1,"detectRetina":false}]}]},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>This is an interactive map. We can pan and zoom to our heart’s content. There are some interesting observations we can make. The dam is at the northeast corner of the image. We can see the swampy lowlands below the dam. They lie mainly to the south of the primary course of the river. Notice the crop circles to the east and south of the reservoir. There are many visible if we pan a bit to the east. This tells us that the crops grown there are irrigated by water pumped to center-pivot sprinkler systems. Presumably the water comes from the reservoir which is now disappearing.</p>
+<p><img src="img/pivot_sprinkler.jpg" class="img-fluid"></p>
+<p>source: iStock</p>
+<p>Just to the east of the dam we also see the Crimean canal stretching south, which is a major source of fresh water for the Crimean peninsula. This, too, will cease to function.</p>
+</section>
+<section id="get-the-elevations" class="level3">
+<h3 class="anchored" data-anchor-id="get-the-elevations">Get the Elevations</h3>
+<p>We are interested in modeling which parts of the river basin got submerged after the destruction of the dam. Obviously we need to know the elevation of the land. Using the <code>elevatr</code> package it only takes one line of code to retrieve a topographic map from the OpenTopography data set. This gets us a raster object that contains a matrix with elevations at each point. It also contains metadata with the coordinate system.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>kherson_dnipro <span class="ot">&lt;-</span> kh_loc <span class="sc">|&gt;</span> </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(<span class="st">"lon"</span>,<span class="st">"lat"</span>),<span class="at">crs =</span> <span class="dv">4326</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># get the topo matrix</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="st">'data/kherson_elev.rdata'</span>)){</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">load</span>(<span class="st">'data/kherson_elev.rdata'</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>kherson_elev <span class="ot">&lt;-</span> <span class="fu">get_elev_raster</span>(kherson_dnipro, </span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>                                <span class="at">src =</span> <span class="st">"gl1"</span>, </span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>                                <span class="at">clip =</span> <span class="st">"bbox"</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>                                <span class="at">verbose =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>                                <span class="at">serial=</span><span class="cn">TRUE</span>) </span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(kherson_elev,<span class="at">file=</span><span class="st">'data/kherson_elev.rdata'</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>kherson_elev</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>class      : RasterLayer 
+dimensions : 1980, 4560, 9028800  (nrow, ncol, ncell)
+resolution : 0.0002777778, 0.0002777778  (x, y)
+extent     : 32.14986, 33.41653, 46.30014, 46.85014  (xmin, xmax, ymin, ymax)
+crs        : +proj=longlat +datum=WGS84 +no_defs 
+source     : memory
+names      : file2c3031276412 
+values     : -51, 107  (min, max)</code></pre>
+</div>
+</div>
+<p>A quick and dirty plot of the matrix shows the flood situation. Bright green is high ground. The blue isn’t necessarily water, just water and land very nearly at sea level. The color scale is in meters above sea level. South of the river are mostly very low-lying areas. Notably, these areas are Russian controlled today. The north side is in Ukrainian hands.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>pal <span class="ot">&lt;-</span> <span class="fu">colorRampPalette</span>(<span class="fu">c</span>(<span class="st">"darkblue"</span>,<span class="st">"limegreen"</span>))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(kherson_elev, <span class="at">col =</span> <span class="fu">pal</span>(<span class="dv">10</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/view elevations-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Now let’s create a more realistic view of the ground and show the rising water. To do this we’ll use the <code>rayshader</code> package. When <a href="https://twitter.com/tylermorganwall">Tyler Morgan-Wall</a> released this package a few years ago, he opened up huge visualization vistas to the R community. We will just be touching the surface of its capabilities here. We’ll use two key features, the ability to shade the surface for a 3D effect and to detect and color bodies of water. Let’s exaggerate the z-axis a bit since this is generally very flat ground and we want to see subtle terrain changes. Like the <code>ggplot2</code> package, we can start with a base plot and add layers.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>kh_elmat <span class="ot">&lt;-</span> <span class="fu">raster_to_matrix</span>(kherson_elev)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>base_map <span class="ot">&lt;-</span> kh_elmat <span class="sc">|&gt;</span> </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sphere_shade</span>(<span class="at">texture =</span> <span class="st">"imhof1"</span>,<span class="at">zscale =</span> .<span class="dv">8</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>base_map <span class="sc">|&gt;</span> </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_water</span>(<span class="fu">detect_water</span>(kh_elmat),<span class="at">color=</span><span class="st">"desert"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_map</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/preview water-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We can clearly see the reservoir in the east, the delta in the west, the (exaggerated) canyons carved by the Dnipro tributaries and the narrow river connecting them.</p>
+</section>
+<section id="the-human-dimension" class="level3">
+<h3 class="anchored" data-anchor-id="the-human-dimension">The Human Dimension</h3>
+<p>What we don’t see are where the people are and this tragedy is very much a human one. We can get a sense of human presence by creating a road overlay using OpenStreetMap data. Again, the code needed to do this is trivially simple. Note the returned object has several layers but we are only interested in the <code>osm_points</code>.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (fs<span class="sc">::</span><span class="fu">file_exists</span>(<span class="st">'data/kherson_roads.rdata'</span>)){</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">load</span>(<span class="st">'data/kherson_roads.rdata'</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  kherson_roads <span class="ot">&lt;-</span> osmdata<span class="sc">::</span><span class="fu">opq</span>(<span class="fu">st_bbox</span>(kherson_dnipro)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    osmdata<span class="sc">::</span><span class="fu">add_osm_feature</span>(<span class="st">"highway"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    osmdata<span class="sc">::</span><span class="fu">osmdata_sf</span>()</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">save</span>(kherson_roads,<span class="at">file=</span><span class="st">'data/kherson_roads.rdata'</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Take just the road layer and transform coordinates to our existing projection</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>kherson_lines <span class="ot">&lt;-</span> sf<span class="sc">::</span><span class="fu">st_transform</span>(kherson_roads<span class="sc">$</span>osm_lines,</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>                                  <span class="at">crs =</span> raster<span class="sc">::</span><span class="fu">crs</span>(kherson_dnipro))</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="co"># a rayshader object we pre-generate now for speed later</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>roads <span class="ot">&lt;-</span>  <span class="fu">generate_line_overlay</span>(</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  kherson_lines,</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">heightmap =</span> kh_elmat,</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">extent =</span> <span class="fu">extent</span>(<span class="fu">extent</span>(kherson_dnipro)),</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">linewidth =</span> <span class="dv">2</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>kherson_roads</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Once again we do a quick and dirty plot to visualize the new layer. This is also super easy with the <code>geom_sf</code> geom in ggplot2.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># View streets as a ggplot2 render </span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(kherson_lines, <span class="fu">aes</span>(<span class="at">color =</span> osm_id)) <span class="sc">+</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Kherson Roads from Open Street Map"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/preview streets-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="add-more-realism" class="level3">
+<h3 class="anchored" data-anchor-id="add-more-realism">Add More Realism</h3>
+<p>Let’s overlay a satellite image to lend more realism to the image. In particular this lets us see the individual farms. Once again, the task is trivially easy using the <code>basemaps</code> package and the freely available ESRI “World Imagery” maps. This is the same image we saw at the beginning of this project but now saved as a “PNG” file. Rayshader will automatically scale the image to match the other layers in the map.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># get image overlay</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>satview <span class="ot">&lt;-</span> <span class="fu">basemap_png</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">ext =</span> kherson_dnipro,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">map_service =</span> <span class="st">"esri"</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">map_type =</span> <span class="st">"world_imagery"</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">map_res =</span> <span class="cn">NULL</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">browse =</span> <span class="cn">FALSE</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Loading basemap 'world_imagery' from map service 'esri'...</code></pre>
+</div>
+</div>
+</section>
+<section id="visualize-the-rising-water" class="level3">
+<h3 class="anchored" data-anchor-id="visualize-the-rising-water">Visualize the Rising Water</h3>
+<p>When we put it all together, what do we get?</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>base_map <span class="ot">&lt;-</span> base_map <span class="sc">|&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_overlay</span>(satview)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>base_map <span class="sc">|&gt;</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_water</span>(<span class="fu">detect_water</span>(kh_elmat), <span class="at">color =</span> <span class="st">"desert"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_overlay</span>(roads)<span class="sc">|&gt;</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_map</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="index_files/figure-html/full preview-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We can see the city of Kherson on the north side, the settlements on the south side, mostly out of the swampy areas along the river and, on the upper east side, the town of Nova Kakhovka where the dam and hydroelectric station were.</p>
+<p>Using this as a base, let’s create a function that shows the impact of rising water levels. Rayshader will color totally flat areas as water so we mimic rising water by setting the elevations of any point below the rising water level to zero. We can iterate by setting the water level higher and higher to put more of the land “under water.”</p>
+<p>We have several layers in this map. The shading, the satellite view, the water level and the streets. Order matters. The shading gets obscured by the satellite image. The rising water covers the satellite image. The streets are drawn last and remain visible so we can see just where human-occupied areas are being flooded. All these are aesthetic choices.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note:
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>At this point we should be clear about what this is and isn’t. The method we use here more properly would model rising sea levels. We don’t know exactly how the water affected each area at what time. We don’t know what the peak inundation level was for each area. Further, once the reservoir empties out, the water will recede. Let’s call this a “dramatization.” This does give a dramatic view of the scope of the destruction.</p>
+</div>
+</div>
+<p>The function below will render a view of our map with a water level rise of zero though eight meters. Again, this doesn’t assume the water rose eight meters, only that it reached eight meters above sea level. That means land at an altitude of seven meters will be one meter underwater for an eight meter water rise. We save each a single image for each meter of water rise and speed things up by changing only the parts of the map which change with the water level.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>plot_rising_water <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">water_level =</span> <span class="dv">0</span>) {</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># adjust elevations to simulate water</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  flood_elmat <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(kh_elmat <span class="sc">&lt;</span> water_level, <span class="dv">0</span>, kh_elmat)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  base_map <span class="sc">|&gt;</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">add_water</span>(<span class="fu">detect_water</span>(flood_elmat), <span class="at">color =</span> <span class="st">"desert"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># add roads on top of water</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">add_overlay</span>(roads) <span class="sc">|&gt;</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">save_png</span>(</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">filename =</span> <span class="fu">paste0</span>(<span class="st">"img/frames/flood_"</span>, </span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">formatC</span>(water_level, <span class="at">width =</span> <span class="dv">3</span>, <span class="at">flag =</span> <span class="st">"0"</span>), <span class="st">".png"</span>),</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">title_text =</span> <span class="fu">paste0</span>(</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Flood Inundation of the Dnipro</span><span class="sc">\n</span><span class="st">After Kakhovka Dam Destruction</span><span class="sc">\n</span><span class="st">Water Level:"</span>,</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>        <span class="fu">formatC</span>(water_level, <span class="at">width =</span> <span class="dv">3</span>, <span class="at">flag =</span> <span class="st">" "</span>),</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">" Meters"</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">title_size =</span> <span class="dv">60</span>,</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">title_bar_color =</span> <span class="st">"white"</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a><span class="co"># generate frames</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a><span class="dv">0</span><span class="sc">:</span><span class="dv">8</span> <span class="sc">|&gt;</span> <span class="fu">walk</span>(plot_rising_water)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Now that we have saved nine still frames we can animate them into a short GIF file with almost no work at all. There are many ways to save a GIF animation with R. Here we use the <code>magick</code> package because we can create a smooth morph between frames which simulates rising water well.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note:
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>We use <code>magick::image_resize()</code> to downscale the individual frames to get a GIF of manageable size. Careful readers might wonder why we didn’t earlier downscale the elevation matrix instead. That would have sped up all the operations above. Unfortunately, that would make the flooded regions look very blocky as we would lose too much terrain data.</p>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># make GIF</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>target_dir <span class="ot">&lt;-</span> <span class="st">"img/frames"</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>fnames <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"img</span><span class="sc">\\</span><span class="st">frames</span><span class="sc">\\</span><span class="st">"</span>, <span class="fu">dir</span>(<span class="st">"img/frames"</span>))</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">image_read</span>(fnames[<span class="dv">1</span><span class="sc">:</span><span class="dv">9</span>]) <span class="sc">|&gt;</span> </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">image_resize</span>(<span class="st">"1000x"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">image_morph</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">image_animate</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">image_write</span>(<span class="at">path =</span> <span class="st">"img/flood.gif"</span>,<span class="at">format =</span> <span class="st">"gif"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p><img src="img/flood.gif" class="img-fluid" width="1002"></p>
+<p>While we don’t know what the maximum water height was or if all of the specific areas shown above got inundated but we do know many did and this clearly shows the vulnerable areas and where people have been potentially displaced.</p>
+</section>
+</section>
+<section id="now-you-try" class="level2">
+<h2 class="anchored" data-anchor-id="now-you-try">Now You Try</h2>
+<p>Here we modeled the disaster in Ukraine but you might use these techniques to visualize the risk of flooding where you are considering buying a house, for example. You might also check out the <a href="https://waterdata.usgs.gov/nwis/rt">USGS real-time stream gauge</a> data to see what happens when the creek rises. All you need are four corners on a map to get started.</p>
+</section>
+<section id="my-speculation" class="level2">
+<h2 class="anchored" data-anchor-id="my-speculation">My Speculation</h2>
+<p>It’s irrelevant to our project today but as of this writing, we don’t know for sure who blew up the dam. I certainly don’t know but I will make a couple observations. The dam is under Russian control and it looks like the explosion came from inside the structure. The Ukrainians control the Zaporizhzhia dam and there has been no talk of blowing that up. As we saw in WWII, both sides blew up dams to impede enemy advancement. There is one side that is advancing today and it’s the Ukrainians. The Russians would like to slow them down. While the water will recede the river basin will still be muddy, though note the area close to the dam did not widen much. Finally, while this potentially has one benefit for the Ukrainians by cutting the fresh water canal to Crimea, the Ukrainians could have destroyed just the canal and prevented the Russians from rebuilding it without blowing the dam. We shall see in the fullness of time.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'alternate';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

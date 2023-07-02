@@ -10,6 +10,7 @@ listing:
   categories: true
   feed:
     type: full
+    items: 1
     description: "Putting what's in there, out there. With R!"
 ---
 ![](img/R_logo.svg.png){width="20%"} Putting what's in there, out there. With R!
