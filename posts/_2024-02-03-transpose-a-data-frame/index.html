@@ -1,0 +1,2693 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.549">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Art Steinmetz">
+<meta name="dcterms.date" content="2024-02-03">
+<meta name="description" content="A more robust method of transposing a data frame in three vernaculars.">
+
+<title>Transpose a Data Frame</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="index_files/libs/clipboard/clipboard.min.js"></script>
+<script src="index_files/libs/quarto-html/quarto.js"></script>
+<script src="index_files/libs/quarto-html/popper.min.js"></script>
+<script src="index_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="index_files/libs/quarto-html/anchor.min.js"></script>
+<link href="index_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="index_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="index_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="index_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="index_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Transpose a Data Frame</h1>
+</div>
+
+<div>
+  <div class="description">
+    <p>A more robust method of transposing a data frame in three vernaculars.</p>
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Art Steinmetz </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">February 3, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Sometimes you need to transpose a data frame. That is, you need to convert the rows to columns and the columns to rows. The <code>t()</code> function is the go-to way of transposition in base R but it is designed for matrices of entirely numeric data. Let’s see what it does with the <code>mtcars</code> data frame. We’ll take a subset of <code>mtcars</code> to save some pixels.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>cars <span class="ot">&lt;-</span> mtcars[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>cars</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                   mpg cyl disp  hp drat
+Mazda RX4         21.0   6  160 110 3.90
+Mazda RX4 Wag     21.0   6  160 110 3.90
+Datsun 710        22.8   4  108  93 3.85
+Hornet 4 Drive    21.4   6  258 110 3.08
+Hornet Sportabout 18.7   8  360 175 3.15</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t</span>(cars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     Mazda RX4 Mazda RX4 Wag Datsun 710 Hornet 4 Drive Hornet Sportabout
+mpg       21.0          21.0      22.80          21.40             18.70
+cyl        6.0           6.0       4.00           6.00              8.00
+disp     160.0         160.0     108.00         258.00            360.00
+hp       110.0         110.0      93.00         110.00            175.00
+drat       3.9           3.9       3.85           3.08              3.15</code></pre>
+</div>
+</div>
+<p>Well that seems to have worked but it looks a little funny. The data is a matrix. It’s no longer a data frame. No big deal. We’ll convert it to a data.frame (a <code>tibble</code> in the Tidyverse).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t</span>(cars) <span class="sc">|&gt;</span> <span class="fu">as.data.frame</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     Mazda RX4 Mazda RX4 Wag Datsun 710 Hornet 4 Drive Hornet Sportabout
+mpg       21.0          21.0      22.80          21.40             18.70
+cyl        6.0           6.0       4.00           6.00              8.00
+disp     160.0         160.0     108.00         258.00            360.00
+hp       110.0         110.0      93.00         110.00            175.00
+drat       3.9           3.9       3.85           3.08              3.15</code></pre>
+</div>
+</div>
+<p>That’s better. But most of the datasets we encounter will not use rownames. The first column will contain the labels for each observation. To quote the Tidyverse documentation, “Generally, it is best to avoid row names, because they are basically a character column with different semantics than every other column.” Let’s convert the <code>cars</code> row names to a column in the data frame. This is more like the data sets we are used to but this brings up an essential issue. The row name column needs to have a name since it is now part of the data. We’ll use the <code>var</code> argument to name the new column “model”. What happens we we transpose this?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># convert cars to a data frame like we typically see</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>cars_df <span class="ot">&lt;-</span> cars <span class="sc">|&gt;</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>cars_df <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">model =</span> <span class="fu">rownames</span>(cars),cars_df)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(cars_df) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># now transpose it</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>cars_t <span class="ot">&lt;-</span> cars_df<span class="sc">|&gt;</span> <span class="fu">t</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>cars_t</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             V1            V2         V3             V4                V5
+model Mazda RX4 Mazda RX4 Wag Datsun 710 Hornet 4 Drive Hornet Sportabout
+mpg        21.0          21.0       22.8           21.4              18.7
+cyl           6             6          4              6                 8
+disp        160           160        108            258               360
+hp          110           110         93            110               175
+drat       3.90          3.90       3.85           3.08              3.15</code></pre>
+</div>
+</div>
+<p>A couple bad things have happened. When we use <code>t()</code> on a numeric matrix we are assured of getting the original matrix back, but when introducing a character column representing the row names, the <code>t()</code> function forces all the columns to be of the <code>character</code> class. Making matters worse, this happens silently to the user potentially breaking the code downstream. Secondly, the row names are lost. The first row has the column names we want, except for the first column where “model” is not the label we want for the column with the specs of each model.</p>
+<p>The way to handle this is to remove the row name column before doing the transposition. Then put it back after the transposition. But when we use <code>t()</code> to transpose the data frame this reintroduces row names, which we then have to make into a data column. Finally, we use <code>names</code> to assign our desired label column name plus original first column values as the new row.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>cars_t <span class="ot">&lt;-</span> cars_df[,<span class="sc">-</span><span class="dv">1</span>] <span class="sc">|&gt;</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">t</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>cars_t <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">rownames</span>(cars_t),cars_t)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(cars_t) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(cars_t) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"spec"</span>, cars_df[,<span class="dv">1</span>])</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>cars_t</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  spec Mazda RX4 Mazda RX4 Wag Datsun 710 Hornet 4 Drive Hornet Sportabout
+1  mpg      21.0          21.0      22.80          21.40             18.70
+2  cyl       6.0           6.0       4.00           6.00              8.00
+3 disp     160.0         160.0     108.00         258.00            360.00
+4   hp     110.0         110.0      93.00         110.00            175.00
+5 drat       3.9           3.9       3.85           3.08              3.15</code></pre>
+</div>
+</div>
+<p>We now have all the steps in place to turn this into a function. We’ll call it <code>t_df</code>. Note that while <code>t()</code> takes only one argument, <code>t_df</code> takes two. The first argument is the data but we must also supply the name of the column that will created from the row names. We assume the existing first column is going to provide the transposed row names.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>t_df <span class="ot">&lt;-</span> <span class="cf">function</span>(df, rowlabel_col_name){</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>df_t <span class="ot">&lt;-</span> df[,<span class="sc">-</span><span class="dv">1</span>] <span class="sc">|&gt;</span> </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">t</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>df_t <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">rownames</span>(df_t),df_t)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(df_t) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># weird trick. To make this function work with tibbles as well, we unlist the first column of the data frame.</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df_t) <span class="ot">&lt;-</span> <span class="fu">c</span>(rowlabel_col_name, <span class="fu">unlist</span>(<span class="fu">as.list</span>(df[,<span class="dv">1</span>])))</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>df_t</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s test it out. The acid test is if we can transpose the <code>cars_df</code> data frame twice and get back the original data frame.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>cars_df <span class="sc">|&gt;</span> <span class="fu">t_df</span>(<span class="st">"spec"</span>) <span class="sc">|&gt;</span> <span class="fu">t_df</span>(<span class="st">"model"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              model  mpg cyl disp  hp drat
+1         Mazda RX4 21.0   6  160 110 3.90
+2     Mazda RX4 Wag 21.0   6  160 110 3.90
+3        Datsun 710 22.8   4  108  93 3.85
+4    Hornet 4 Drive 21.4   6  258 110 3.08
+5 Hornet Sportabout 18.7   8  360 175 3.15</code></pre>
+</div>
+</div>
+<p>Great! Wait. How does this work on an “old-fashioned” data frame with row names? Let’s go back to <code>cars</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>cars <span class="sc">|&gt;</span> <span class="fu">t_df</span>(<span class="st">"model"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  model    21    21   22.8   21.4   18.7
+1   cyl   6.0   6.0   4.00   6.00   8.00
+2  disp 160.0 160.0 108.00 258.00 360.00
+3    hp 110.0 110.0  93.00 110.00 175.00
+4  drat   3.9   3.9   3.85   3.08   3.15</code></pre>
+</div>
+</div>
+<p>Rats! We need a function that can handle both data frames with row names and those without. We’ll let the user decide if the rownames are the labels but assume they are not.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>t_df <span class="ot">&lt;-</span> <span class="cf">function</span>(df, rowlabel_col_name,<span class="at">use_rownames =</span> <span class="cn">FALSE</span>){</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(use_rownames){</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">model =</span> <span class="fu">rownames</span>(df),df)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames</span>(df) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  df_t <span class="ot">&lt;-</span> df[,<span class="sc">-</span><span class="dv">1</span>] <span class="sc">|&gt;</span> </span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">t</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.data.frame</span>()</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  df_t <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">rownames</span>(df_t),df_t)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames</span>(df_t) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(df_t) <span class="ot">&lt;-</span> <span class="fu">c</span>(rowlabel_col_name, <span class="fu">unlist</span>(<span class="fu">as.list</span>(df[,<span class="dv">1</span>])))</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  df_t</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>cars <span class="sc">|&gt;</span> <span class="fu">t_df</span>(<span class="st">"spec"</span>,<span class="at">use_rownames =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  spec Mazda RX4 Mazda RX4 Wag Datsun 710 Hornet 4 Drive Hornet Sportabout
+1  mpg      21.0          21.0      22.80          21.40             18.70
+2  cyl       6.0           6.0       4.00           6.00              8.00
+3 disp     160.0         160.0     108.00         258.00            360.00
+4   hp     110.0         110.0      93.00         110.00            175.00
+5 drat       3.9           3.9       3.85           3.08              3.15</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>cars_df <span class="sc">|&gt;</span> <span class="fu">t_df</span>(<span class="st">"spec"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  spec Mazda RX4 Mazda RX4 Wag Datsun 710 Hornet 4 Drive Hornet Sportabout
+1  mpg      21.0          21.0      22.80          21.40             18.70
+2  cyl       6.0           6.0       4.00           6.00              8.00
+3 disp     160.0         160.0     108.00         258.00            360.00
+4   hp     110.0         110.0      93.00         110.00            175.00
+5 drat       3.9           3.9       3.85           3.08              3.15</code></pre>
+</div>
+</div>
+<p>But there is one thing that is bugging me. There is no warning that numeric data will be changed to character data when numeric and character columns are tranposed. We can add a check to see is all the columns after the first are the same data type. If not issue a warning. What happens if we mix <code>logical</code> and <code>numeric</code> or <code>double</code> and <code>integer</code>. Also, we can add a check to see if rowlabel_col_name is a duplicate of other columns and warn about it.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>t_df <span class="ot">&lt;-</span> <span class="cf">function</span>(df, <span class="at">rowlabel_col_name =</span> <span class="st">"item"</span>,<span class="at">use_rownames =</span> <span class="cn">FALSE</span>){</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(use_rownames){</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">model =</span> <span class="fu">rownames</span>(df),df)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames</span>(df) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">length</span>(<span class="fu">unique</span>(<span class="fu">sapply</span>(df[,<span class="sc">-</span><span class="dv">1</span>], class))) <span class="sc">&gt;</span> <span class="dv">1</span>){</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">warning</span>(<span class="st">"There are a mix of data types in the data columns.  They will be coerced to a single type.</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(rowlabel_col_name <span class="sc">%in%</span> df[,<span class="dv">1</span>]){</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">warning</span>(<span class="st">"The rowname column name is a duplicate of another column name.  Changing to 'item'</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    rowlabel_col_name <span class="ot">&lt;-</span> <span class="st">"item"</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  df_t <span class="ot">&lt;-</span> df[,<span class="sc">-</span><span class="dv">1</span>] <span class="sc">|&gt;</span> </span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">t</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.data.frame</span>()</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  df_t <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">rownames</span>(df_t),df_t)</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames</span>(df_t) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(df_t) <span class="ot">&lt;-</span> <span class="fu">c</span>(rowlabel_col_name, <span class="fu">unlist</span>(<span class="fu">as.list</span>(df[,<span class="dv">1</span>])))</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>  df_t</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a><span class="co"># cars_df |&gt; t_df("spec")</span></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>cars_df <span class="sc">|&gt;</span> <span class="fu">cbind</span>(<span class="at">char_val =</span> <span class="st">"stuff"</span>) <span class="sc">|&gt;</span> <span class="fu">t_df</span>(<span class="st">"spec"</span>) <span class="sc">|&gt;</span> <span class="fu">t_df</span>(<span class="st">"mpg"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(cbind(cars_df, char_val = "stuff"), "spec"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(t_df(cbind(cars_df, char_val = "stuff"), "spec"), "mpg"): The rowname column name is a duplicate of another column name.  Changing to 'item'</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               item  mpg cyl disp  hp drat char_val
+1         Mazda RX4 21.0   6  160 110 3.90    stuff
+2     Mazda RX4 Wag 21.0   6  160 110 3.90    stuff
+3        Datsun 710 22.8   4  108  93 3.85    stuff
+4    Hornet 4 Drive 21.4   6  258 110 3.08    stuff
+5 Hornet Sportabout 18.7   8  360 175 3.15    stuff</code></pre>
+</div>
+</div>
+<p>I’m happy with this. While there are choices to be made when transposing a data frame, as opposed to a matrix, this function is quite robust. We’ve deliberately done all this in “base R.” Quickly, let’s look at two more methods and compare them all for speed.</p>
+<p>Let’s look at the Tidyverse. More recent versions of <code>dplyr</code> have <code>pivot_longer</code> and <code>pivot_wider</code> functions that can be used to transpose a data frame. We flip the data into long format and then back to wide format but with different columns. Looks simple!</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>(<span class="fu">library</span>(tidyverse))</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>cars_df <span class="sc">|&gt;</span> </span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="sc">-</span>model, <span class="at">names_to =</span> <span class="st">"spec"</span>, <span class="at">values_to =</span> <span class="st">"value"</span>, <span class="at">values_drop_na =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> model, <span class="at">values_from =</span> value)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 6
+  spec  `Mazda RX4` `Mazda RX4 Wag` `Datsun 710` `Hornet 4 Drive`
+  &lt;chr&gt;       &lt;dbl&gt;           &lt;dbl&gt;        &lt;dbl&gt;            &lt;dbl&gt;
+1 mpg          21              21          22.8             21.4 
+2 cyl           6               6           4                6   
+3 disp        160             160         108              258   
+4 hp          110             110          93              110   
+5 drat          3.9             3.9         3.85             3.08
+# ℹ 1 more variable: `Hornet Sportabout` &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>Like before we’ll turn this into a function and we’ll put the same error checks in place. We’ll call it <code>t_tidy</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>t_tidy <span class="ot">&lt;-</span> <span class="cf">function</span>(df, <span class="at">rowlabel_col_name =</span> <span class="st">"item"</span>,<span class="at">use_rownames =</span> <span class="cn">FALSE</span>){</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(use_rownames){</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    df <span class="ot">&lt;-</span> <span class="fu">rownames_to_column</span>(df, <span class="at">var =</span> <span class="st">"item"</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(df)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(<span class="fu">length</span>(<span class="fu">unique</span>(<span class="fu">sapply</span>(df[,<span class="sc">-</span><span class="dv">1</span>], class))) <span class="sc">&gt;</span> <span class="dv">1</span>){</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">warning</span>(<span class="st">"There are a mix of data types in the data columns.  They will be coerced to character.</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>      df <span class="ot">&lt;-</span> df <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">everything</span>(), as.character))</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(rowlabel_col_name <span class="sc">%in%</span> <span class="fu">pull</span>(df[,<span class="dv">1</span>])){</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">warning</span>(<span class="st">"The rowname column name is a duplicate of another column name.  Changing to 'row_label'</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>    rowlabel_col_name <span class="ot">&lt;-</span> <span class="st">"item"</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  df <span class="sc">|&gt;</span> </span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="sc">-</span><span class="dv">1</span>, <span class="at">names_to =</span> rowlabel_col_name, <span class="at">values_to =</span> <span class="st">"value"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> <span class="fu">names</span>(df)[<span class="dv">1</span>], <span class="at">values_from =</span> value)</span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>cars_df <span class="sc">|&gt;</span> <span class="fu">t_tidy</span>(<span class="st">"spec"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 6
+  spec  `Mazda RX4` `Mazda RX4 Wag` `Datsun 710` `Hornet 4 Drive`
+  &lt;chr&gt;       &lt;dbl&gt;           &lt;dbl&gt;        &lt;dbl&gt;            &lt;dbl&gt;
+1 mpg          21              21          22.8             21.4 
+2 cyl           6               6           4                6   
+3 disp        160             160         108              258   
+4 hp          110             110          93              110   
+5 drat          3.9             3.9         3.85             3.08
+# ℹ 1 more variable: `Hornet Sportabout` &lt;dbl&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>cars <span class="sc">|&gt;</span> <span class="fu">t_tidy</span>(<span class="st">"spec"</span>,<span class="at">use_rownames =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 6
+  spec  `Mazda RX4` `Mazda RX4 Wag` `Datsun 710` `Hornet 4 Drive`
+  &lt;chr&gt;       &lt;dbl&gt;           &lt;dbl&gt;        &lt;dbl&gt;            &lt;dbl&gt;
+1 mpg          21              21          22.8             21.4 
+2 cyl           6               6           4                6   
+3 disp        160             160         108              258   
+4 hp          110             110          93              110   
+5 drat          3.9             3.9         3.85             3.08
+# ℹ 1 more variable: `Hornet Sportabout` &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>Finally, we’ll look at the <code>data.table</code> package.</p>
+<p>If you’re a fan of the speedy <code>data.table</code> package, there is <code>transpose</code> function that works just like the <code>t()</code> function so it’s a simple matter to adapt our <code>t_df</code> function to use <code>data.table</code> instead of <code>t()</code>. We’ll call it <code>t_dt</code>. Once again, we validate the function by transposing the <code>cars_df</code> data frame twice and comparing the result to the original data frame.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>(<span class="fu">library</span>(data.table))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'data.table' was built under R version 4.3.2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>t_dt <span class="ot">&lt;-</span> <span class="cf">function</span>(df, <span class="at">rowlabel_col_name =</span> <span class="st">"item"</span>) {</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">as.data.table</span>(df)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(<span class="fu">unique</span>(<span class="fu">sapply</span>(df[, <span class="sc">-</span><span class="dv">1</span>], class))) <span class="sc">&gt;</span> <span class="dv">1</span>) {</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">warning</span>(</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>      <span class="st">"There are a mix of data types in the data columns.  They will be coerced to a single type.</span><span class="sc">\n</span><span class="st">"</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (rowlabel_col_name <span class="sc">%in%</span> df[, <span class="dv">1</span>]) {</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">warning</span>(</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>      <span class="st">"The rowname column name is a duplicate of another column name.  Changing to 'row_label'</span><span class="sc">\n</span><span class="st">"</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>    rowlabel_col_name <span class="ot">&lt;-</span> <span class="st">"item"</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>  df_t <span class="ot">&lt;-</span> df[, <span class="sc">-</span><span class="dv">1</span>] <span class="sc">|&gt;</span></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">transpose</span>()</span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>  df_t <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">V0 =</span> <span class="fu">names</span>(df)[<span class="sc">-</span><span class="dv">1</span>], df_t)</span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rownames</span>(df_t) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(df_t) <span class="ot">&lt;-</span> <span class="fu">c</span>(rowlabel_col_name, <span class="fu">unlist</span>(<span class="fu">as.list</span>(df[, <span class="dv">1</span>])))</span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>  df_t</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>cars_df <span class="sc">|&gt;</span> <span class="fu">t_df</span>(<span class="st">"spec"</span>) <span class="sc">|&gt;</span> <span class="fu">t_df</span>(<span class="st">"model"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              model  mpg cyl disp  hp drat
+1         Mazda RX4 21.0   6  160 110 3.90
+2     Mazda RX4 Wag 21.0   6  160 110 3.90
+3        Datsun 710 22.8   4  108  93 3.85
+4    Hornet 4 Drive 21.4   6  258 110 3.08
+5 Hornet Sportabout 18.7   8  360 175 3.15</code></pre>
+</div>
+</div>
+<p>Let’s finish with a function face-off! We’ll benchmark the three methods.</p>
+<div class="cell" data-warning="false">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>(<span class="fu">library</span>(microbenchmark))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'microbenchmark' was built under R version 4.3.2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">microbenchmark</span>(<span class="at">times =</span> <span class="dv">100</span>,</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">t_df =</span> cars_df <span class="sc">|&gt;</span> <span class="fu">t_df</span>(<span class="st">"spec"</span>),</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">t_tidy =</span> cars_df <span class="sc">|&gt;</span> <span class="fu">t_tidy</span>(<span class="st">"spec"</span>),</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">t_dt =</span> cars_df <span class="sc">|&gt;</span> <span class="fu">t_dt</span>(<span class="st">"spec"</span>)</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Unit: microseconds
+   expr    min      lq     mean  median      uq     max neval
+   t_df  216.6  249.80  276.978  278.05  289.90   438.8   100
+ t_tidy 5419.8 5649.85 5990.964 5797.85 5997.25  9227.1   100
+   t_dt  562.6  635.35  864.138  681.80  738.10 12046.7   100</code></pre>
+</div>
+</div>
+<p>How much of this time difference is due to coercing the data frame to a tibble or data.table? Let’s test that out.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">microbenchmark</span>(<span class="at">times =</span> <span class="dv">100</span>,</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">t_df =</span> <span class="fu">data.frame</span>(cars_df),</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">t_tibble =</span> <span class="fu">tibble</span>(cars_df),</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">t_as_tibble =</span> <span class="fu">as_tibble</span>(cars_df),</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">t_dt =</span> <span class="fu">data.table</span>(cars_df),</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">t_as.dt =</span> <span class="fu">as.data.table</span>(cars_df)</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Unit: microseconds
+        expr   min     lq    mean median     uq   max neval
+        t_df  35.4  48.25  53.940  54.95  57.75 139.2   100
+    t_tibble 189.9 211.50 228.040 224.50 234.60 493.8   100
+ t_as_tibble  67.0  81.65  91.334  87.65  99.00 215.3   100
+        t_dt 178.3 197.35 218.705 211.50 221.55 480.6   100
+     t_as.dt  45.9  52.80  60.249  59.25  66.50 112.8   100</code></pre>
+</div>
+</div>
+<p>Let’s benchmark a data frame with mixed data types, <code>iris</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">microbenchmark</span>(<span class="at">times =</span> <span class="dv">100</span>,</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">t_df =</span> iris <span class="sc">|&gt;</span> <span class="fu">t_df</span>(<span class="st">"observation"</span>),</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">t_tidy =</span> iris <span class="sc">|&gt;</span> <span class="fu">t_tidy</span>(<span class="st">"observation"</span>),</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">t_dt =</span> iris <span class="sc">|&gt;</span> <span class="fu">t_dt</span>(<span class="st">"observation"</span>)</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.
+
+Warning in t_df(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_dt(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to a single type.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in t_tidy(iris, "observation"): There are a mix of data types in the data columns.  They will be coerced to character.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `value` are not uniquely identified; output will contain list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} %&gt;%
+  dplyr::group_by(observation, Sepal.Length) %&gt;%
+  dplyr::summarise(n = dplyr::n(), .groups = "drop") %&gt;%
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Unit: microseconds
+   expr     min       lq      mean   median       uq     max neval
+   t_df   935.6  1031.25  1109.057  1097.75  1171.75  1454.3   100
+ t_tidy 81832.1 83544.90 85616.448 85257.50 87271.65 95516.0   100
+   t_dt  2529.9  2737.20  2945.427  2856.05  2910.20  5939.5   100</code></pre>
+</div>
+</div>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

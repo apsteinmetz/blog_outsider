@@ -1,0 +1,231 @@
+---
+title: "Transpose a Data Frame"
+description: |
+  A more robust method of transposing a data frame in three vernaculars.
+author: Art Steinmetz
+date: 2024-02-03
+draft: true
+---
+
+Sometimes you need to transpose a data frame. That is, you need to convert the rows to columns and the columns to rows. The `t()` function is the go-to way of transposition in base R but it is designed for matrices of entirely numeric data.  Let's see what it does with the `mtcars` data frame.  We'll take a subset of `mtcars` to save some pixels.
+
+```{r}
+cars <- mtcars[1:5,1:5]
+cars
+```
+
+```{r}
+t(cars)
+```
+Well that seems to have worked but it looks a little funny.  The data is a matrix.  It's no longer a data frame.  No big deal.  We'll convert it to a data.frame (a `tibble` in the Tidyverse).
+```{r}
+t(cars) |> as.data.frame()
+```
+That's better.  But most of the datasets we encounter will not use rownames.  The first column will contain the labels for each observation.  To quote the Tidyverse documentation, "Generally, it is best to avoid row names, because they are basically a character column with different semantics than every other column." Let's convert the `cars` row names to a column in the data frame.  This is more like the data sets we are used to but this brings up an essential issue.  The row name column needs to have a name since it is now part of the data.  We'll use the `var` argument to name the new column "model".  What happens we we transpose this?
+
+```{r}
+
+# convert cars to a data frame like we typically see
+cars_df <- cars |> 
+  as.data.frame()
+
+cars_df <- cbind(model = rownames(cars),cars_df)
+rownames(cars_df) <- NULL
+
+# now transpose it
+cars_t <- cars_df|> t() |> 
+  as.data.frame()
+
+cars_t
+```
+A couple bad things have happened.   When we use `t()` on a numeric matrix we are assured of getting  the original matrix back, but when introducing a character column representing the row names, the `t()` function forces all the columns to be of the `character` class.  Making matters worse, this happens silently to the user potentially breaking the code downstream. Secondly, the row names are lost. The first row has the column names we want, except for the first column where "model" is not the label we want for the column with the specs of each model.
+
+The way to handle this is to remove the row name column before doing the transposition. Then put it back after the transposition. But when we use `t()` to transpose the data frame this reintroduces row names, which we then have to make into a data column.  Finally, we use `names` to assign our desired label column name plus original first column values as the new row.
+
+```{r}
+cars_t <- cars_df[,-1] |> 
+  t() |> 
+  as.data.frame()
+
+cars_t <- cbind(rownames(cars_t),cars_t)
+rownames(cars_t) <- NULL
+names(cars_t) <- c("spec", cars_df[,1])
+
+cars_t
+```
+We now have all the steps in place to turn this into a function.  We'll call it `t_df`. Note that while `t()` takes only one argument, `t_df` takes two.  The first argument is the data but we must also supply the name of the column that will created from the row names. We assume the existing first column is going to provide the transposed row names.  
+
+
+```{r}
+t_df <- function(df, rowlabel_col_name){
+df_t <- df[,-1] |> 
+  t() |> 
+  as.data.frame()
+df_t <- cbind(rownames(df_t),df_t)
+rownames(df_t) <- NULL
+# weird trick. To make this function work with tibbles as well, we unlist the first column of the data frame.
+names(df_t) <- c(rowlabel_col_name, unlist(as.list(df[,1])))
+df_t
+}
+```
+Let's test it out.  The acid test is if we can transpose the `cars_df` data frame twice and get back the original data frame.
+
+```{r}
+cars_df |> t_df("spec") |> t_df("model")
+```
+Great!  Wait. How does this work on an "old-fashioned" data frame with row names?  Let's go back to `cars`.
+
+
+```{r}
+cars |> t_df("model")
+```
+Rats!  We need a function that can handle both data frames with row names and those without.  We'll let the user decide if the rownames are the labels but assume they are not.
+
+```{r}
+t_df <- function(df, rowlabel_col_name,use_rownames = FALSE){
+  if(use_rownames){
+  df <- cbind(model = rownames(df),df)
+  rownames(df) <- NULL
+  }
+  df_t <- df[,-1] |> 
+    t() |> 
+    as.data.frame()
+  df_t <- cbind(rownames(df_t),df_t)
+  rownames(df_t) <- NULL
+  names(df_t) <- c(rowlabel_col_name, unlist(as.list(df[,1])))
+  df_t
+}
+
+cars |> t_df("spec",use_rownames = TRUE)
+cars_df |> t_df("spec")
+
+
+```
+
+
+
+But there is one thing that is bugging me.  There is no warning that numeric data will be changed to character data when numeric and character columns are tranposed.  We can add a check to see is all the columns after the first are the same data type. If not issue a warning. What happens if we mix `logical` and `numeric` or `double` and `integer`. Also, we can add a check to see if rowlabel_col_name is a duplicate of other columns and warn about it.
+```{r}
+t_df <- function(df, rowlabel_col_name = "item",use_rownames = FALSE){
+  if(use_rownames){
+  df <- cbind(model = rownames(df),df)
+  rownames(df) <- NULL
+  }
+  if(length(unique(sapply(df[,-1], class))) > 1){
+    warning("There are a mix of data types in the data columns.  They will be coerced to a single type.\n")
+  }
+  if(rowlabel_col_name %in% df[,1]){
+    warning("The rowname column name is a duplicate of another column name.  Changing to 'item'\n")
+    rowlabel_col_name <- "item"
+  }
+  df_t <- df[,-1] |> 
+    t() |> 
+    as.data.frame()
+  df_t <- cbind(rownames(df_t),df_t)
+  rownames(df_t) <- NULL
+names(df_t) <- c(rowlabel_col_name, unlist(as.list(df[,1])))
+  df_t
+}
+
+# cars_df |> t_df("spec")
+cars_df |> cbind(char_val = "stuff") |> t_df("spec") |> t_df("mpg")
+```
+I'm happy with this.  While there are choices to be made when transposing a data frame, as opposed to a matrix, this function is quite robust.  We've deliberately done all this in "base R."  Quickly, let's look at two more methods and compare them all for speed. 
+
+Let's look at the Tidyverse. More recent versions of `dplyr` have `pivot_longer` and `pivot_wider` functions that can be used to transpose a data frame.  We flip the data into long format and then back to wide format but with different columns.  Looks simple!
+```{r}
+#| warning: FALSE
+suppressPackageStartupMessages(library(tidyverse))
+
+cars_df |> 
+  pivot_longer(cols = -model, names_to = "spec", values_to = "value", values_drop_na = TRUE) |> 
+  pivot_wider(names_from = model, values_from = value)
+```
+Like before we'll turn this into a function and we'll put the same error checks in place.  We'll call it `t_tidy`.  If row names exist convert them to a column, otherwise just use the first column.  Unlike the function above, we just assume. We don't give the user a choice. Let's show how it works with and without row names.
+
+```{r}
+t_tidy <- function(df, rowlabel_col_name = "item"){
+  if(has_rownames(df)){
+      df <- rownames_to_column(df, var = "V0")
+  }
+  df <- as_tibble(df)
+  if(length(unique(sapply(df[,-1], class))) > 1){
+    warning("There are a mix of data types in the data columns.  They will be coerced to character.\n")
+      df <- df |> mutate(across(everything(), as.character))
+  }
+  if(rowlabel_col_name %in% pull(df[,1])){
+    warning("The rowname column name is a duplicate of another column name.  Changing to 'item'\n")
+    rowlabel_col_name <- "item"
+  }
+
+  df |> 
+    pivot_longer(cols = -1, names_to = rowlabel_col_name, values_to = "value",names_repair = "unique") |> 
+    pivot_wider(names_from = names(df)[1], values_from = value)
+}
+
+cars_df |> t_tidy("item") |> t_tidy()
+cars |> t_tidy("item")
+
+
+```
+Finally, we'll look at the `data.table` package.
+
+
+If you're a fan of the speedy `data.table` package, there is `transpose`  function that works just like the `t()` function so it's a simple matter to adapt our `t_df` function to use `data.table` instead of `t()`.  We'll call it `t_dt`.  Once again, we validate the function by transposing the `cars_df` data frame twice and comparing the result to the original data frame.
+
+```{r}
+suppressPackageStartupMessages(library(data.table))
+t_dt <- function(df, rowlabel_col_name = "item") {
+  df <- as.data.table(df)
+  if (length(unique(sapply(df[, -1], class))) > 1) {
+    warning(
+      "There are a mix of data types in the data columns.  They will be coerced to a single type.\n"
+    )
+  }
+  if (rowlabel_col_name %in% df[, 1]) {
+    warning(
+      "The rowname column name is a duplicate of another column name.  Changing to 'row_label'\n"
+    )
+    rowlabel_col_name <- "item"
+  }
+  df_t <- df[, -1] |>
+    transpose()
+  df_t <- cbind(V0 = names(df)[-1], df_t)
+  rownames(df_t) <- NULL
+  names(df_t) <- c(rowlabel_col_name, unlist(as.list(df[, 1])))
+  df_t
+}
+
+cars_df |> t_df("spec") |> t_df("model")
+```
+Let's finish with a function face-off! We'll benchmark the three methods.
+```{r}
+#| Warning: FALSE
+suppressPackageStartupMessages(library(microbenchmark))
+microbenchmark(times = 100,
+  t_df = cars_df |> t_df("spec"),
+  t_tidy = cars_df |> t_tidy("spec"),
+  t_dt = cars_df |> t_dt("spec")
+)
+
+```
+How much of this time difference is due to coercing the data frame to a tibble or data.table?  Let's test that out.
+```{r}
+microbenchmark(times = 100,
+  t_df = data.frame(cars_df),
+  t_tibble = tibble(cars_df),
+  t_as_tibble = as_tibble(cars_df),
+  t_dt = data.table(cars_df),
+  t_as.dt = as.data.table(cars_df)
+)
+```
+Let's benchmark a data frame with mixed data types, `iris`
+```{r}
+microbenchmark(times = 100,
+  t_df = iris |> t_df("observation"),
+  t_tidy = iris |> t_tidy("observation"),
+  t_dt = iris |> t_dt("observation")
+)
+```
+
+
