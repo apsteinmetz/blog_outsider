@@ -128,6 +128,7 @@ names(df_t) <- c(rowlabel_col_name, unlist(as.list(df[,1])))
 }
 
 # cars_df |> t_df("spec")
+cars |> t_df(use_rownames = TRUE) |> t_df("item")
 cars_df |> cbind(char_val = "stuff") |> t_df("spec") |> t_df("mpg")
 ```
 I'm happy with this.  While there are choices to be made when transposing a data frame, as opposed to a matrix, this function is quite robust.  We've deliberately done all this in "base R."  Quickly, let's look at two more methods and compare them all for speed. 
@@ -141,42 +142,42 @@ cars_df |>
   pivot_longer(cols = -model, names_to = "spec", values_to = "value", values_drop_na = TRUE) |> 
   pivot_wider(names_from = model, values_from = value)
 ```
-Like before we'll turn this into a function and we'll put the same error checks in place.  We'll call it `t_tidy`.  If row names exist convert them to a column, otherwise just use the first column.  Unlike the function above, we just assume. We don't give the user a choice. Let's show how it works with and without row names.
+Like before we'll turn this into a function and we'll put the same error checks in place.  We'll call it `t_tidy`.  If row names exist convert them to a column, otherwise just use the first column.  Unlike the function above, we just assume. We don't give the user a choice. Also, we have to guard against accidental creation of a duplicate column name in the `pivot_longer()` even though we already checked once. Let's show how it works with and without row names.
 
 ```{r}
 t_tidy <- function(df, rowlabel_col_name = "item"){
   if(has_rownames(df)){
-      df <- rownames_to_column(df, var = "V0")
+    df <- rownames_to_column(df, var = "V0")
   }
   df <- as_tibble(df)
   if(length(unique(sapply(df[,-1], class))) > 1){
     warning("There are a mix of data types in the data columns.  They will be coerced to character.\n")
-      df <- df |> mutate(across(everything(), as.character))
+    df <- df |> mutate(across(everything(), as.character))
   }
   if(rowlabel_col_name %in% pull(df[,1])){
-    warning("The rowname column name is a duplicate of another column name.  Changing to 'item'\n")
-    rowlabel_col_name <- "item"
+    warning("The rowname column name is a duplicate of another column name.  Changing\n")
+    rowlabel_col_name <- paste0(rowlabel_col_name,"..2")
   }
 
-  df |> 
-    pivot_longer(cols = -1, names_to = rowlabel_col_name, values_to = "value",names_repair = "unique") |> 
-    pivot_wider(names_from = names(df)[1], values_from = value)
+  df |>
+    pivot_longer(cols = -1, names_to = rowlabel_col_name, values_to = "value",names_repair = "unique") |>
+    rename_with(~ rowlabel_col_name, .cols = 2) |>
+    pivot_wider(names_from = 1, values_from = value)
 }
 
-cars_df |> t_tidy("item") |> t_tidy()
-cars |> t_tidy("item")
-
+cars_df |> t_tidy() |> t_tidy("mpg")
+cars |> t_tidy("spec")
+cars_df |> cbind(char_val = "stuff") |> t_tidy("spec") |> t_tidy("mpg")
 
 ```
 Finally, we'll look at the `data.table` package.
 
 
-If you're a fan of the speedy `data.table` package, there is `transpose`  function that works just like the `t()` function so it's a simple matter to adapt our `t_df` function to use `data.table` instead of `t()`.  We'll call it `t_dt`.  Once again, we validate the function by transposing the `cars_df` data frame twice and comparing the result to the original data frame.
+If you're a fan of the speedy `data.table` package, there is `transpose`  function that works just like the `t()` function so it's a simple matter to adapt our `t_df` function to use `data.table` instead of `t()`.  We'll call it `t_dt`.  Note you do NOT have to coerce the data frame to a `data.table` object before using `transpose()`. Once again, we validate the function by transposing the `cars_df` data frame twice and comparing the result to the original data frame.
 
 ```{r}
 suppressPackageStartupMessages(library(data.table))
 t_dt <- function(df, rowlabel_col_name = "item") {
-  df <- as.data.table(df)
   if (length(unique(sapply(df[, -1], class))) > 1) {
     warning(
       "There are a mix of data types in the data columns.  They will be coerced to a single type.\n"
@@ -189,7 +190,7 @@ t_dt <- function(df, rowlabel_col_name = "item") {
     rowlabel_col_name <- "item"
   }
   df_t <- df[, -1] |>
-    transpose()
+    data.table::transpose()
   df_t <- cbind(V0 = names(df)[-1], df_t)
   rownames(df_t) <- NULL
   names(df_t) <- c(rowlabel_col_name, unlist(as.list(df[, 1])))
@@ -200,8 +201,9 @@ cars_df |> t_df("spec") |> t_df("model")
 ```
 Let's finish with a function face-off! We'll benchmark the three methods.
 ```{r}
-#| Warning: FALSE
+#| warning: FALSE
 suppressPackageStartupMessages(library(microbenchmark))
+
 microbenchmark(times = 100,
   t_df = cars_df |> t_df("spec"),
   t_tidy = cars_df |> t_tidy("spec"),
@@ -209,23 +211,23 @@ microbenchmark(times = 100,
 )
 
 ```
-How much of this time difference is due to coercing the data frame to a tibble or data.table?  Let's test that out.
-```{r}
-microbenchmark(times = 100,
-  t_df = data.frame(cars_df),
-  t_tibble = tibble(cars_df),
-  t_as_tibble = as_tibble(cars_df),
-  t_dt = data.table(cars_df),
-  t_as.dt = as.data.table(cars_df)
-)
-```
-Let's benchmark a data frame with mixed data types, `iris`
-```{r}
-microbenchmark(times = 100,
-  t_df = iris |> t_df("observation"),
-  t_tidy = iris |> t_tidy("observation"),
-  t_dt = iris |> t_dt("observation")
-)
-```
 
+The `data.table` method is the fastest, but the base R method is not far behind.  Let's make the challenge more interesting with a larger dataset. We'll use the `AssociatedPress` story data set from `topiocmodels` and convert a term document matrix into a document term matrix by tranposition.  this matrix has over 23.5 million elements.
+```{r}
+#| warning: FALSE
+
+library(topicmodels)
+library(tidytext)
+data("AssociatedPress")
+# make a term document matrix
+ap <- AssociatedPress |> tidy() |> 
+  pivot_wider(names_from = document, values_from = count)
+
+
+microbenchmark::microbenchmark(times = 1,
+  as_tibble(t_df(ap),.name_repair = "unique"),
+  t_tidy(ap),
+  t_dt(ap) |> as_tibble(.name_repair = "unique")
+)
+```
 
