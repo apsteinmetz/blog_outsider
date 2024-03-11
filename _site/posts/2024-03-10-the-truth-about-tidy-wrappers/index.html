@@ -260,7 +260,7 @@ gtag('config', 'G-BVDKXJLKEL', { 'anonymize_ip': true});
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <section id="the-tidyverse" class="level2">
 <h2 class="anchored" data-anchor-id="the-tidyverse">The Tidyverse</h2>
-<p>I love “The Tidyverse” from <a href="https://posit.co/">Posit.co</a>. The biggest evolution of the R language ecosystem since its inception was the introduction of <code>dplyr</code> and, subsequently, dozens of related packages. <code>dplyr</code> established what is, in effect, a new vernacular for manipulating data frames that is supremely readable. This is not welcome by everyone as verbosity is preferred in the Tidyverse over conciseness. Consider two snippets of code that summarize a column of numbers, the first in base R and the second using dplyr.</p>
+<p>I love the <strong>Tidyverse</strong> from <a href="https://posit.co/">Posit.co</a>. The biggest evolution of the R language ecosystem since its inception was the introduction of <strong>dplyr</strong> and, subsequently, dozens of related packages. <strong>dplyr</strong> established what is, in effect, a new vernacular for manipulating data frames that is supremely readable. This is not welcome by everyone as verbosity is preferred in the Tidyverse over conciseness. Consider two snippets of code that summarize a column of numbers, the first in base R and the second using dplyr.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># base R</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>do_base <span class="ot">&lt;-</span> <span class="cf">function</span>(df) {</span>
@@ -279,15 +279,15 @@ gtag('config', 'G-BVDKXJLKEL', { 'anonymize_ip': true});
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">summarize</span>(<span class="at">high =</span> <span class="fu">max</span>(temp), <span class="at">low =</span> <span class="fu">min</span>(temp), <span class="at">avg =</span> <span class="fu">mean</span>(temp))</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>   }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The first example is hard to decipher while the second is quite understandable without even knowing what the purpose of the function is. As it happens, <code>dplyr</code> is also usually faster than base R by a fair amount.</p>
+<p>The first example is hard to decipher while the second is quite understandable without even knowing what the purpose of the function is. As it happens, <strong>dplyr</strong> is also usually faster than base R by a fair amount.</p>
 </section>
 <section id="the-need-for-speed" class="level2">
 <h2 class="anchored" data-anchor-id="the-need-for-speed">The Need for Speed</h2>
-<p>As we start working with larger and larger datasets, the basic tools of the tidyverse start to look a little slow. In the last few years several packages more suited to large datasets have emerged. Some of these are column, rather than row, oriented. Some use parallel processing. Some are vector optimized. Speedy databases that have made their way into the R ecosystem are <code>data.table</code>, <code>Arrow</code>, <code>polars</code> and <code>duckdb</code>. All of these are available for Python as well. Each of these carries with it its own interface and learning curve. <code>duckdb', for example is a dialect of SQL, an entirely different language so our</code>dplyr` code above has to look like this in SQL:</p>
+<p>As we start working with larger and larger datasets, the basic tools of the tidyverse start to look a little slow. In the last few years several packages more suited to large datasets have emerged. Some of these are column, rather than row, oriented. Some use parallel processing. Some are vector optimized. Speedy databases that have made their way into the R ecosystem are <strong>data.table</strong>, <strong>arrow</strong>, <strong>polars</strong> and <strong>duckdb</strong>. All of these are available for Python as well. Each of these carries with it its own interface and learning curve. <strong>duckdb</strong>, for example is a dialect of SQL, an entirely different language so our <strong>dplyr</strong> code above has to look like this in SQL:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">dbGetQuery</span>(</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>         con,</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>         <span class="st">"SELECT city, AVG(temp) as avg, MIN(temp) as low, MAX(temp) as high FROM duck_df GROUP BY city"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>It’s pretty readable but if you don’t know the lingo, translating will slow you down. Fear not! Help is at hand. Everyone of these database packages has a <code>dplyr</code> vernacular wrapper. This is a huge convenience. You can write the readable <code>dplyr</code> code and it just works. Switching between and testing all of these databases requires only minor changes in your code.</p>
+<p>It’s pretty readable but if you don’t know the lingo, translating will slow you down. Fear not! Help is at hand. Everyone of these database packages has a <strong>dplyr</strong> vernacular wrapper. This is a huge convenience. You can write the readable <strong>dplyr</strong> code and it just works. Switching between and testing all of these databases requires only minor changes in your code.</p>
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -302,15 +302,15 @@ Note
 </div>
 </div>
 <p>When looking at these alt-databases you may be tempted to simply ask “which is fastest?” This is not a simple question. The answer will depend on the size of the dataset, the nature of the manipulations, and the hardware you are using. You can get a sense of the relative speeds by looking at <a href="https://duckdblabs.github.io/db-benchmark/">these comprehensive benchmarks</a>.</p>
-<p>If you want to continue to use the<code>tidyverse</code> vernacular, the question changes. <strong>It’s not “which is fastest,” but “which is fastest using the <code>dplyr</code> syntax?”</strong> The answer, as it turns out, is very different for the second question.</p>
-<p>The <code>dplyr</code> wrappers are not a free lunch. There are two sources of overhead that mean the <code>dplyr</code> code should be slightly slower than using the native interface. First, the dataset, which might start out as a typical R data frame, must be converted into the target database format. Second, some time must be taken to convert the <code>dplyr</code> code to the target database code. Obviously, if your dataset is already in the file format of the database package, the first issue goes away.</p>
+<p>If you want to continue to use the <strong>tidyverse</strong> vernacular, the question changes. <strong>It’s not “which is fastest,” but “which is fastest using the dplyr syntax?”</strong> The answer, as it turns out, is very different for the second question.</p>
+<p>The <strong>dplyr</strong> wrappers are not a free lunch. There are two sources of overhead that mean the <strong>dplyr</strong> code should be slightly slower than using the native interface. First, the dataset, which might start out as a typical R data frame, must be converted into the target database format. Second, some time must be taken to convert the <strong>dplyr</strong> code to the target database code. Obviously, if your dataset is already in the file format of the database package, the first issue goes away.</p>
 <p>In this experiment we will address three questions.</p>
 <ol type="1">
-<li>How much faster (if at all) are the “alt-database” packages than the Tidyverse <code>dplyr</code> package. We use the native data frame format throughout the pipeline.</li>
+<li>How much faster (if at all) are the “alt-database” packages than the Tidyverse <strong>dplyr</strong> package. We use the native data frame format throughout the pipeline.</li>
 <li>How much of a performance hit do we take if we use the Tidyverse wrappers to analyze alt-database data sets, still using the native format.</li>
-<li>Suppose we want to work with Tidyverse R data frames (e.g.&nbsp;<code>tibbles</code>). Do the all-database engines still give us a speed benefit if we include the time to convert <code>tibble</code>s into an alt-database format before doing typical manipulations.</li>
+<li>Suppose we want to work with Tidyverse R data frames (e.g.&nbsp;<strong>tibbles</strong>). Do the all-database engines still give us a speed benefit if we include the time to convert <strong>tibble</strong>s into an alt-database format before doing typical manipulations.</li>
 </ol>
-<p>The inspiration for this project came from the “Billion Row Challenge,” <a href="https://www.morling.dev/blog/one-billion-row-challenge/">proposed by Gunnar Morling</a>, to see how fast a Java program can aggregate one billion rows of data. Here, we are not interested in absolute speed, but relative speed among different approaches. 100 million rows should be reasonable for a typical laptop setup. This works out to be a 1.5 GB dataset. We will handle the dataset as one object. If we were optimizing for speed, chopping the data into chunks for parallel processing would be something to try (but see the discussion of <code>polars</code>, below).</p>
+<p>The inspiration for this project came from the “Billion Row Challenge,” <a href="https://www.morling.dev/blog/one-billion-row-challenge/">proposed by Gunnar Morling</a>, to see how fast a Java program can aggregate one billion rows of data. Here, we are not interested in absolute speed, but relative speed among different approaches. 100 million rows should be reasonable for a typical laptop setup. This works out to be a 1.5 GB dataset. We will handle the dataset as one object. If we were optimizing for speed, chopping the data into chunks for parallel processing would be something to try (but see the discussion of <strong>polars</strong>, below).</p>
 <p>As a cautionary note, the manipulations we are doing, grouping and summarizing, may or may not show off any particular approach to its best advantage. Your mileage may vary. Feel free to quibble.</p>
 </section>
 <section id="make-the-data-set" class="level2">
@@ -360,7 +360,7 @@ Note
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>tidy_df <span class="ot">&lt;-</span> <span class="fu">generate_observations</span>(num_records)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>Now we can process this data set using each of the database packages using both the native interface and the <code>dplyr</code> wrapper. We want to know which database is fastest and what the performance loss is from using the wrapper. First let’s establish that base R is not in the running by comparing it to the default of <code>dplyr</code>, using the code already shown above and a subset of the data.</p>
+<p>Now we can process this data set using each of the database packages using both the native interface and the <strong>dplyr</strong> wrapper. We want to know which database is fastest and what the performance loss is from using the wrapper. First let’s establish that base R is not in the running by comparing it to the default of <strong>dplyr</strong>, using the code already shown above and a subset of the data.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -376,23 +376,23 @@ Note
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>   <span class="fu">gt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="zxhnlwuzvz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#zxhnlwuzvz table {
+<div id="dokawjipwe" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#dokawjipwe table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#zxhnlwuzvz thead, #zxhnlwuzvz tbody, #zxhnlwuzvz tfoot, #zxhnlwuzvz tr, #zxhnlwuzvz td, #zxhnlwuzvz th {
+#dokawjipwe thead, #dokawjipwe tbody, #dokawjipwe tfoot, #dokawjipwe tr, #dokawjipwe td, #dokawjipwe th {
   border-style: none;
 }
 
-#zxhnlwuzvz p {
+#dokawjipwe p {
   margin: 0;
   padding: 0;
 }
 
-#zxhnlwuzvz .gt_table {
+#dokawjipwe .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -418,12 +418,12 @@ Note
   border-left-color: #D3D3D3;
 }
 
-#zxhnlwuzvz .gt_caption {
+#dokawjipwe .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#zxhnlwuzvz .gt_title {
+#dokawjipwe .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -435,7 +435,7 @@ Note
   border-bottom-width: 0;
 }
 
-#zxhnlwuzvz .gt_subtitle {
+#dokawjipwe .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -447,7 +447,7 @@ Note
   border-top-width: 0;
 }
 
-#zxhnlwuzvz .gt_heading {
+#dokawjipwe .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -459,13 +459,13 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#zxhnlwuzvz .gt_bottom_border {
+#dokawjipwe .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#zxhnlwuzvz .gt_col_headings {
+#dokawjipwe .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -480,7 +480,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#zxhnlwuzvz .gt_col_heading {
+#dokawjipwe .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -500,7 +500,7 @@ Note
   overflow-x: hidden;
 }
 
-#zxhnlwuzvz .gt_column_spanner_outer {
+#dokawjipwe .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -512,15 +512,15 @@ Note
   padding-right: 4px;
 }
 
-#zxhnlwuzvz .gt_column_spanner_outer:first-child {
+#dokawjipwe .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#zxhnlwuzvz .gt_column_spanner_outer:last-child {
+#dokawjipwe .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#zxhnlwuzvz .gt_column_spanner {
+#dokawjipwe .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -532,11 +532,11 @@ Note
   width: 100%;
 }
 
-#zxhnlwuzvz .gt_spanner_row {
+#dokawjipwe .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#zxhnlwuzvz .gt_group_heading {
+#dokawjipwe .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -562,7 +562,7 @@ Note
   text-align: left;
 }
 
-#zxhnlwuzvz .gt_empty_group_heading {
+#dokawjipwe .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -577,15 +577,15 @@ Note
   vertical-align: middle;
 }
 
-#zxhnlwuzvz .gt_from_md > :first-child {
+#dokawjipwe .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#zxhnlwuzvz .gt_from_md > :last-child {
+#dokawjipwe .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#zxhnlwuzvz .gt_row {
+#dokawjipwe .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -604,7 +604,7 @@ Note
   overflow-x: hidden;
 }
 
-#zxhnlwuzvz .gt_stub {
+#dokawjipwe .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -617,7 +617,7 @@ Note
   padding-right: 5px;
 }
 
-#zxhnlwuzvz .gt_stub_row_group {
+#dokawjipwe .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -631,15 +631,15 @@ Note
   vertical-align: top;
 }
 
-#zxhnlwuzvz .gt_row_group_first td {
+#dokawjipwe .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#zxhnlwuzvz .gt_row_group_first th {
+#dokawjipwe .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#zxhnlwuzvz .gt_summary_row {
+#dokawjipwe .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -649,16 +649,16 @@ Note
   padding-right: 5px;
 }
 
-#zxhnlwuzvz .gt_first_summary_row {
+#dokawjipwe .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#zxhnlwuzvz .gt_first_summary_row.thick {
+#dokawjipwe .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#zxhnlwuzvz .gt_last_summary_row {
+#dokawjipwe .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -668,7 +668,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#zxhnlwuzvz .gt_grand_summary_row {
+#dokawjipwe .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -678,7 +678,7 @@ Note
   padding-right: 5px;
 }
 
-#zxhnlwuzvz .gt_first_grand_summary_row {
+#dokawjipwe .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -688,7 +688,7 @@ Note
   border-top-color: #D3D3D3;
 }
 
-#zxhnlwuzvz .gt_last_grand_summary_row_top {
+#dokawjipwe .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -698,11 +698,11 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#zxhnlwuzvz .gt_striped {
+#dokawjipwe .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#zxhnlwuzvz .gt_table_body {
+#dokawjipwe .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -711,7 +711,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#zxhnlwuzvz .gt_footnotes {
+#dokawjipwe .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -725,7 +725,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#zxhnlwuzvz .gt_footnote {
+#dokawjipwe .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -734,7 +734,7 @@ Note
   padding-right: 5px;
 }
 
-#zxhnlwuzvz .gt_sourcenotes {
+#dokawjipwe .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -748,7 +748,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#zxhnlwuzvz .gt_sourcenote {
+#dokawjipwe .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -756,63 +756,63 @@ Note
   padding-right: 5px;
 }
 
-#zxhnlwuzvz .gt_left {
+#dokawjipwe .gt_left {
   text-align: left;
 }
 
-#zxhnlwuzvz .gt_center {
+#dokawjipwe .gt_center {
   text-align: center;
 }
 
-#zxhnlwuzvz .gt_right {
+#dokawjipwe .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#zxhnlwuzvz .gt_font_normal {
+#dokawjipwe .gt_font_normal {
   font-weight: normal;
 }
 
-#zxhnlwuzvz .gt_font_bold {
+#dokawjipwe .gt_font_bold {
   font-weight: bold;
 }
 
-#zxhnlwuzvz .gt_font_italic {
+#dokawjipwe .gt_font_italic {
   font-style: italic;
 }
 
-#zxhnlwuzvz .gt_super {
+#dokawjipwe .gt_super {
   font-size: 65%;
 }
 
-#zxhnlwuzvz .gt_footnote_marks {
+#dokawjipwe .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#zxhnlwuzvz .gt_asterisk {
+#dokawjipwe .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#zxhnlwuzvz .gt_indent_1 {
+#dokawjipwe .gt_indent_1 {
   text-indent: 5px;
 }
 
-#zxhnlwuzvz .gt_indent_2 {
+#dokawjipwe .gt_indent_2 {
   text-indent: 10px;
 }
 
-#zxhnlwuzvz .gt_indent_3 {
+#dokawjipwe .gt_indent_3 {
   text-indent: 15px;
 }
 
-#zxhnlwuzvz .gt_indent_4 {
+#dokawjipwe .gt_indent_4 {
   text-indent: 20px;
 }
 
-#zxhnlwuzvz .gt_indent_5 {
+#dokawjipwe .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -827,11 +827,11 @@ Note
 <tbody class="gt_table_body">
 <tr class="odd">
 <td class="gt_row gt_center" headers="expr">do_base(tidy_df[1:1e+07, ])</td>
-<td class="gt_row gt_right" headers="seconds">3.03</td>
+<td class="gt_row gt_right" headers="seconds">3.20</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_center" headers="expr">do_dplyr(tidy_df[1:1e+07, ])</td>
-<td class="gt_row gt_right" headers="seconds">0.34</td>
+<td class="gt_row gt_right" headers="seconds">0.43</td>
 </tr>
 </tbody>
 </table>
@@ -839,13 +839,13 @@ Note
 </div>
 </div>
 </div>
-<p><code>dplyr</code> is much faster than base R. How does that stack up against the competition?</p>
+<p><strong>dplyr</strong> is much faster than base R. How does that stack up against the competition?</p>
 </section>
 <section id="data.table" class="level2">
 <h2 class="anchored" data-anchor-id="data.table">data.table</h2>
-<p>First up is the venerable <code>data.table</code> and the Tidyverse companion <code>dtplyr</code>. This has been around a long time and is the R community’s first choice when speed is needed. The key to <code>data.table</code>’s speed is adding a <code>key</code> to the data set. This makes grouping and rowwise lookups more efficient. The <code>dtplyr</code> package wraps it with <code>dplyr</code> syntax. The function below uses the native interface if it sees a <code>data.table</code> object and the <code>dtplyr</code> interface otherwise, where it converts the data frame to a data.table object first. If we are working with <code>data.table</code> objects throughout our workflow we an also see the performance effect of code translation when using <code>dplyr</code> verbs.</p>
-<p>In the benchmark timings, the first row includes the time taken to convert a <code>tibble</code> to a <code>data.table</code> and then using the dplyr verbs in the <code>dtplyr</code> package. The second row is the time taken to process a “native” <code>data.table</code> using <code>data.table</code> syntax. The third row is the time taken to run the <code>dtplyr</code> code on a native <code>data.table</code>. Finally, as a control, we see the time taken to run the <code>dplyr</code> code on a <code>tibble</code> in the fourth row.</p>
-<p>Note we are using “lazy” evalutation, which is another differentiator for <code>data.table</code>. We accumulate all the query operations and run them only when <code>collect()</code> is called.</p>
+<p>First up is the venerable <strong>data.table</strong> and the Tidyverse companion <strong>dtplyr</strong>. This has been around a long time and is the R community’s first choice when speed is needed. The key to <strong>data.table</strong>’s speed is adding a <code>key</code> to the data set. This makes grouping and rowwise lookups more efficient. The <strong>dtplyr</strong> package wraps it with <strong>dplyr</strong> syntax. If we are working with <strong>data.table</strong> objects throughout our workflow we an also see the performance effect of code translation when using <strong>dplyr</strong> verbs.</p>
+<p>In the benchmark timings, the first row includes the time taken to convert a <strong>tibble</strong> to a <strong>data.table</strong> and then using the <strong>dplyr</strong> verbs from <strong>dtplyr</strong>. The second row is the time taken to process a <strong>data.table</strong> natively. The third row is the time taken to run the <strong>dtplyr</strong> code on a native <strong>data.table</strong>. Finally, as a control, we see the time taken to run the <strong>dplyr</strong> code on a <strong>tibble</strong> in the fourth row.</p>
+<p>Note we are using “lazy” evalutation, which is another differentiator for <strong>data.table</strong>. We accumulate all the query operations and run them only when <code>collect()</code> is called.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -890,23 +890,23 @@ Note
 <span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a><span class="fu">qbench</span>(bm_dt) <span class="sc">|&gt;</span> <span class="fu">gt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="wzjjfnmxch" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#wzjjfnmxch table {
+<div id="vabfrybzey" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#vabfrybzey table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#wzjjfnmxch thead, #wzjjfnmxch tbody, #wzjjfnmxch tfoot, #wzjjfnmxch tr, #wzjjfnmxch td, #wzjjfnmxch th {
+#vabfrybzey thead, #vabfrybzey tbody, #vabfrybzey tfoot, #vabfrybzey tr, #vabfrybzey td, #vabfrybzey th {
   border-style: none;
 }
 
-#wzjjfnmxch p {
+#vabfrybzey p {
   margin: 0;
   padding: 0;
 }
 
-#wzjjfnmxch .gt_table {
+#vabfrybzey .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -932,12 +932,12 @@ Note
   border-left-color: #D3D3D3;
 }
 
-#wzjjfnmxch .gt_caption {
+#vabfrybzey .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#wzjjfnmxch .gt_title {
+#vabfrybzey .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -949,7 +949,7 @@ Note
   border-bottom-width: 0;
 }
 
-#wzjjfnmxch .gt_subtitle {
+#vabfrybzey .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -961,7 +961,7 @@ Note
   border-top-width: 0;
 }
 
-#wzjjfnmxch .gt_heading {
+#vabfrybzey .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -973,13 +973,13 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#wzjjfnmxch .gt_bottom_border {
+#vabfrybzey .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#wzjjfnmxch .gt_col_headings {
+#vabfrybzey .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -994,7 +994,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#wzjjfnmxch .gt_col_heading {
+#vabfrybzey .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1014,7 +1014,7 @@ Note
   overflow-x: hidden;
 }
 
-#wzjjfnmxch .gt_column_spanner_outer {
+#vabfrybzey .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1026,15 +1026,15 @@ Note
   padding-right: 4px;
 }
 
-#wzjjfnmxch .gt_column_spanner_outer:first-child {
+#vabfrybzey .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#wzjjfnmxch .gt_column_spanner_outer:last-child {
+#vabfrybzey .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#wzjjfnmxch .gt_column_spanner {
+#vabfrybzey .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1046,11 +1046,11 @@ Note
   width: 100%;
 }
 
-#wzjjfnmxch .gt_spanner_row {
+#vabfrybzey .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#wzjjfnmxch .gt_group_heading {
+#vabfrybzey .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1076,7 +1076,7 @@ Note
   text-align: left;
 }
 
-#wzjjfnmxch .gt_empty_group_heading {
+#vabfrybzey .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1091,15 +1091,15 @@ Note
   vertical-align: middle;
 }
 
-#wzjjfnmxch .gt_from_md > :first-child {
+#vabfrybzey .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#wzjjfnmxch .gt_from_md > :last-child {
+#vabfrybzey .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#wzjjfnmxch .gt_row {
+#vabfrybzey .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1118,7 +1118,7 @@ Note
   overflow-x: hidden;
 }
 
-#wzjjfnmxch .gt_stub {
+#vabfrybzey .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1131,7 +1131,7 @@ Note
   padding-right: 5px;
 }
 
-#wzjjfnmxch .gt_stub_row_group {
+#vabfrybzey .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1145,15 +1145,15 @@ Note
   vertical-align: top;
 }
 
-#wzjjfnmxch .gt_row_group_first td {
+#vabfrybzey .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#wzjjfnmxch .gt_row_group_first th {
+#vabfrybzey .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#wzjjfnmxch .gt_summary_row {
+#vabfrybzey .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1163,16 +1163,16 @@ Note
   padding-right: 5px;
 }
 
-#wzjjfnmxch .gt_first_summary_row {
+#vabfrybzey .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#wzjjfnmxch .gt_first_summary_row.thick {
+#vabfrybzey .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#wzjjfnmxch .gt_last_summary_row {
+#vabfrybzey .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1182,7 +1182,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#wzjjfnmxch .gt_grand_summary_row {
+#vabfrybzey .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1192,7 +1192,7 @@ Note
   padding-right: 5px;
 }
 
-#wzjjfnmxch .gt_first_grand_summary_row {
+#vabfrybzey .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1202,7 +1202,7 @@ Note
   border-top-color: #D3D3D3;
 }
 
-#wzjjfnmxch .gt_last_grand_summary_row_top {
+#vabfrybzey .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1212,11 +1212,11 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#wzjjfnmxch .gt_striped {
+#vabfrybzey .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#wzjjfnmxch .gt_table_body {
+#vabfrybzey .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1225,7 +1225,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#wzjjfnmxch .gt_footnotes {
+#vabfrybzey .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1239,7 +1239,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#wzjjfnmxch .gt_footnote {
+#vabfrybzey .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1248,7 +1248,7 @@ Note
   padding-right: 5px;
 }
 
-#wzjjfnmxch .gt_sourcenotes {
+#vabfrybzey .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1262,7 +1262,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#wzjjfnmxch .gt_sourcenote {
+#vabfrybzey .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1270,63 +1270,63 @@ Note
   padding-right: 5px;
 }
 
-#wzjjfnmxch .gt_left {
+#vabfrybzey .gt_left {
   text-align: left;
 }
 
-#wzjjfnmxch .gt_center {
+#vabfrybzey .gt_center {
   text-align: center;
 }
 
-#wzjjfnmxch .gt_right {
+#vabfrybzey .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#wzjjfnmxch .gt_font_normal {
+#vabfrybzey .gt_font_normal {
   font-weight: normal;
 }
 
-#wzjjfnmxch .gt_font_bold {
+#vabfrybzey .gt_font_bold {
   font-weight: bold;
 }
 
-#wzjjfnmxch .gt_font_italic {
+#vabfrybzey .gt_font_italic {
   font-style: italic;
 }
 
-#wzjjfnmxch .gt_super {
+#vabfrybzey .gt_super {
   font-size: 65%;
 }
 
-#wzjjfnmxch .gt_footnote_marks {
+#vabfrybzey .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#wzjjfnmxch .gt_asterisk {
+#vabfrybzey .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#wzjjfnmxch .gt_indent_1 {
+#vabfrybzey .gt_indent_1 {
   text-indent: 5px;
 }
 
-#wzjjfnmxch .gt_indent_2 {
+#vabfrybzey .gt_indent_2 {
   text-indent: 10px;
 }
 
-#wzjjfnmxch .gt_indent_3 {
+#vabfrybzey .gt_indent_3 {
   text-indent: 15px;
 }
 
-#wzjjfnmxch .gt_indent_4 {
+#vabfrybzey .gt_indent_4 {
   text-indent: 20px;
 }
 
-#wzjjfnmxch .gt_indent_5 {
+#vabfrybzey .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -1341,19 +1341,19 @@ Note
 <tbody class="gt_table_body">
 <tr class="odd">
 <td class="gt_row gt_center" headers="expr">do_data.table(tidy_df)</td>
-<td class="gt_row gt_right" headers="seconds">3.63</td>
+<td class="gt_row gt_right" headers="seconds">3.71</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_center" headers="expr">do_data.table(DT_df, force_tidy = FALSE)</td>
-<td class="gt_row gt_right" headers="seconds">1.99</td>
+<td class="gt_row gt_right" headers="seconds">1.72</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_center" headers="expr">do_data.table(DT_df, force_tidy = TRUE)</td>
-<td class="gt_row gt_right" headers="seconds">1.81</td>
+<td class="gt_row gt_right" headers="seconds">1.79</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_center" headers="expr">do_dplyr(tidy_df)</td>
-<td class="gt_row gt_right" headers="seconds">2.13</td>
+<td class="gt_row gt_right" headers="seconds">2.37</td>
 </tr>
 </tbody>
 </table>
@@ -1361,11 +1361,11 @@ Note
 </div>
 </div>
 </div>
-<p>There is slight overhead in translating the <code>dplyr</code> syntax to <code>data.table</code> but the slowdown really comes from converting the data frame to a <code>data.table</code> object as shown in the first row. If you do that every time, <code>data.table</code> is slower than <code>dplyr</code>. Try to convert your dataset only once and then work can continue to be on the <code>data.table</code>.</p>
+<p>There is slight overhead in translating the <strong>dplyr</strong> syntax to <strong>data.table</strong> but the slowdown really comes from converting the data frame to a <strong>data.table</strong> object as shown in the first row. If you do that every time, <strong>data.table</strong> is slower than <strong>dplyr</strong>. Try to convert your dataset only once and then work can continue to be on the <strong>data.table</strong>.</p>
 </section>
 <section id="arrow" class="level2">
 <h2 class="anchored" data-anchor-id="arrow">Arrow</h2>
-<p>Next up is <code>Arrow</code>. This is a columnar database from <a href="https://arrow.apache.org/docs/index.html">Apache</a>. It uses a matching file format called <code>parquet</code>. This is a very efficient way to store data and is designed from the ground up to handle datasets larger than can fit in memory (but that is beyond the scope of this analysis). What’s nice is that <strong>the <code>arrow</code> R package already has a <code>dplyr</code> interface as it’s native interface!</strong> There is no separate package to translate dplyr verbs to a different <code>arrow</code> syntax.</p>
+<p>Next up is <strong>Arrow</strong>. This is a columnar database from <a href="https://arrow.apache.org/docs/index.html">Apache</a>. It uses a matching file format called <strong>parquet</strong>. This is a very efficient way to store data and is designed from the ground up to handle datasets larger than can fit in memory (but that is beyond the scope of this analysis). What’s nice is that <strong>the arrow R package already has a dplyr interface as it’s native interface!</strong> There is no separate package to translate <strong>dplyr</strong> verbs to a different <strong>arrow</strong> syntax.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -1400,23 +1400,23 @@ Note
 <span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="fu">qbench</span>(bm_arrow) <span class="sc">|&gt;</span> <span class="fu">gt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="wamlkpiufp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#wamlkpiufp table {
+<div id="xytoalfhdh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#xytoalfhdh table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#wamlkpiufp thead, #wamlkpiufp tbody, #wamlkpiufp tfoot, #wamlkpiufp tr, #wamlkpiufp td, #wamlkpiufp th {
+#xytoalfhdh thead, #xytoalfhdh tbody, #xytoalfhdh tfoot, #xytoalfhdh tr, #xytoalfhdh td, #xytoalfhdh th {
   border-style: none;
 }
 
-#wamlkpiufp p {
+#xytoalfhdh p {
   margin: 0;
   padding: 0;
 }
 
-#wamlkpiufp .gt_table {
+#xytoalfhdh .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1442,12 +1442,12 @@ Note
   border-left-color: #D3D3D3;
 }
 
-#wamlkpiufp .gt_caption {
+#xytoalfhdh .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#wamlkpiufp .gt_title {
+#xytoalfhdh .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1459,7 +1459,7 @@ Note
   border-bottom-width: 0;
 }
 
-#wamlkpiufp .gt_subtitle {
+#xytoalfhdh .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1471,7 +1471,7 @@ Note
   border-top-width: 0;
 }
 
-#wamlkpiufp .gt_heading {
+#xytoalfhdh .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -1483,13 +1483,13 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#wamlkpiufp .gt_bottom_border {
+#xytoalfhdh .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#wamlkpiufp .gt_col_headings {
+#xytoalfhdh .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1504,7 +1504,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#wamlkpiufp .gt_col_heading {
+#xytoalfhdh .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1524,7 +1524,7 @@ Note
   overflow-x: hidden;
 }
 
-#wamlkpiufp .gt_column_spanner_outer {
+#xytoalfhdh .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1536,15 +1536,15 @@ Note
   padding-right: 4px;
 }
 
-#wamlkpiufp .gt_column_spanner_outer:first-child {
+#xytoalfhdh .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#wamlkpiufp .gt_column_spanner_outer:last-child {
+#xytoalfhdh .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#wamlkpiufp .gt_column_spanner {
+#xytoalfhdh .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -1556,11 +1556,11 @@ Note
   width: 100%;
 }
 
-#wamlkpiufp .gt_spanner_row {
+#xytoalfhdh .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#wamlkpiufp .gt_group_heading {
+#xytoalfhdh .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1586,7 +1586,7 @@ Note
   text-align: left;
 }
 
-#wamlkpiufp .gt_empty_group_heading {
+#xytoalfhdh .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -1601,15 +1601,15 @@ Note
   vertical-align: middle;
 }
 
-#wamlkpiufp .gt_from_md > :first-child {
+#xytoalfhdh .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#wamlkpiufp .gt_from_md > :last-child {
+#xytoalfhdh .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#wamlkpiufp .gt_row {
+#xytoalfhdh .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1628,7 +1628,7 @@ Note
   overflow-x: hidden;
 }
 
-#wamlkpiufp .gt_stub {
+#xytoalfhdh .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1641,7 +1641,7 @@ Note
   padding-right: 5px;
 }
 
-#wamlkpiufp .gt_stub_row_group {
+#xytoalfhdh .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -1655,15 +1655,15 @@ Note
   vertical-align: top;
 }
 
-#wamlkpiufp .gt_row_group_first td {
+#xytoalfhdh .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#wamlkpiufp .gt_row_group_first th {
+#xytoalfhdh .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#wamlkpiufp .gt_summary_row {
+#xytoalfhdh .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1673,16 +1673,16 @@ Note
   padding-right: 5px;
 }
 
-#wamlkpiufp .gt_first_summary_row {
+#xytoalfhdh .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#wamlkpiufp .gt_first_summary_row.thick {
+#xytoalfhdh .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#wamlkpiufp .gt_last_summary_row {
+#xytoalfhdh .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1692,7 +1692,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#wamlkpiufp .gt_grand_summary_row {
+#xytoalfhdh .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -1702,7 +1702,7 @@ Note
   padding-right: 5px;
 }
 
-#wamlkpiufp .gt_first_grand_summary_row {
+#xytoalfhdh .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1712,7 +1712,7 @@ Note
   border-top-color: #D3D3D3;
 }
 
-#wamlkpiufp .gt_last_grand_summary_row_top {
+#xytoalfhdh .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -1722,11 +1722,11 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#wamlkpiufp .gt_striped {
+#xytoalfhdh .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#wamlkpiufp .gt_table_body {
+#xytoalfhdh .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -1735,7 +1735,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#wamlkpiufp .gt_footnotes {
+#xytoalfhdh .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1749,7 +1749,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#wamlkpiufp .gt_footnote {
+#xytoalfhdh .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -1758,7 +1758,7 @@ Note
   padding-right: 5px;
 }
 
-#wamlkpiufp .gt_sourcenotes {
+#xytoalfhdh .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -1772,7 +1772,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#wamlkpiufp .gt_sourcenote {
+#xytoalfhdh .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -1780,63 +1780,63 @@ Note
   padding-right: 5px;
 }
 
-#wamlkpiufp .gt_left {
+#xytoalfhdh .gt_left {
   text-align: left;
 }
 
-#wamlkpiufp .gt_center {
+#xytoalfhdh .gt_center {
   text-align: center;
 }
 
-#wamlkpiufp .gt_right {
+#xytoalfhdh .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#wamlkpiufp .gt_font_normal {
+#xytoalfhdh .gt_font_normal {
   font-weight: normal;
 }
 
-#wamlkpiufp .gt_font_bold {
+#xytoalfhdh .gt_font_bold {
   font-weight: bold;
 }
 
-#wamlkpiufp .gt_font_italic {
+#xytoalfhdh .gt_font_italic {
   font-style: italic;
 }
 
-#wamlkpiufp .gt_super {
+#xytoalfhdh .gt_super {
   font-size: 65%;
 }
 
-#wamlkpiufp .gt_footnote_marks {
+#xytoalfhdh .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#wamlkpiufp .gt_asterisk {
+#xytoalfhdh .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#wamlkpiufp .gt_indent_1 {
+#xytoalfhdh .gt_indent_1 {
   text-indent: 5px;
 }
 
-#wamlkpiufp .gt_indent_2 {
+#xytoalfhdh .gt_indent_2 {
   text-indent: 10px;
 }
 
-#wamlkpiufp .gt_indent_3 {
+#xytoalfhdh .gt_indent_3 {
   text-indent: 15px;
 }
 
-#wamlkpiufp .gt_indent_4 {
+#xytoalfhdh .gt_indent_4 {
   text-indent: 20px;
 }
 
-#wamlkpiufp .gt_indent_5 {
+#xytoalfhdh .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -1851,11 +1851,11 @@ Note
 <tbody class="gt_table_body">
 <tr class="odd">
 <td class="gt_row gt_center" headers="expr">do_arrow(arrow_df)</td>
-<td class="gt_row gt_right" headers="seconds">1.33</td>
+<td class="gt_row gt_right" headers="seconds">1.13</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_center" headers="expr">do_arrow(tidy_df)</td>
-<td class="gt_row gt_right" headers="seconds">3.66</td>
+<td class="gt_row gt_right" headers="seconds">3.75</td>
 </tr>
 </tbody>
 </table>
@@ -1863,12 +1863,12 @@ Note
 </div>
 </div>
 </div>
-<p>We see a nice speedup over the previous methods although only when we start out in the <code>arrow</code> format. The overhead of converting the data frame to an <code>arrow</code> table is significant. So if you want to use <code>arrow</code> you’ll be right at home with the <code>dplyr</code> syntax but you should store and retrieve your data in native the <code>arrow</code> and <code>parquet</code> formats.</p>
+<p>We see a nice speedup over the previous methods although only when we start out in the <strong>arrow</strong> format. The overhead of converting the data frame to an <strong>arrow</strong> table is significant. So if you want to use <strong>arrow</strong> you’ll be right at home with the <strong>dplyr</strong> syntax but you should store and retrieve your data in native the <strong>arrow</strong> and <strong>parquet</strong> formats.</p>
 </section>
 <section id="polars" class="level2">
 <h2 class="anchored" data-anchor-id="polars">Polars</h2>
-<p>Moving on to a database that’s made a real splash in the Python community, <code>polars</code>. There is an R version, although it’s not on CRAN so you have to install it from <a href="">here</a>. The <code>tidypolars</code> companion is <a href="https://tidypolars.etiennebacher.com/">here</a>. This is pretty new so it’s a work in progress. This package is a tremendous work but coverage of <code>dplyr</code> verbs is not 100%. The syntax of the native version in R is “pythonic,” so it prefers object methods over functions. It will be familiar to Python folks but R-only users can be very grateful for <code>tidypolars</code>. Once again the main time drag is converting to a <code>polars</code> data frame.</p>
-<p>There is a great Polars cookbook by Damien Dotta for R users <a href="https://ddotta.github.io/cookbook-rpolars/">here</a> which shows many side-by-side comparisons of <code>dplyr</code> and <code>polars</code> syntax. I urge you to refer to it for help with translating your code into native <code>polars</code> if you choose to go that route.</p>
+<p>Moving on to a database that’s made a real splash in the Python community, <strong>polars</strong>. There is an R version, although it’s not on CRAN so you have to install it from <a href="">here</a>. The <strong>arrow</strong> companion is <a href="https://tidypolars.etiennebacher.com/">here</a>. This is pretty new so it’s a work in progress. This package is a tremendous work but coverage of <strong>dplyr</strong> verbs is not 100%. The syntax of the native version in R is “pythonic,” so it prefers object methods over functions. It will be familiar to Python folks but R-only users can be very grateful for <strong>arrow</strong>. Once again the main time drag is converting to a <strong>polars</strong> data frame.</p>
+<p>There is a great Polars cookbook by Damien Dotta for R users <a href="https://ddotta.github.io/cookbook-rpolars/">here</a> which shows many side-by-side comparisons of <strong>dplyr</strong> and <strong>polars</strong> syntax. I urge you to refer to it for help with translating your code into native <strong>polars</strong> if you choose to go that route.</p>
 <p>Polars uses the same columnar format as Arrow, but Polars has a secret weapon in that it does parallel processing by default. This is a big advantage when working with large data sets. Setup time for multi-threading is non-trivial so it really only shines on large data sets. Don’t worry. It all happens in the background. You don’t have to lift a finger.</p>
 <div class="cell">
 <details class="code-fold">
@@ -1924,23 +1924,23 @@ Note
 <span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a><span class="fu">qbench</span>(bm_polars) <span class="sc">|&gt;</span> <span class="fu">gt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="ehzhbxeizl" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ehzhbxeizl table {
+<div id="koiwhbeeiu" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#koiwhbeeiu table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ehzhbxeizl thead, #ehzhbxeizl tbody, #ehzhbxeizl tfoot, #ehzhbxeizl tr, #ehzhbxeizl td, #ehzhbxeizl th {
+#koiwhbeeiu thead, #koiwhbeeiu tbody, #koiwhbeeiu tfoot, #koiwhbeeiu tr, #koiwhbeeiu td, #koiwhbeeiu th {
   border-style: none;
 }
 
-#ehzhbxeizl p {
+#koiwhbeeiu p {
   margin: 0;
   padding: 0;
 }
 
-#ehzhbxeizl .gt_table {
+#koiwhbeeiu .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -1966,12 +1966,12 @@ Note
   border-left-color: #D3D3D3;
 }
 
-#ehzhbxeizl .gt_caption {
+#koiwhbeeiu .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ehzhbxeizl .gt_title {
+#koiwhbeeiu .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -1983,7 +1983,7 @@ Note
   border-bottom-width: 0;
 }
 
-#ehzhbxeizl .gt_subtitle {
+#koiwhbeeiu .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -1995,7 +1995,7 @@ Note
   border-top-width: 0;
 }
 
-#ehzhbxeizl .gt_heading {
+#koiwhbeeiu .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2007,13 +2007,13 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#ehzhbxeizl .gt_bottom_border {
+#koiwhbeeiu .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ehzhbxeizl .gt_col_headings {
+#koiwhbeeiu .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2028,7 +2028,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#ehzhbxeizl .gt_col_heading {
+#koiwhbeeiu .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2048,7 +2048,7 @@ Note
   overflow-x: hidden;
 }
 
-#ehzhbxeizl .gt_column_spanner_outer {
+#koiwhbeeiu .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2060,15 +2060,15 @@ Note
   padding-right: 4px;
 }
 
-#ehzhbxeizl .gt_column_spanner_outer:first-child {
+#koiwhbeeiu .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ehzhbxeizl .gt_column_spanner_outer:last-child {
+#koiwhbeeiu .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ehzhbxeizl .gt_column_spanner {
+#koiwhbeeiu .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2080,11 +2080,11 @@ Note
   width: 100%;
 }
 
-#ehzhbxeizl .gt_spanner_row {
+#koiwhbeeiu .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ehzhbxeizl .gt_group_heading {
+#koiwhbeeiu .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2110,7 +2110,7 @@ Note
   text-align: left;
 }
 
-#ehzhbxeizl .gt_empty_group_heading {
+#koiwhbeeiu .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2125,15 +2125,15 @@ Note
   vertical-align: middle;
 }
 
-#ehzhbxeizl .gt_from_md > :first-child {
+#koiwhbeeiu .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ehzhbxeizl .gt_from_md > :last-child {
+#koiwhbeeiu .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ehzhbxeizl .gt_row {
+#koiwhbeeiu .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2152,7 +2152,7 @@ Note
   overflow-x: hidden;
 }
 
-#ehzhbxeizl .gt_stub {
+#koiwhbeeiu .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2165,7 +2165,7 @@ Note
   padding-right: 5px;
 }
 
-#ehzhbxeizl .gt_stub_row_group {
+#koiwhbeeiu .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2179,15 +2179,15 @@ Note
   vertical-align: top;
 }
 
-#ehzhbxeizl .gt_row_group_first td {
+#koiwhbeeiu .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ehzhbxeizl .gt_row_group_first th {
+#koiwhbeeiu .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ehzhbxeizl .gt_summary_row {
+#koiwhbeeiu .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2197,16 +2197,16 @@ Note
   padding-right: 5px;
 }
 
-#ehzhbxeizl .gt_first_summary_row {
+#koiwhbeeiu .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ehzhbxeizl .gt_first_summary_row.thick {
+#koiwhbeeiu .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ehzhbxeizl .gt_last_summary_row {
+#koiwhbeeiu .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2216,7 +2216,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#ehzhbxeizl .gt_grand_summary_row {
+#koiwhbeeiu .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2226,7 +2226,7 @@ Note
   padding-right: 5px;
 }
 
-#ehzhbxeizl .gt_first_grand_summary_row {
+#koiwhbeeiu .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2236,7 +2236,7 @@ Note
   border-top-color: #D3D3D3;
 }
 
-#ehzhbxeizl .gt_last_grand_summary_row_top {
+#koiwhbeeiu .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2246,11 +2246,11 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#ehzhbxeizl .gt_striped {
+#koiwhbeeiu .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ehzhbxeizl .gt_table_body {
+#koiwhbeeiu .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2259,7 +2259,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#ehzhbxeizl .gt_footnotes {
+#koiwhbeeiu .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2273,7 +2273,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#ehzhbxeizl .gt_footnote {
+#koiwhbeeiu .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2282,7 +2282,7 @@ Note
   padding-right: 5px;
 }
 
-#ehzhbxeizl .gt_sourcenotes {
+#koiwhbeeiu .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2296,7 +2296,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#ehzhbxeizl .gt_sourcenote {
+#koiwhbeeiu .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2304,63 +2304,63 @@ Note
   padding-right: 5px;
 }
 
-#ehzhbxeizl .gt_left {
+#koiwhbeeiu .gt_left {
   text-align: left;
 }
 
-#ehzhbxeizl .gt_center {
+#koiwhbeeiu .gt_center {
   text-align: center;
 }
 
-#ehzhbxeizl .gt_right {
+#koiwhbeeiu .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ehzhbxeizl .gt_font_normal {
+#koiwhbeeiu .gt_font_normal {
   font-weight: normal;
 }
 
-#ehzhbxeizl .gt_font_bold {
+#koiwhbeeiu .gt_font_bold {
   font-weight: bold;
 }
 
-#ehzhbxeizl .gt_font_italic {
+#koiwhbeeiu .gt_font_italic {
   font-style: italic;
 }
 
-#ehzhbxeizl .gt_super {
+#koiwhbeeiu .gt_super {
   font-size: 65%;
 }
 
-#ehzhbxeizl .gt_footnote_marks {
+#koiwhbeeiu .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ehzhbxeizl .gt_asterisk {
+#koiwhbeeiu .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ehzhbxeizl .gt_indent_1 {
+#koiwhbeeiu .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ehzhbxeizl .gt_indent_2 {
+#koiwhbeeiu .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ehzhbxeizl .gt_indent_3 {
+#koiwhbeeiu .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ehzhbxeizl .gt_indent_4 {
+#koiwhbeeiu .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ehzhbxeizl .gt_indent_5 {
+#koiwhbeeiu .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -2375,19 +2375,19 @@ Note
 <tbody class="gt_table_body">
 <tr class="odd">
 <td class="gt_row gt_center" headers="expr">do_polars(tidy_df)</td>
-<td class="gt_row gt_right" headers="seconds">3.66</td>
+<td class="gt_row gt_right" headers="seconds">3.53</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_center" headers="expr">do_polars(polars_df)</td>
-<td class="gt_row gt_right" headers="seconds">0.66</td>
+<td class="gt_row gt_right" headers="seconds">0.68</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_center" headers="expr">do_polars(polars_lazy)</td>
-<td class="gt_row gt_right" headers="seconds">0.67</td>
+<td class="gt_row gt_right" headers="seconds">0.65</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_center" headers="expr">do_polars(polars_df, force_tidy = TRUE)</td>
-<td class="gt_row gt_right" headers="seconds">0.71</td>
+<td class="gt_row gt_right" headers="seconds">0.68</td>
 </tr>
 </tbody>
 </table>
@@ -2395,12 +2395,12 @@ Note
 </div>
 </div>
 </div>
-<p>Pretty speedy! We’ve halved the time shown by <code>arrow</code>. Not only that, the performance of the <code>tidypolars</code> wrapper is great! We take only a tiny performance hit. Again, the overhead in converting an R data frame to polars is considerable. We are much better off if we start out with a <code>polars</code> data frame or stay in that format after converting once. If you want to use <code>polars</code> end-to-end, the file format that matches the in-memory structure of a <code>polars</code> data frame is the Apache <code>parquet</code> format also contained in the <code>arrow</code> package. There are no read/write functions in <code>tidypolars</code> so to read and write <code>parquet</code> files with <code>polars</code>, use the <code>pl_read_parquet()</code> function and <code>&lt;data frame&gt;$write_parquet</code> method from the <code>polars</code> package.</p>
+<p>Pretty speedy! We’ve halved the time shown by <strong>arrow</strong>. Not only that, the performance of the <strong>tidypolars</strong> wrapper is great! We take only a tiny performance hit. Again, the overhead in converting an R data frame to polars is considerable. We are much better off if we start out with a <strong>polars</strong> data frame or stay in that format after converting once. If you want to use <strong>polars</strong> end-to-end, the file format that matches the in-memory structure of a <strong>polars</strong> data frame is the Apache <strong>parquet</strong> format also contained in the <strong>arrow</strong> package. There are no read/write functions in <strong>tidypolars</strong> so to read and write <strong>parquet</strong> files with <strong>polars</strong>, use the <code>pl_read_parquet()</code> function and <code>&lt;data frame&gt;$write_parquet</code> method from the <strong>polars</strong> package.</p>
 <p>Note the use inclusion of a ‘lazy’ data frame in the test. Delaying query execution until all operations have been planned speeds things up a wee bit.</p>
 </section>
 <section id="duckdb" class="level2">
 <h2 class="anchored" data-anchor-id="duckdb">duckDB</h2>
-<p>Our final contender is <code>duckdb</code> with <code>duckplyr</code>. This is a relational database that supports “Structured Query Language” (SQL). SQL is easy to read but very different from R. Also, you first establish a connection to the database and work with the connection, not the data frame. <code>duckplyr</code> to the rescue. The speed boost comes from a <a href="https://duckdb.org/why_duckdb#fast">columnar-vectorized query execution engine</a>.</p>
+<p>Our final contender is <strong>duckdb</strong> with <strong>duckplyr</strong>. This is a relational database that supports “Structured Query Language” (SQL). SQL is easy to read but very different from R. Also, you first establish a connection to the database and work with the connection, not the data frame. <strong>duckplyr</strong> to the rescue. The speed boost comes from a <a href="https://duckdb.org/why_duckdb#fast">columnar-vectorized query execution engine</a>.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -2453,23 +2453,23 @@ Note
 <span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a><span class="fu">qbench</span>(bm_duckdb) <span class="sc">|&gt;</span> <span class="fu">gt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fnxcrucvgs" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#fnxcrucvgs table {
+<div id="ohriqtzplo" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ohriqtzplo table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#fnxcrucvgs thead, #fnxcrucvgs tbody, #fnxcrucvgs tfoot, #fnxcrucvgs tr, #fnxcrucvgs td, #fnxcrucvgs th {
+#ohriqtzplo thead, #ohriqtzplo tbody, #ohriqtzplo tfoot, #ohriqtzplo tr, #ohriqtzplo td, #ohriqtzplo th {
   border-style: none;
 }
 
-#fnxcrucvgs p {
+#ohriqtzplo p {
   margin: 0;
   padding: 0;
 }
 
-#fnxcrucvgs .gt_table {
+#ohriqtzplo .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -2495,12 +2495,12 @@ Note
   border-left-color: #D3D3D3;
 }
 
-#fnxcrucvgs .gt_caption {
+#ohriqtzplo .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#fnxcrucvgs .gt_title {
+#ohriqtzplo .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -2512,7 +2512,7 @@ Note
   border-bottom-width: 0;
 }
 
-#fnxcrucvgs .gt_subtitle {
+#ohriqtzplo .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -2524,7 +2524,7 @@ Note
   border-top-width: 0;
 }
 
-#fnxcrucvgs .gt_heading {
+#ohriqtzplo .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -2536,13 +2536,13 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#fnxcrucvgs .gt_bottom_border {
+#ohriqtzplo .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#fnxcrucvgs .gt_col_headings {
+#ohriqtzplo .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2557,7 +2557,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#fnxcrucvgs .gt_col_heading {
+#ohriqtzplo .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2577,7 +2577,7 @@ Note
   overflow-x: hidden;
 }
 
-#fnxcrucvgs .gt_column_spanner_outer {
+#ohriqtzplo .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2589,15 +2589,15 @@ Note
   padding-right: 4px;
 }
 
-#fnxcrucvgs .gt_column_spanner_outer:first-child {
+#ohriqtzplo .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#fnxcrucvgs .gt_column_spanner_outer:last-child {
+#ohriqtzplo .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#fnxcrucvgs .gt_column_spanner {
+#ohriqtzplo .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -2609,11 +2609,11 @@ Note
   width: 100%;
 }
 
-#fnxcrucvgs .gt_spanner_row {
+#ohriqtzplo .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#fnxcrucvgs .gt_group_heading {
+#ohriqtzplo .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2639,7 +2639,7 @@ Note
   text-align: left;
 }
 
-#fnxcrucvgs .gt_empty_group_heading {
+#ohriqtzplo .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -2654,15 +2654,15 @@ Note
   vertical-align: middle;
 }
 
-#fnxcrucvgs .gt_from_md > :first-child {
+#ohriqtzplo .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#fnxcrucvgs .gt_from_md > :last-child {
+#ohriqtzplo .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#fnxcrucvgs .gt_row {
+#ohriqtzplo .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2681,7 +2681,7 @@ Note
   overflow-x: hidden;
 }
 
-#fnxcrucvgs .gt_stub {
+#ohriqtzplo .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2694,7 +2694,7 @@ Note
   padding-right: 5px;
 }
 
-#fnxcrucvgs .gt_stub_row_group {
+#ohriqtzplo .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -2708,15 +2708,15 @@ Note
   vertical-align: top;
 }
 
-#fnxcrucvgs .gt_row_group_first td {
+#ohriqtzplo .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#fnxcrucvgs .gt_row_group_first th {
+#ohriqtzplo .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#fnxcrucvgs .gt_summary_row {
+#ohriqtzplo .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2726,16 +2726,16 @@ Note
   padding-right: 5px;
 }
 
-#fnxcrucvgs .gt_first_summary_row {
+#ohriqtzplo .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#fnxcrucvgs .gt_first_summary_row.thick {
+#ohriqtzplo .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#fnxcrucvgs .gt_last_summary_row {
+#ohriqtzplo .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2745,7 +2745,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#fnxcrucvgs .gt_grand_summary_row {
+#ohriqtzplo .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -2755,7 +2755,7 @@ Note
   padding-right: 5px;
 }
 
-#fnxcrucvgs .gt_first_grand_summary_row {
+#ohriqtzplo .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2765,7 +2765,7 @@ Note
   border-top-color: #D3D3D3;
 }
 
-#fnxcrucvgs .gt_last_grand_summary_row_top {
+#ohriqtzplo .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -2775,11 +2775,11 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#fnxcrucvgs .gt_striped {
+#ohriqtzplo .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#fnxcrucvgs .gt_table_body {
+#ohriqtzplo .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -2788,7 +2788,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#fnxcrucvgs .gt_footnotes {
+#ohriqtzplo .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2802,7 +2802,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#fnxcrucvgs .gt_footnote {
+#ohriqtzplo .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -2811,7 +2811,7 @@ Note
   padding-right: 5px;
 }
 
-#fnxcrucvgs .gt_sourcenotes {
+#ohriqtzplo .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -2825,7 +2825,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#fnxcrucvgs .gt_sourcenote {
+#ohriqtzplo .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -2833,63 +2833,63 @@ Note
   padding-right: 5px;
 }
 
-#fnxcrucvgs .gt_left {
+#ohriqtzplo .gt_left {
   text-align: left;
 }
 
-#fnxcrucvgs .gt_center {
+#ohriqtzplo .gt_center {
   text-align: center;
 }
 
-#fnxcrucvgs .gt_right {
+#ohriqtzplo .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#fnxcrucvgs .gt_font_normal {
+#ohriqtzplo .gt_font_normal {
   font-weight: normal;
 }
 
-#fnxcrucvgs .gt_font_bold {
+#ohriqtzplo .gt_font_bold {
   font-weight: bold;
 }
 
-#fnxcrucvgs .gt_font_italic {
+#ohriqtzplo .gt_font_italic {
   font-style: italic;
 }
 
-#fnxcrucvgs .gt_super {
+#ohriqtzplo .gt_super {
   font-size: 65%;
 }
 
-#fnxcrucvgs .gt_footnote_marks {
+#ohriqtzplo .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#fnxcrucvgs .gt_asterisk {
+#ohriqtzplo .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#fnxcrucvgs .gt_indent_1 {
+#ohriqtzplo .gt_indent_1 {
   text-indent: 5px;
 }
 
-#fnxcrucvgs .gt_indent_2 {
+#ohriqtzplo .gt_indent_2 {
   text-indent: 10px;
 }
 
-#fnxcrucvgs .gt_indent_3 {
+#ohriqtzplo .gt_indent_3 {
   text-indent: 15px;
 }
 
-#fnxcrucvgs .gt_indent_4 {
+#ohriqtzplo .gt_indent_4 {
   text-indent: 20px;
 }
 
-#fnxcrucvgs .gt_indent_5 {
+#ohriqtzplo .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -2904,15 +2904,15 @@ Note
 <tbody class="gt_table_body">
 <tr class="odd">
 <td class="gt_row gt_center" headers="expr">do_duckdb(tidy_df, use_tidy = TRUE)</td>
-<td class="gt_row gt_right" headers="seconds">2.24</td>
+<td class="gt_row gt_right" headers="seconds">2.25</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_center" headers="expr">do_duckdb(duck_df, use_tidy = TRUE)</td>
-<td class="gt_row gt_right" headers="seconds">2.14</td>
+<td class="gt_row gt_right" headers="seconds">2.56</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_center" headers="expr">do_duckdb(duck_df, use_tidy = FALSE)</td>
-<td class="gt_row gt_right" headers="seconds">0.74</td>
+<td class="gt_row gt_right" headers="seconds">0.75</td>
 </tr>
 </tbody>
 </table>
@@ -2920,12 +2920,12 @@ Note
 </div>
 </div>
 </div>
-<p>So this is interesting. Converting to a <code>duckdb</code> object adds essentially no overhead but the using the tidy vernacular is far slower than native. I suspect the internals of opening and closing the database connection are to blame. <code>duckdb</code> is competitive with <code>polars</code>but only in native mode. If speeding up your execution times is the priority, I cannot recommend the <code>duckplyr</code> wrapper. Brush up on your SQL chops, instead.</p>
+<p>So this is interesting. Converting to a <strong>duckdb</strong> object adds essentially no overhead but the using the tidy vernacular is far slower than native. I suspect the internals of opening and closing the database connection are to blame. <strong>duckdb</strong> is competitive with <strong>polars</strong> but only in native mode. If speeding up your execution times is the priority, I cannot recommend the <strong>duckplyr</strong> wrapper. Brush up on your SQL chops, instead.</p>
 </section>
 <section id="conclusion" class="level2">
 <h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
-<p>Before drawing any conclusions, let’s throw out a couple caveats. The summary statistics we are calculating are very simple. If you are doing something more complex, the results may be different. I urge you do to your own tests. Further, the data set is all in memory. If you are working with data on disk, the results may be different. Coverage of the <code>Tidyverse</code> is not complete for all these wrappers. Some of your data wrangling pipelines may not work.</p>
-<p>As a general statement, the process of converting a standard R data frame to the format used by any of these alt-database engines is significant. You should make the conversion once in your data manipulation pipeline, then stay in the more efficient format until it’s time to present the results with something like <code>ggplot</code>.</p>
+<p>Before drawing any conclusions, let’s throw out a couple caveats. The summary statistics we are calculating are very simple. If you are doing something more complex, the results may be different. I urge you do to your own tests. Further, the data set is all in memory. If you are working with data on disk, the results may be different. Coverage of the <strong>Tidyverse</strong> is not complete for all these wrappers. Some of your data wrangling pipelines may not work.</p>
+<p>As a general statement, the process of converting a standard R data frame to the format used by any of these alt-database engines is significant. You should make the conversion once in your data manipulation pipeline, then stay in the more efficient format until it’s time to present the results with something like <strong>ggplot</strong>.</p>
 <p>Now let’s summarize alt-database engines the way you would typically see them benchmarked, using their native interfaces and data frame formats.</p>
 <div class="cell">
 <details class="code-fold">
@@ -2953,8 +2953,8 @@ Note
 </div>
 </div>
 </div>
-<p>It looks like both <code>duckdb</code> and <code>polars</code> offer significant speed advantages over <code>dplyr</code> but, as mentioned at the beginning, there is more to the story for a <code>tidyverse</code> user.</p>
-<p>Since this post is for people who are interested in speeding up R database operations AND who prefer using <code>tidyverse</code> syntax, let’s summarize the performance of the four contenders using their Tidyverse wrappers around the native data frame formats. <code>duckdb</code> is an odd case in that you can’t avoid the translation costs from R to <code>duckdb</code> format if you want to use the <code>duckplyr</code> wrapper. <strong>Remember, this is not showing which database is fastest. It is showing which database is fastest when using <code>tidyverse</code> syntax.</strong></p>
+<p>It looks like both <strong>duckdb</strong> and <strong>polars</strong> offer significant speed advantages over <strong>dplyr</strong> but, as mentioned at the beginning, there is more to the story for a <strong>tidyverse</strong> user.</p>
+<p>Since this post is for people who are interested in speeding up R database operations AND who prefer using <strong>Tidyverse</strong> syntax, let’s summarize the performance of the four contenders using their Tidyverse wrappers around the native data frame formats. <strong>duckdb</strong> is an odd case in that you can’t avoid the translation costs from R to <strong>duckdb</strong> format if you want to use the <strong>duckplyr</strong> wrapper. <strong>Remember, this is not showing which database is fastest. It is showing which database is fastest when using Tidyverse syntax.</strong></p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -2984,11 +2984,11 @@ Note
 </div>
 </div>
 </div>
-<p><strong>The clear winner is <code>polars</code>.</strong> While both <code>polars</code> and <code>duckdb</code> are competitive in native mode, the tidyverse wrapper for <code>duckdb</code> is a performance killer. To get the most benefit from <code>polars</code> you should read and write your data files in <code>parquet</code> format and only convert <code>polars</code> objects with <code>as_tibble()</code> when you are ready to do some plotting or other non-database operations.</p>
+<p><strong>The clear winner is</strong> polars<strong>.</strong> While both <strong>polars</strong> and <strong>duckdb</strong> are competitive in native mode, the tidyverse wrapper for <strong>duckdb</strong> is a performance killer. To get the most benefit from <strong>polars</strong> you should read and write your data files in <strong>parquet</strong> format and only convert <strong>polars</strong> objects with <code>as_tibble()</code> when you are ready to do some plotting or other non-database operations.</p>
 </section>
 <section id="should-you-always-use-an-alt-database" class="level2">
 <h2 class="anchored" data-anchor-id="should-you-always-use-an-alt-database">Should you always use an alt-database?</h2>
-<p>All of these databases are optimized for certain things but they all come with overhead. In the case of <code>polars</code> the parallel processing and lazy evaluation provide the speed advantage over <code>dplyr</code> but it does some behind-the-scenes setup to run and that adds time. On small datasets it’s not worth it. At what point does the dataset size make using <code>polars</code> faster than <code>dplyr</code>? Let’s find out.</p>
+<p>All of these databases are optimized for certain things but they all come with overhead. In the case of <strong>polars</strong> the parallel processing and lazy evaluation provide the speed advantage over <strong>dplyr</strong> but it does some behind-the-scenes setup to run and that adds time. On small datasets it’s not worth it. At what point does the dataset size make using <strong>polars</strong> faster than <strong>dplyr</strong>? Let’s find out.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -3064,7 +3064,7 @@ Note
 </div>
 </div>
 </div>
-<p>It looks like the crossover point, where <code>polars</code> becomes a better choice than <code>dplyr</code> <strong>with this dataset</strong>, is between 1 and 1.5 million rows. This is a rough estimate and will depend on a lot of factors. The dataset we are using has only two columns. The geometry of your data will certainly be different so it may also be helpful to look at the size of the dataset. Here it seems that we should prefer <code>polars</code> if our dataset is larger than around 23MB.</p>
+<p>It looks like the crossover point, where <strong>polars</strong> becomes a better choice than <strong>dplyr</strong> <strong>with this dataset</strong>, is between 1 and 1.5 million rows. This is a rough estimate and will depend on a lot of factors. The dataset we are using has only two columns. The geometry of your data will certainly be different so it may also be helpful to look at the size of the dataset. Here it seems that we should prefer <strong>polars</strong> if our dataset is larger than around 23MB.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
@@ -3075,23 +3075,23 @@ Note
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>   <span class="fu">fmt_number</span>(<span class="at">columns =</span> <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>,<span class="at">use_seps =</span> <span class="cn">TRUE</span>,<span class="at">decimals =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="ztfpajwoza" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#ztfpajwoza table {
+<div id="gsfqqhuxrv" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#gsfqqhuxrv table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#ztfpajwoza thead, #ztfpajwoza tbody, #ztfpajwoza tfoot, #ztfpajwoza tr, #ztfpajwoza td, #ztfpajwoza th {
+#gsfqqhuxrv thead, #gsfqqhuxrv tbody, #gsfqqhuxrv tfoot, #gsfqqhuxrv tr, #gsfqqhuxrv td, #gsfqqhuxrv th {
   border-style: none;
 }
 
-#ztfpajwoza p {
+#gsfqqhuxrv p {
   margin: 0;
   padding: 0;
 }
 
-#ztfpajwoza .gt_table {
+#gsfqqhuxrv .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -3117,12 +3117,12 @@ Note
   border-left-color: #D3D3D3;
 }
 
-#ztfpajwoza .gt_caption {
+#gsfqqhuxrv .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#ztfpajwoza .gt_title {
+#gsfqqhuxrv .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -3134,7 +3134,7 @@ Note
   border-bottom-width: 0;
 }
 
-#ztfpajwoza .gt_subtitle {
+#gsfqqhuxrv .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -3146,7 +3146,7 @@ Note
   border-top-width: 0;
 }
 
-#ztfpajwoza .gt_heading {
+#gsfqqhuxrv .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -3158,13 +3158,13 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#ztfpajwoza .gt_bottom_border {
+#gsfqqhuxrv .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#ztfpajwoza .gt_col_headings {
+#gsfqqhuxrv .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3179,7 +3179,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#ztfpajwoza .gt_col_heading {
+#gsfqqhuxrv .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3199,7 +3199,7 @@ Note
   overflow-x: hidden;
 }
 
-#ztfpajwoza .gt_column_spanner_outer {
+#gsfqqhuxrv .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3211,15 +3211,15 @@ Note
   padding-right: 4px;
 }
 
-#ztfpajwoza .gt_column_spanner_outer:first-child {
+#gsfqqhuxrv .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#ztfpajwoza .gt_column_spanner_outer:last-child {
+#gsfqqhuxrv .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#ztfpajwoza .gt_column_spanner {
+#gsfqqhuxrv .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -3231,11 +3231,11 @@ Note
   width: 100%;
 }
 
-#ztfpajwoza .gt_spanner_row {
+#gsfqqhuxrv .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#ztfpajwoza .gt_group_heading {
+#gsfqqhuxrv .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3261,7 +3261,7 @@ Note
   text-align: left;
 }
 
-#ztfpajwoza .gt_empty_group_heading {
+#gsfqqhuxrv .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -3276,15 +3276,15 @@ Note
   vertical-align: middle;
 }
 
-#ztfpajwoza .gt_from_md > :first-child {
+#gsfqqhuxrv .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#ztfpajwoza .gt_from_md > :last-child {
+#gsfqqhuxrv .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#ztfpajwoza .gt_row {
+#gsfqqhuxrv .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3303,7 +3303,7 @@ Note
   overflow-x: hidden;
 }
 
-#ztfpajwoza .gt_stub {
+#gsfqqhuxrv .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3316,7 +3316,7 @@ Note
   padding-right: 5px;
 }
 
-#ztfpajwoza .gt_stub_row_group {
+#gsfqqhuxrv .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -3330,15 +3330,15 @@ Note
   vertical-align: top;
 }
 
-#ztfpajwoza .gt_row_group_first td {
+#gsfqqhuxrv .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#ztfpajwoza .gt_row_group_first th {
+#gsfqqhuxrv .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#ztfpajwoza .gt_summary_row {
+#gsfqqhuxrv .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3348,16 +3348,16 @@ Note
   padding-right: 5px;
 }
 
-#ztfpajwoza .gt_first_summary_row {
+#gsfqqhuxrv .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#ztfpajwoza .gt_first_summary_row.thick {
+#gsfqqhuxrv .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#ztfpajwoza .gt_last_summary_row {
+#gsfqqhuxrv .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3367,7 +3367,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#ztfpajwoza .gt_grand_summary_row {
+#gsfqqhuxrv .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -3377,7 +3377,7 @@ Note
   padding-right: 5px;
 }
 
-#ztfpajwoza .gt_first_grand_summary_row {
+#gsfqqhuxrv .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3387,7 +3387,7 @@ Note
   border-top-color: #D3D3D3;
 }
 
-#ztfpajwoza .gt_last_grand_summary_row_top {
+#gsfqqhuxrv .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -3397,11 +3397,11 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#ztfpajwoza .gt_striped {
+#gsfqqhuxrv .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#ztfpajwoza .gt_table_body {
+#gsfqqhuxrv .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -3410,7 +3410,7 @@ Note
   border-bottom-color: #D3D3D3;
 }
 
-#ztfpajwoza .gt_footnotes {
+#gsfqqhuxrv .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3424,7 +3424,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#ztfpajwoza .gt_footnote {
+#gsfqqhuxrv .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -3433,7 +3433,7 @@ Note
   padding-right: 5px;
 }
 
-#ztfpajwoza .gt_sourcenotes {
+#gsfqqhuxrv .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -3447,7 +3447,7 @@ Note
   border-right-color: #D3D3D3;
 }
 
-#ztfpajwoza .gt_sourcenote {
+#gsfqqhuxrv .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -3455,63 +3455,63 @@ Note
   padding-right: 5px;
 }
 
-#ztfpajwoza .gt_left {
+#gsfqqhuxrv .gt_left {
   text-align: left;
 }
 
-#ztfpajwoza .gt_center {
+#gsfqqhuxrv .gt_center {
   text-align: center;
 }
 
-#ztfpajwoza .gt_right {
+#gsfqqhuxrv .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#ztfpajwoza .gt_font_normal {
+#gsfqqhuxrv .gt_font_normal {
   font-weight: normal;
 }
 
-#ztfpajwoza .gt_font_bold {
+#gsfqqhuxrv .gt_font_bold {
   font-weight: bold;
 }
 
-#ztfpajwoza .gt_font_italic {
+#gsfqqhuxrv .gt_font_italic {
   font-style: italic;
 }
 
-#ztfpajwoza .gt_super {
+#gsfqqhuxrv .gt_super {
   font-size: 65%;
 }
 
-#ztfpajwoza .gt_footnote_marks {
+#gsfqqhuxrv .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#ztfpajwoza .gt_asterisk {
+#gsfqqhuxrv .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#ztfpajwoza .gt_indent_1 {
+#gsfqqhuxrv .gt_indent_1 {
   text-indent: 5px;
 }
 
-#ztfpajwoza .gt_indent_2 {
+#gsfqqhuxrv .gt_indent_2 {
   text-indent: 10px;
 }
 
-#ztfpajwoza .gt_indent_3 {
+#gsfqqhuxrv .gt_indent_3 {
   text-indent: 15px;
 }
 
-#ztfpajwoza .gt_indent_4 {
+#gsfqqhuxrv .gt_indent_4 {
   text-indent: 20px;
 }
 
-#ztfpajwoza .gt_indent_5 {
+#gsfqqhuxrv .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
@@ -3530,36 +3530,36 @@ Note
 <tr class="odd">
 <td class="gt_row gt_right" headers="rows">500,000</td>
 <td class="gt_row gt_right" headers="tidy_df">0.02</td>
-<td class="gt_row gt_right" headers="polars_lazy">0.04</td>
-<td class="gt_row gt_right" headers="ratio">1.83</td>
+<td class="gt_row gt_right" headers="polars_lazy">0.05</td>
+<td class="gt_row gt_right" headers="ratio">2.10</td>
 <td class="gt_row gt_left" headers="data_size">7.7 Mb</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_right" headers="rows">1,000,000</td>
 <td class="gt_row gt_right" headers="tidy_df">0.04</td>
 <td class="gt_row gt_right" headers="polars_lazy">0.04</td>
-<td class="gt_row gt_right" headers="ratio">1.12</td>
+<td class="gt_row gt_right" headers="ratio">1.06</td>
 <td class="gt_row gt_left" headers="data_size">15.3 Mb</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_right" headers="rows">1,500,000</td>
-<td class="gt_row gt_right" headers="tidy_df">0.05</td>
+<td class="gt_row gt_right" headers="tidy_df">0.06</td>
 <td class="gt_row gt_right" headers="polars_lazy">0.05</td>
-<td class="gt_row gt_right" headers="ratio">0.90</td>
+<td class="gt_row gt_right" headers="ratio">0.97</td>
 <td class="gt_row gt_left" headers="data_size">22.9 Mb</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_right" headers="rows">2,000,000</td>
 <td class="gt_row gt_right" headers="tidy_df">0.07</td>
-<td class="gt_row gt_right" headers="polars_lazy">0.05</td>
-<td class="gt_row gt_right" headers="ratio">0.78</td>
+<td class="gt_row gt_right" headers="polars_lazy">0.07</td>
+<td class="gt_row gt_right" headers="ratio">0.91</td>
 <td class="gt_row gt_left" headers="data_size">30.5 Mb</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_right" headers="rows">2,500,000</td>
 <td class="gt_row gt_right" headers="tidy_df">0.09</td>
-<td class="gt_row gt_right" headers="polars_lazy">0.07</td>
-<td class="gt_row gt_right" headers="ratio">0.74</td>
+<td class="gt_row gt_right" headers="polars_lazy">0.09</td>
+<td class="gt_row gt_right" headers="ratio">0.90</td>
 <td class="gt_row gt_left" headers="data_size">38.2 Mb</td>
 </tr>
 </tbody>
@@ -3568,7 +3568,7 @@ Note
 </div>
 </div>
 </div>
-<p>There are infinite combinations of hardware, data structures and processing pipelines possible and you may find a different result in your work. <code>polars</code> for R is not on CRAN yet but it’s worth seeking out. I will be incorporating it in my work from now on. I am grateful for any comments, criticisms or observations you may have. Thanks for reading!</p>
+<p>There are infinite combinations of hardware, data structures and processing pipelines possible and you may find a different result in your work. <strong>polars</strong> for R is not on CRAN yet but it’s worth seeking out. I will be incorporating it in my work from now on. I am grateful for any comments, criticisms or observations you may have. Thanks for reading!</p>
 
 
 </section>
