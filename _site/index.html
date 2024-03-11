@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.433">
+<meta name="generator" content="quarto-1.4.549">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -51,7 +51,13 @@ ul.task-list li input[type="checkbox"] {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -60,6 +66,7 @@ ul.task-list li input[type="checkbox"] {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -107,8 +114,35 @@ gtag('config', 'G-BVDKXJLKEL', { 'anonymize_ip': true});
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
 <link rel="stylesheet" href="styles.css">
-<link rel="alternate" type="application/rss+xml" title="Outsider Data Science" href="index.xml"><meta name="twitter:title" content="Outsider Data Science">
+<link rel="alternate" type="application/rss+xml" title="Outsider Data Science" href="index.xml" data-external="1"><meta name="twitter:title" content="Outsider Data Science">
 <meta name="twitter:description" content="">
 <meta name="twitter:image" content="outsiderdata.netlify.app/posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/img/preview.png">
 <meta name="twitter:image-height" content="648">
@@ -120,9 +154,9 @@ gtag('config', 'G-BVDKXJLKEL', { 'anonymize_ip': true});
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">Outsider Data Science</span>
     </a>
@@ -134,47 +168,47 @@ gtag('config', 'G-BVDKXJLKEL', { 'anonymize_ip': true});
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link active" href="./index.html" rel="" target="" aria-current="page">
- <span class="menu-text">Blog</span></a>
+    <a class="nav-link active" href="./index.html" aria-current="page"> 
+<span class="menu-text">Blog</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./about.html" rel="" target="">
- <span class="menu-text">About</span></a>
+    <a class="nav-link" href="./about.html"> 
+<span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://www.linkedin.com/in/asteinmetz/" rel="" target=""><i class="bi bi-linkedin" role="img">
+    <a class="nav-link" href="https://www.linkedin.com/in/asteinmetz/"> <i class="bi bi-linkedin" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://twitter.com/adababbage" rel="" target=""><i class="bi bi-twitter" role="img">
+    <a class="nav-link" href="https://twitter.com/adababbage"> <i class="bi bi-twitter" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://fosstodon.org/@adababbage" rel="" target=""><i class="bi bi-mastodon" role="img">
+    <a class="nav-link" href="https://fosstodon.org/@adababbage"> <i class="bi bi-mastodon" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/apsteinmetz" rel="" target=""><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/apsteinmetz"> <i class="bi bi-github" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="./index.xml" rel="" target=""><i class="bi bi-rss" role="img">
+    <a class="nav-link" href="./index.xml"> <i class="bi bi-rss" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./blogroll.html" rel="" target="">
- <span class="menu-text"><i class="fa-solid fa-blog" aria-label="blog"></i></span></a>
+    <a class="nav-link" href="./blogroll.html"> 
+<span class="menu-text"><i class="fa-solid fa-blog" aria-label="blog"></i></span></a>
   </li>  
 </ul>
-            <div class="quarto-navbar-tools ms-auto">
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
   <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
 </div>
-          </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -184,7 +218,7 @@ gtag('config', 'G-BVDKXJLKEL', { 'anonymize_ip': true});
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(19)</span></div><div class="category" data-category="COVID">COVID <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Excel">Excel <span class="quarto-category-count">(1)</span></div><div class="category" data-category="R">R <span class="quarto-category-count">(1)</span></div><div class="category" data-category="blogging">blogging <span class="quarto-category-count">(1)</span></div><div class="category" data-category="clustering">clustering <span class="quarto-category-count">(1)</span></div><div class="category" data-category="education">education <span class="quarto-category-count">(1)</span></div><div class="category" data-category="facebook">facebook <span class="quarto-category-count">(1)</span></div><div class="category" data-category="gapminder">gapminder <span class="quarto-category-count">(1)</span></div><div class="category" data-category="gender">gender <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ggplot2">ggplot2 <span class="quarto-category-count">(3)</span></div><div class="category" data-category="github">github <span class="quarto-category-count">(1)</span></div><div class="category" data-category="google translate">google translate <span class="quarto-category-count">(1)</span></div><div class="category" data-category="health">health <span class="quarto-category-count">(1)</span></div><div class="category" data-category="machine learning">machine learning <span class="quarto-category-count">(1)</span></div><div class="category" data-category="maps">maps <span class="quarto-category-count">(1)</span></div><div class="category" data-category="music">music <span class="quarto-category-count">(2)</span></div><div class="category" data-category="palettes">palettes <span class="quarto-category-count">(1)</span></div><div class="category" data-category="plotly">plotly <span class="quarto-category-count">(1)</span></div><div class="category" data-category="politics">politics <span class="quarto-category-count">(1)</span></div><div class="category" data-category="puzzle">puzzle <span class="quarto-category-count">(1)</span></div><div class="category" data-category="quarto">quarto <span class="quarto-category-count">(1)</span></div><div class="category" data-category="recursion">recursion <span class="quarto-category-count">(1)</span></div><div class="category" data-category="rick and morty">rick and morty <span class="quarto-category-count">(1)</span></div><div class="category" data-category="sports">sports <span class="quarto-category-count">(1)</span></div><div class="category" data-category="tax">tax <span class="quarto-category-count">(1)</span></div><div class="category" data-category="text mining">text mining <span class="quarto-category-count">(2)</span></div><div class="category" data-category="tidymodels">tidymodels <span class="quarto-category-count">(1)</span></div><div class="category" data-category="tidytext">tidytext <span class="quarto-category-count">(4)</span></div><div class="category" data-category="tidyverse">tidyverse <span class="quarto-category-count">(2)</span></div><div class="category" data-category="twitter">twitter <span class="quarto-category-count">(4)</span></div><div class="category" data-category="web scraping">web scraping <span class="quarto-category-count">(3)</span></div><div class="category" data-category="xgboost">xgboost <span class="quarto-category-count">(1)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(20)</span></div><div class="category" data-category="COVID">COVID <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Excel">Excel <span class="quarto-category-count">(1)</span></div><div class="category" data-category="R">R <span class="quarto-category-count">(1)</span></div><div class="category" data-category="blogging">blogging <span class="quarto-category-count">(1)</span></div><div class="category" data-category="clustering">clustering <span class="quarto-category-count">(1)</span></div><div class="category" data-category="education">education <span class="quarto-category-count">(1)</span></div><div class="category" data-category="facebook">facebook <span class="quarto-category-count">(1)</span></div><div class="category" data-category="gapminder">gapminder <span class="quarto-category-count">(1)</span></div><div class="category" data-category="gender">gender <span class="quarto-category-count">(1)</span></div><div class="category" data-category="ggplot2">ggplot2 <span class="quarto-category-count">(3)</span></div><div class="category" data-category="github">github <span class="quarto-category-count">(1)</span></div><div class="category" data-category="google translate">google translate <span class="quarto-category-count">(1)</span></div><div class="category" data-category="health">health <span class="quarto-category-count">(1)</span></div><div class="category" data-category="machine learning">machine learning <span class="quarto-category-count">(1)</span></div><div class="category" data-category="maps">maps <span class="quarto-category-count">(1)</span></div><div class="category" data-category="music">music <span class="quarto-category-count">(2)</span></div><div class="category" data-category="palettes">palettes <span class="quarto-category-count">(1)</span></div><div class="category" data-category="plotly">plotly <span class="quarto-category-count">(1)</span></div><div class="category" data-category="politics">politics <span class="quarto-category-count">(1)</span></div><div class="category" data-category="puzzle">puzzle <span class="quarto-category-count">(1)</span></div><div class="category" data-category="quarto">quarto <span class="quarto-category-count">(1)</span></div><div class="category" data-category="recursion">recursion <span class="quarto-category-count">(1)</span></div><div class="category" data-category="rick and morty">rick and morty <span class="quarto-category-count">(1)</span></div><div class="category" data-category="sports">sports <span class="quarto-category-count">(1)</span></div><div class="category" data-category="tax">tax <span class="quarto-category-count">(1)</span></div><div class="category" data-category="text mining">text mining <span class="quarto-category-count">(2)</span></div><div class="category" data-category="tidymodels">tidymodels <span class="quarto-category-count">(1)</span></div><div class="category" data-category="tidytext">tidytext <span class="quarto-category-count">(4)</span></div><div class="category" data-category="tidyverse">tidyverse <span class="quarto-category-count">(2)</span></div><div class="category" data-category="twitter">twitter <span class="quarto-category-count">(4)</span></div><div class="category" data-category="web scraping">web scraping <span class="quarto-category-count">(3)</span></div><div class="category" data-category="xgboost">xgboost <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -203,7 +237,9 @@ gtag('config', 'G-BVDKXJLKEL', { 'anonymize_ip': true});
   </div>
   
 
+
 </header>
+
 
 <p><img src="img/R_logo.svg.png" class="img-fluid" style="width:20.0%"> Putting what’s in there, out there. With R!</p>
 <div class="callout callout-style-default callout-note callout-titled">
@@ -246,25 +282,53 @@ Note
   </div>
 </div>
 <div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-listing-date-sort="1686283200000" data-listing-file-modified-sort="1686951505868" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="13">
+<div class="quarto-post image-right" data-index="0" data-listing-date-sort="1710046800000" data-listing-file-modified-sort="1710173902368" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="26" data-listing-word-count-sort="5047">
 <div class="thumbnail">
-<p><a href="./posts/2023-06-09-kakhovka-dam/index.html"> <img src="./posts/2023-06-09-kakhovka-dam/img/flood.gif" class="thumbnail-image"> </a></p>
+<p><a href="./posts/2024-03-10-the-truth-about-tidy-wrappers/index.html" class="no-external"></a></p><a href="./posts/2024-03-10-the-truth-about-tidy-wrappers/index.html" class="no-external">
+<p class="card-img-top"><img src="posts\2024-03-10-the-truth-about-tidy-wrappers\index_files\figure-html\bm_comparison-1.png"  class="thumbnail-image card-img"/></p>
+</a><p><a href="./posts/2024-03-10-the-truth-about-tidy-wrappers/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-06-09-kakhovka-dam/index.html">
 <h3 class="no-anchor listing-title">
-Kakhovka Dam Disaster
+<a href="./posts/2024-03-10-the-truth-about-tidy-wrappers/index.html" class="no-external">The Truth About Tidy Wrappers</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2024-03-10-the-truth-about-tidy-wrappers/index.html" class="no-external"></a>
 </div>
 <div class="listing-description">
-<p>Animate Flood Inundation Along the Dnipro River</p>
+<a href="./posts/2024-03-10-the-truth-about-tidy-wrappers/index.html" class="no-external">Are Tidyverse wrappers around powerful database engines really worth it?</a>
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/2024-03-10-the-truth-about-tidy-wrappers/index.html" class="no-external">
+<div class="listing-date">
+Mar 10, 2024
+</div>
+<div class="listing-author">
+Art Steinmetz
 </div>
 </a>
 </div>
+</div>
+<div class="quarto-post image-right" data-index="1" data-listing-date-sort="1686283200000" data-listing-file-modified-sort="1686951505868" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="13" data-listing-word-count-sort="2407">
+<div class="thumbnail">
+<p><a href="./posts/2023-06-09-kakhovka-dam/index.html" class="no-external"></a></p><a href="./posts/2023-06-09-kakhovka-dam/index.html" class="no-external">
+<p><img src="./posts/2023-06-09-kakhovka-dam/img/flood.gif" class="thumbnail-image"></p>
+</a><p><a href="./posts/2023-06-09-kakhovka-dam/index.html" class="no-external"></a></p>
+</div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2023-06-09-kakhovka-dam/index.html" class="no-external">Kakhovka Dam Disaster</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2023-06-09-kakhovka-dam/index.html" class="no-external"></a>
+</div>
+<div class="listing-description">
+<a href="./posts/2023-06-09-kakhovka-dam/index.html" class="no-external">Animate Flood Inundation Along the Dnipro River </a>
+</div>
+</div>
 <div class="metadata">
-<a href="./posts/2023-06-09-kakhovka-dam/index.html">
+<a href="./posts/2023-06-09-kakhovka-dam/index.html" class="no-external">
 <div class="listing-date">
 Jun 9, 2023
 </div>
@@ -274,25 +338,25 @@ Art Steinmetz
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="1" data-listing-date-sort="1683086400000" data-listing-file-modified-sort="1686512681592" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6">
+<div class="quarto-post image-right" data-index="2" data-listing-date-sort="1683086400000" data-listing-file-modified-sort="1686512681592" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1141">
 <div class="thumbnail">
-<p><a href="./posts/2023-05-03-animating-a-heatmap-with-rayshader/index.html"> <img src="./posts/2023-05-03-animating-a-heatmap-with-rayshader/img/confusion.gif" class="thumbnail-image"> </a></p>
+<p><a href="./posts/2023-05-03-animating-a-heatmap-with-rayshader/index.html" class="no-external"></a></p><a href="./posts/2023-05-03-animating-a-heatmap-with-rayshader/index.html" class="no-external">
+<p><img src="./posts/2023-05-03-animating-a-heatmap-with-rayshader/img/confusion.gif" class="thumbnail-image"></p>
+</a><p><a href="./posts/2023-05-03-animating-a-heatmap-with-rayshader/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-05-03-animating-a-heatmap-with-rayshader/index.html">
 <h3 class="no-anchor listing-title">
-Animating a Heatmap with Rayshader
+<a href="./posts/2023-05-03-animating-a-heatmap-with-rayshader/index.html" class="no-external">Animating a Heatmap with Rayshader</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2023-05-03-animating-a-heatmap-with-rayshader/index.html" class="no-external"></a>
 </div>
 <div class="listing-description">
-The best part of any analysis are the visualizations. I couldn’t resist taking the results of our earlier sentiment analysis and turning it into some appealing eye candy.
+<a href="./posts/2023-05-03-animating-a-heatmap-with-rayshader/index.html" class="no-external">The best part of any analysis are the visualizations. I couldn’t resist taking the results of our earlier sentiment analysis and turning it into some appealing eye candy.</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2023-05-03-animating-a-heatmap-with-rayshader/index.html">
+<a href="./posts/2023-05-03-animating-a-heatmap-with-rayshader/index.html" class="no-external">
 <div class="listing-date">
 May 3, 2023
 </div>
@@ -302,19 +366,19 @@ Art Steinmetz
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="2" data-categories="twitter,tidytext,text mining" data-listing-date-sort="1682827200000" data-listing-file-modified-sort="1686512681483" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7">
+<div class="quarto-post image-right" data-index="3" data-categories="twitter,tidytext,text mining" data-listing-date-sort="1682827200000" data-listing-file-modified-sort="1686512681483" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7" data-listing-word-count-sort="1215">
 <div class="thumbnail">
-<p><a href="./posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/index.html"> <img src="./posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/img/preview.png" class="thumbnail-image"> </a></p>
+<p><a href="./posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/index.html" class="no-external"></a></p><a href="./posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/index.html" class="no-external">
+<p><img src="./posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/img/preview.png" class="thumbnail-image"></p>
+</a><p><a href="./posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/index.html">
 <h3 class="no-anchor listing-title">
-Sentiment Analysis Using Google Translate (Pt. 4 - A Painful Sight)
+<a href="./posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/index.html" class="no-external">Sentiment Analysis Using Google Translate (Pt. 4 - A Painful Sight)</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/index.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('twitter'); return false;">
 twitter
@@ -326,14 +390,12 @@ tidytext
 text mining
 </div>
 </div>
-<a href="./posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/index.html">
 <div class="listing-description">
-Many of us in the U.S. have been surprised by the indifference many in less developed…<span class="citation" data-cites="Muhammad2023"></span>
+<a href="./posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/index.html" class="no-external">Many of us in the U.S. have been surprised by the indifference many in less developed countries have shown about the Ukraine war. There has been much talk lately about how…<span class="citation" data-cites="Muhammad2023"></span></a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/index.html">
+<a href="./posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/index.html" class="no-external">
 <div class="listing-date">
 Apr 30, 2023
 </div>
@@ -343,19 +405,19 @@ Art Steinmetz
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="3" data-categories="tidytext,twitter,machine learning,xgboost" data-listing-date-sort="1682136000000" data-listing-file-modified-sort="1686512681468" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="15">
+<div class="quarto-post image-right" data-index="4" data-categories="tidytext,twitter,machine learning,xgboost" data-listing-date-sort="1682136000000" data-listing-file-modified-sort="1686512681468" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="15" data-listing-word-count-sort="2967">
 <div class="thumbnail">
-<p><a href="./posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index.html"> <img src="./posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/img/eda1.png" class="thumbnail-image"> </a></p>
+<p><a href="./posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index.html" class="no-external"></a></p><a href="./posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index.html" class="no-external">
+<p><img src="./posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/img/eda1.png" class="thumbnail-image"></p>
+</a><p><a href="./posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index.html">
 <h3 class="no-anchor listing-title">
-Sentiment Analysis Using Google Translate (Pt. 3 - Machine Learning)
+<a href="./posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index.html" class="no-external">Sentiment Analysis Using Google Translate (Pt. 3 - Machine Learning)</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('tidytext'); return false;">
 tidytext
@@ -370,14 +432,12 @@ machine learning
 xgboost
 </div>
 </div>
-<a href="./posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index.html">
 <div class="listing-description">
-In Part 2 of this series we learned that summing the valence measurement of the words in the Afrisenti data set did not agree well with the sentiments already provided.…
+<a href="./posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index.html" class="no-external">In Part 2 of this series we learned that summing the valence measurement of the words in the Afrisenti data set did not agree well with the sentiments already provided.…</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index.html">
+<a href="./posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index.html" class="no-external">
 <div class="listing-date">
 Apr 22, 2023
 </div>
@@ -387,19 +447,19 @@ Art Steinmetz
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="4" data-categories="tidytext,twitter" data-listing-date-sort="1681617600000" data-listing-file-modified-sort="1686512681468" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="15">
+<div class="quarto-post image-right" data-index="5" data-categories="tidytext,twitter" data-listing-date-sort="1681617600000" data-listing-file-modified-sort="1686512681468" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="15" data-listing-word-count-sort="2972">
 <div class="thumbnail">
-<p><a href="./posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index.html"> <img src="./posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/img/preview.png" class="thumbnail-image"> </a></p>
+<p><a href="./posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index.html" class="no-external"></a></p><a href="./posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index.html" class="no-external">
+<p><img src="./posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/img/preview.png" class="thumbnail-image"></p>
+</a><p><a href="./posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index.html">
 <h3 class="no-anchor listing-title">
-Sentiment Analysis Using Google Translate (Pt. 2 - Word Valence)
+<a href="./posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index.html" class="no-external">Sentiment Analysis Using Google Translate (Pt. 2 - Word Valence)</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('tidytext'); return false;">
 tidytext
@@ -408,14 +468,12 @@ tidytext
 twitter
 </div>
 </div>
-<a href="./posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index.html">
 <div class="listing-description">
-Sentiment analysis is a common task in natural language processing. Many of the tools available for this are calibrated to the English language. Can Google Translate let us…
+<a href="./posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index.html" class="no-external">Sentiment analysis is a common task in natural language processing. Many of the tools available for this are calibrated to the English language. Can Google Translate let us…</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index.html">
+<a href="./posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index.html" class="no-external">
 <div class="listing-date">
 Apr 16, 2023
 </div>
@@ -425,19 +483,19 @@ Art Steinmetz
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="5" data-categories="tidyverse,google translate,twitter" data-listing-date-sort="1681531200000" data-listing-file-modified-sort="1686512681468" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8">
+<div class="quarto-post image-right" data-index="6" data-categories="tidyverse,google translate,twitter" data-listing-date-sort="1681531200000" data-listing-file-modified-sort="1686512681468" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1567">
 <div class="thumbnail">
-<p><a href="./posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/index.html"> <img src="./posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/img/preview.png" class="thumbnail-image"> </a></p>
+<p><a href="./posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/index.html" class="no-external"></a></p><a href="./posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/index.html" class="no-external">
+<p><img src="./posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/img/preview.png" class="thumbnail-image"></p>
+</a><p><a href="./posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/index.html">
 <h3 class="no-anchor listing-title">
-Sentiment Analysis Using Google Translate (Pt. 1 - Translation)
+<a href="./posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/index.html" class="no-external">Sentiment Analysis Using Google Translate (Pt. 1 - Translation)</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/index.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('tidyverse'); return false;">
 tidyverse
@@ -449,14 +507,12 @@ google translate
 twitter
 </div>
 </div>
-<a href="./posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/index.html">
 <div class="listing-description">
-Can an English speaker use Google Cloud Translate to conduct experiments with natural language processing? Let’s fund out. Like all my data science posts, I find interesting…
+<a href="./posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/index.html" class="no-external">Can an English speaker use Google Cloud Translate to conduct experiments with natural language processing? Let’s fund out. Like all my data science posts, I find interesting…</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/index.html">
+<a href="./posts/2023-04-15-analyze-tweets-with-google-translate-pt-1/index.html" class="no-external">
 <div class="listing-date">
 Apr 15, 2023
 </div>
@@ -466,19 +522,19 @@ Art Steinmetz
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="6" data-categories="quarto,blogging" data-listing-date-sort="1643000400000" data-listing-file-modified-sort="1686512681468" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6">
+<div class="quarto-post image-right" data-index="7" data-categories="quarto,blogging" data-listing-date-sort="1643000400000" data-listing-file-modified-sort="1686512681468" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1159">
 <div class="thumbnail">
-<p><a href="./posts/2023-01-24_Switching-to-Quarto/2023-1-24_switching-to-quarto.html"> <p class="card-img-top"><img src="posts\2023-01-24_Switching-to-Quarto\img\quarto.png"  class="thumbnail-image card-img"/></p> </a></p>
+<p><a href="./posts/2023-01-24_Switching-to-Quarto/2023-1-24_switching-to-quarto.html" class="no-external"></a></p><a href="./posts/2023-01-24_Switching-to-Quarto/2023-1-24_switching-to-quarto.html" class="no-external">
+<p class="card-img-top"><img src="posts\2023-01-24_Switching-to-Quarto\img\quarto.png"  class="thumbnail-image card-img"/></p>
+</a><p><a href="./posts/2023-01-24_Switching-to-Quarto/2023-1-24_switching-to-quarto.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-01-24_Switching-to-Quarto/2023-1-24_switching-to-quarto.html">
 <h3 class="no-anchor listing-title">
-Switching to Quarto from Blogdown
+<a href="./posts/2023-01-24_Switching-to-Quarto/2023-1-24_switching-to-quarto.html" class="no-external">Switching to Quarto from Blogdown</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2023-01-24_Switching-to-Quarto/2023-1-24_switching-to-quarto.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('quarto'); return false;">
 quarto
@@ -487,14 +543,12 @@ quarto
 blogging
 </div>
 </div>
-<a href="./posts/2023-01-24_Switching-to-Quarto/2023-1-24_switching-to-quarto.html">
 <div class="listing-description">
-It all started when I decided to change up my Hugo theme. Up until that point I was happily using the Blogdown add-in for RStudio to initiate new blog posts. At some point…
+<a href="./posts/2023-01-24_Switching-to-Quarto/2023-1-24_switching-to-quarto.html" class="no-external">It all started when I decided to change up my Hugo theme. Up until that point I was happily using the Blogdown add-in for RStudio to initiate new blog posts. At some point…</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2023-01-24_Switching-to-Quarto/2023-1-24_switching-to-quarto.html">
+<a href="./posts/2023-01-24_Switching-to-Quarto/2023-1-24_switching-to-quarto.html" class="no-external">
 <div class="listing-date">
 Jan 24, 2022
 </div>
@@ -504,19 +558,19 @@ Art Steinmetz
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="7" data-categories="ggplot2,tidymodels,tidyverse,COVID" data-listing-date-sort="1607230800000" data-listing-file-modified-sort="1686512681468" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="27">
+<div class="quarto-post image-right" data-index="8" data-categories="ggplot2,tidymodels,tidyverse,COVID" data-listing-date-sort="1607230800000" data-listing-file-modified-sort="1686512681468" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="27" data-listing-word-count-sort="5386">
 <div class="thumbnail">
-<p><a href="./posts/2020-12-06-covid-cases-vs-deaths/2020-12-06-covid-cases-vs-deaths.html"> <img src="./posts/2020-12-06-covid-cases-vs-deaths/img/unnamed-chunk-2-1.png" class="thumbnail-image"> </a></p>
+<p><a href="./posts/2020-12-06-covid-cases-vs-deaths/2020-12-06-covid-cases-vs-deaths.html" class="no-external"></a></p><a href="./posts/2020-12-06-covid-cases-vs-deaths/2020-12-06-covid-cases-vs-deaths.html" class="no-external">
+<p><img src="./posts/2020-12-06-covid-cases-vs-deaths/img/unnamed-chunk-2-1.png" class="thumbnail-image"></p>
+</a><p><a href="./posts/2020-12-06-covid-cases-vs-deaths/2020-12-06-covid-cases-vs-deaths.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2020-12-06-covid-cases-vs-deaths/2020-12-06-covid-cases-vs-deaths.html">
 <h3 class="no-anchor listing-title">
-Covid Cases vs.&nbsp;Deaths
+<a href="./posts/2020-12-06-covid-cases-vs-deaths/2020-12-06-covid-cases-vs-deaths.html" class="no-external">Covid Cases vs.&nbsp;Deaths</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2020-12-06-covid-cases-vs-deaths/2020-12-06-covid-cases-vs-deaths.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('ggplot2'); return false;">
 ggplot2
@@ -531,14 +585,12 @@ tidyverse
 COVID
 </div>
 </div>
-<a href="./posts/2020-12-06-covid-cases-vs-deaths/2020-12-06-covid-cases-vs-deaths.html">
 <div class="listing-description">
-<p>Estimate the average lag between a positive COVID-19 case and a death.</p>
+<a href="./posts/2020-12-06-covid-cases-vs-deaths/2020-12-06-covid-cases-vs-deaths.html" class="no-external">Estimate the average lag between a positive COVID-19 case and a death.</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2020-12-06-covid-cases-vs-deaths/2020-12-06-covid-cases-vs-deaths.html">
+<a href="./posts/2020-12-06-covid-cases-vs-deaths/2020-12-06-covid-cases-vs-deaths.html" class="no-external">
 <div class="listing-date">
 Dec 6, 2020
 </div>
@@ -548,19 +600,19 @@ Art Steinmetz
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="8" data-categories="ggplot2,tidytext,music" data-listing-date-sort="1579064400000" data-listing-file-modified-sort="1686512681466" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="24">
+<div class="quarto-post image-right" data-index="9" data-categories="ggplot2,tidytext,music" data-listing-date-sort="1579064400000" data-listing-file-modified-sort="1686512681466" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="24" data-listing-word-count-sort="4614">
 <div class="thumbnail">
-<p><a href="./posts/2020-01-15-what-do-the-ramones-want/2020-01-15-what-do-the-ramones-want.html"> <img src="./posts/2020-01-15-what-do-the-ramones-want/img/Wants4thEdition.jpg" class="thumbnail-image"> </a></p>
+<p><a href="./posts/2020-01-15-what-do-the-ramones-want/2020-01-15-what-do-the-ramones-want.html" class="no-external"></a></p><a href="./posts/2020-01-15-what-do-the-ramones-want/2020-01-15-what-do-the-ramones-want.html" class="no-external">
+<p><img src="./posts/2020-01-15-what-do-the-ramones-want/img/Wants4thEdition.jpg" class="thumbnail-image"></p>
+</a><p><a href="./posts/2020-01-15-what-do-the-ramones-want/2020-01-15-what-do-the-ramones-want.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2020-01-15-what-do-the-ramones-want/2020-01-15-what-do-the-ramones-want.html">
 <h3 class="no-anchor listing-title">
-What Do The Ramones Want?
+<a href="./posts/2020-01-15-what-do-the-ramones-want/2020-01-15-what-do-the-ramones-want.html" class="no-external">What Do The Ramones Want?</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2020-01-15-what-do-the-ramones-want/2020-01-15-what-do-the-ramones-want.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('ggplot2'); return false;">
 ggplot2
@@ -572,15 +624,13 @@ tidytext
 music
 </div>
 </div>
-<a href="./posts/2020-01-15-what-do-the-ramones-want/2020-01-15-what-do-the-ramones-want.html">
 <div class="listing-description">
-
-Recently I saw a tweet that shared this hilarious poster of Ramones “wants”. Very cool, but how accurate is it? I asked the graphic designer and he says he took some…<code></code>
+<a href="./posts/2020-01-15-what-do-the-ramones-want/2020-01-15-what-do-the-ramones-want.html" class="no-external">
+Recently I saw a tweet that shared this hilarious poster of Ramones “wants”. Very cool, but how accurate is it? I asked the graphic designer and he says he took some…<code></code></a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2020-01-15-what-do-the-ramones-want/2020-01-15-what-do-the-ramones-want.html">
+<a href="./posts/2020-01-15-what-do-the-ramones-want/2020-01-15-what-do-the-ramones-want.html" class="no-external">
 <div class="listing-date">
 Jan 15, 2020
 </div>
@@ -590,19 +640,19 @@ Art Steinmetz
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="9" data-categories="tax,plotly" data-listing-date-sort="1575781200000" data-listing-file-modified-sort="1686512681464" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8">
+<div class="quarto-post image-right" data-index="10" data-categories="tax,plotly" data-listing-date-sort="1575781200000" data-listing-file-modified-sort="1686512681464" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1592">
 <div class="thumbnail">
-<p><a href="./posts/2019-12-08-state-taxes-it-s-not-just-about-income/2019-12-08-state-taxes-it-s-not-just-about-income.html"> <img src="./posts/2019-12-08-state-taxes-it-s-not-just-about-income/img/thumbnail.png" class="thumbnail-image"> </a></p>
+<p><a href="./posts/2019-12-08-state-taxes-it-s-not-just-about-income/2019-12-08-state-taxes-it-s-not-just-about-income.html" class="no-external"></a></p><a href="./posts/2019-12-08-state-taxes-it-s-not-just-about-income/2019-12-08-state-taxes-it-s-not-just-about-income.html" class="no-external">
+<p><img src="./posts/2019-12-08-state-taxes-it-s-not-just-about-income/img/thumbnail.png" class="thumbnail-image"></p>
+</a><p><a href="./posts/2019-12-08-state-taxes-it-s-not-just-about-income/2019-12-08-state-taxes-it-s-not-just-about-income.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2019-12-08-state-taxes-it-s-not-just-about-income/2019-12-08-state-taxes-it-s-not-just-about-income.html">
 <h3 class="no-anchor listing-title">
-State Taxes: It’s not just about Income
+<a href="./posts/2019-12-08-state-taxes-it-s-not-just-about-income/2019-12-08-state-taxes-it-s-not-just-about-income.html" class="no-external">State Taxes: It’s not just about Income</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2019-12-08-state-taxes-it-s-not-just-about-income/2019-12-08-state-taxes-it-s-not-just-about-income.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('tax'); return false;">
 tax
@@ -611,14 +661,12 @@ tax
 plotly
 </div>
 </div>
-<a href="./posts/2019-12-08-state-taxes-it-s-not-just-about-income/2019-12-08-state-taxes-it-s-not-just-about-income.html">
 <div class="listing-description">
-Much of the discussion around tax burdens focuses on income taxes but, at the state level, that leaves out two other big sources of tax liability, sales and property taxes.…<code></code>
+<a href="./posts/2019-12-08-state-taxes-it-s-not-just-about-income/2019-12-08-state-taxes-it-s-not-just-about-income.html" class="no-external">Much of the discussion around tax burdens focuses on income taxes but, at the state level, that leaves out two other big sources of tax liability, sales and property taxes.…<code></code></a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2019-12-08-state-taxes-it-s-not-just-about-income/2019-12-08-state-taxes-it-s-not-just-about-income.html">
+<a href="./posts/2019-12-08-state-taxes-it-s-not-just-about-income/2019-12-08-state-taxes-it-s-not-just-about-income.html" class="no-external">
 <div class="listing-date">
 Dec 8, 2019
 </div>
@@ -628,19 +676,19 @@ Art Steinmetz
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="10" data-categories="github,gender" data-listing-date-sort="1563249600000" data-listing-file-modified-sort="1686512681462" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="22">
+<div class="quarto-post image-right" data-index="11" data-categories="github,gender" data-listing-date-sort="1563249600000" data-listing-file-modified-sort="1686512681462" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="22" data-listing-word-count-sort="4299">
 <div class="thumbnail">
-<p><a href="./posts/2019-07-16-gender-diversity-in-r-and-python-package-contributors/2019-07-16-gender-diversity-in-r-and-python-package-contributors.html"> <img src="./posts/2019-07-16-gender-diversity-in-r-and-python-package-contributors/img/unnamed-chunk-13-1.png" class="thumbnail-image"> </a></p>
+<p><a href="./posts/2019-07-16-gender-diversity-in-r-and-python-package-contributors/2019-07-16-gender-diversity-in-r-and-python-package-contributors.html" class="no-external"></a></p><a href="./posts/2019-07-16-gender-diversity-in-r-and-python-package-contributors/2019-07-16-gender-diversity-in-r-and-python-package-contributors.html" class="no-external">
+<p><img src="./posts/2019-07-16-gender-diversity-in-r-and-python-package-contributors/img/unnamed-chunk-13-1.png" class="thumbnail-image"></p>
+</a><p><a href="./posts/2019-07-16-gender-diversity-in-r-and-python-package-contributors/2019-07-16-gender-diversity-in-r-and-python-package-contributors.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2019-07-16-gender-diversity-in-r-and-python-package-contributors/2019-07-16-gender-diversity-in-r-and-python-package-contributors.html">
 <h3 class="no-anchor listing-title">
-Gender Diversity in R and Python Package Contributors
+<a href="./posts/2019-07-16-gender-diversity-in-r-and-python-package-contributors/2019-07-16-gender-diversity-in-r-and-python-package-contributors.html" class="no-external">Gender Diversity in R and Python Package Contributors</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2019-07-16-gender-diversity-in-r-and-python-package-contributors/2019-07-16-gender-diversity-in-r-and-python-package-contributors.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('github'); return false;">
 github
@@ -649,15 +697,13 @@ github
 gender
 </div>
 </div>
-<a href="./posts/2019-07-16-gender-diversity-in-r-and-python-package-contributors/2019-07-16-gender-diversity-in-r-and-python-package-contributors.html">
 <div class="listing-description">
-
-Over the last few years I have really enjoyed becoming part of the R community. One of the best things about the community is the welcoming, inclusive and supportive nature…
+<a href="./posts/2019-07-16-gender-diversity-in-r-and-python-package-contributors/2019-07-16-gender-diversity-in-r-and-python-package-contributors.html" class="no-external">
+Over the last few years I have really enjoyed becoming part of the R community. One of the best things about the community is the welcoming, inclusive and supportive nature…</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2019-07-16-gender-diversity-in-r-and-python-package-contributors/2019-07-16-gender-diversity-in-r-and-python-package-contributors.html">
+<a href="./posts/2019-07-16-gender-diversity-in-r-and-python-package-contributors/2019-07-16-gender-diversity-in-r-and-python-package-contributors.html" class="no-external">
 <div class="listing-date">
 Jul 16, 2019
 </div>
@@ -667,19 +713,19 @@ Art Steinmetz
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="11" data-categories="R,Excel" data-listing-date-sort="1560312000000" data-listing-file-modified-sort="1686512681460" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5">
+<div class="quarto-post image-right" data-index="12" data-categories="R,Excel" data-listing-date-sort="1560312000000" data-listing-file-modified-sort="1686512681460" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="926">
 <div class="thumbnail">
-<p><a href="./posts/2019-06-12-why-i-migrated-from-excel-to-r/2019-06-12-why-i-migrated-from-excel-to-r.html"> <p class="card-img-top"><img src="posts\2019-06-12-why-i-migrated-from-excel-to-r\img\spreadsheet_mosaic.png"  class="thumbnail-image card-img"/></p> </a></p>
+<p><a href="./posts/2019-06-12-why-i-migrated-from-excel-to-r/2019-06-12-why-i-migrated-from-excel-to-r.html" class="no-external"></a></p><a href="./posts/2019-06-12-why-i-migrated-from-excel-to-r/2019-06-12-why-i-migrated-from-excel-to-r.html" class="no-external">
+<p class="card-img-top"><img src="posts\2019-06-12-why-i-migrated-from-excel-to-r\img\spreadsheet_mosaic.png"  class="thumbnail-image card-img"/></p>
+</a><p><a href="./posts/2019-06-12-why-i-migrated-from-excel-to-r/2019-06-12-why-i-migrated-from-excel-to-r.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2019-06-12-why-i-migrated-from-excel-to-r/2019-06-12-why-i-migrated-from-excel-to-r.html">
 <h3 class="no-anchor listing-title">
-Why I migrated from Excel to R
+<a href="./posts/2019-06-12-why-i-migrated-from-excel-to-r/2019-06-12-why-i-migrated-from-excel-to-r.html" class="no-external">Why I migrated from Excel to R</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2019-06-12-why-i-migrated-from-excel-to-r/2019-06-12-why-i-migrated-from-excel-to-r.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('R'); return false;">
 R
@@ -688,14 +734,12 @@ R
 Excel
 </div>
 </div>
-<a href="./posts/2019-06-12-why-i-migrated-from-excel-to-r/2019-06-12-why-i-migrated-from-excel-to-r.html">
 <div class="listing-description">
-I’ve been a spreadsheet power user from the days of Visicalc for the Apple II. I migrated to Lotus 1-2-3, to…
+<a href="./posts/2019-06-12-why-i-migrated-from-excel-to-r/2019-06-12-why-i-migrated-from-excel-to-r.html" class="no-external">I’ve been a spreadsheet power user from the days of Visicalc for the Apple II. I migrated to Lotus 1-2-3, to Borland Quattro and finally to Excel. With Excel, I’ve…</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2019-06-12-why-i-migrated-from-excel-to-r/2019-06-12-why-i-migrated-from-excel-to-r.html">
+<a href="./posts/2019-06-12-why-i-migrated-from-excel-to-r/2019-06-12-why-i-migrated-from-excel-to-r.html" class="no-external">
 <div class="listing-date">
 Jun 12, 2019
 </div>
@@ -705,19 +749,19 @@ Art Steinmetz
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="12" data-categories="puzzle,recursion" data-listing-date-sort="1555387200000" data-listing-file-modified-sort="1686512681458" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20">
+<div class="quarto-post image-right" data-index="13" data-categories="puzzle,recursion" data-listing-date-sort="1555387200000" data-listing-file-modified-sort="1686512681458" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20" data-listing-word-count-sort="3963">
 <div class="thumbnail">
-<p><a href="./posts/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times.html"> <img src="./posts/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times/img/sample_board.png" class="thumbnail-image"> </a></p>
+<p><a href="./posts/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times.html" class="no-external"></a></p><a href="./posts/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times.html" class="no-external">
+<p><img src="./posts/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times/img/sample_board.png" class="thumbnail-image"></p>
+</a><p><a href="./posts/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times.html">
 <h3 class="no-anchor listing-title">
-Solving the Letterboxed Puzzle in the New York Times
+<a href="./posts/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times.html" class="no-external">Solving the Letterboxed Puzzle in the New York Times</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('puzzle'); return false;">
 puzzle
@@ -726,15 +770,13 @@ puzzle
 recursion
 </div>
 </div>
-<a href="./posts/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times.html">
 <div class="listing-description">
-
-What is the difference between “computer programming” and “data science?” To someone not invovled in either they look much the same. Most data scientists are also coders…
+<a href="./posts/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times.html" class="no-external">
+What is the difference between “computer programming” and “data science?” To someone not invovled in either they look much the same. Most data scientists are also coders…</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times.html">
+<a href="./posts/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times.html" class="no-external">
 <div class="listing-date">
 Apr 16, 2019
 </div>
@@ -744,19 +786,19 @@ Arthur Steinmetz
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="13" data-categories="politics,ggplot2" data-listing-date-sort="1549515600000" data-listing-file-modified-sort="1686512681453" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="33">
+<div class="quarto-post image-right" data-index="14" data-categories="politics,ggplot2" data-listing-date-sort="1549515600000" data-listing-file-modified-sort="1686512681453" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="33" data-listing-word-count-sort="6555">
 <div class="thumbnail">
-<p><a href="./posts/2019-02-07-where-are-the-libertarians/2019-02-07-where-are-the-libertarians.html"> <img src="./posts/2019-02-07-where-are-the-libertarians/img/unnamed-chunk-18-1.png" class="thumbnail-image"> </a></p>
+<p><a href="./posts/2019-02-07-where-are-the-libertarians/2019-02-07-where-are-the-libertarians.html" class="no-external"></a></p><a href="./posts/2019-02-07-where-are-the-libertarians/2019-02-07-where-are-the-libertarians.html" class="no-external">
+<p><img src="./posts/2019-02-07-where-are-the-libertarians/img/unnamed-chunk-18-1.png" class="thumbnail-image"></p>
+</a><p><a href="./posts/2019-02-07-where-are-the-libertarians/2019-02-07-where-are-the-libertarians.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2019-02-07-where-are-the-libertarians/2019-02-07-where-are-the-libertarians.html">
 <h3 class="no-anchor listing-title">
-Where Are The Libertarians?
+<a href="./posts/2019-02-07-where-are-the-libertarians/2019-02-07-where-are-the-libertarians.html" class="no-external">Where Are The Libertarians?</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2019-02-07-where-are-the-libertarians/2019-02-07-where-are-the-libertarians.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('politics'); return false;">
 politics
@@ -765,15 +807,13 @@ politics
 ggplot2
 </div>
 </div>
-<a href="./posts/2019-02-07-where-are-the-libertarians/2019-02-07-where-are-the-libertarians.html">
 <div class="listing-description">
-
-At the risk of losing half my readers in the first paragraph, I’ll share my political views. Generally, I believe in “free people and free markets.” That makes me a small-L…
+<a href="./posts/2019-02-07-where-are-the-libertarians/2019-02-07-where-are-the-libertarians.html" class="no-external">
+At the risk of losing half my readers in the first paragraph, I’ll share my political views. Generally, I believe in “free people and free markets.” That makes me a small-L…</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2019-02-07-where-are-the-libertarians/2019-02-07-where-are-the-libertarians.html">
+<a href="./posts/2019-02-07-where-are-the-libertarians/2019-02-07-where-are-the-libertarians.html" class="no-external">
 <div class="listing-date">
 Feb 7, 2019
 </div>
@@ -783,19 +823,19 @@ Art Steinmetz
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="14" data-categories="clustering,rick and morty,palettes" data-listing-date-sort="1549256400000" data-listing-file-modified-sort="1686512681431" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9">
+<div class="quarto-post image-right" data-index="15" data-categories="clustering,rick and morty,palettes" data-listing-date-sort="1549256400000" data-listing-file-modified-sort="1686512681431" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9" data-listing-word-count-sort="1684">
 <div class="thumbnail">
-<p><a href="./posts/2019-02-04-rick-and-morty-palettes/2019-02-04-rick-and-morty-palettes.html"> <img src="./posts/2019-02-04-rick-and-morty-palettes/img/rm2.jpg" class="thumbnail-image"> </a></p>
+<p><a href="./posts/2019-02-04-rick-and-morty-palettes/2019-02-04-rick-and-morty-palettes.html" class="no-external"></a></p><a href="./posts/2019-02-04-rick-and-morty-palettes/2019-02-04-rick-and-morty-palettes.html" class="no-external">
+<p><img src="./posts/2019-02-04-rick-and-morty-palettes/img/rm2.jpg" class="thumbnail-image"></p>
+</a><p><a href="./posts/2019-02-04-rick-and-morty-palettes/2019-02-04-rick-and-morty-palettes.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2019-02-04-rick-and-morty-palettes/2019-02-04-rick-and-morty-palettes.html">
 <h3 class="no-anchor listing-title">
-Rick and Morty Palettes
+<a href="./posts/2019-02-04-rick-and-morty-palettes/2019-02-04-rick-and-morty-palettes.html" class="no-external">Rick and Morty Palettes</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2019-02-04-rick-and-morty-palettes/2019-02-04-rick-and-morty-palettes.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('clustering'); return false;">
 clustering
@@ -807,15 +847,13 @@ rick and morty
 palettes
 </div>
 </div>
-<a href="./posts/2019-02-04-rick-and-morty-palettes/2019-02-04-rick-and-morty-palettes.html">
 <div class="listing-description">
-
-This was just a fun morning exercise. Let’s mix multiple images to make…<code></code>
+<a href="./posts/2019-02-04-rick-and-morty-palettes/2019-02-04-rick-and-morty-palettes.html" class="no-external">
+This was just a fun morning exercise. Let’s mix multiple images to make a palette of their principal colors using k-means. We’ll also use the totally awesome list-columns…<code></code></a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2019-02-04-rick-and-morty-palettes/2019-02-04-rick-and-morty-palettes.html">
+<a href="./posts/2019-02-04-rick-and-morty-palettes/2019-02-04-rick-and-morty-palettes.html" class="no-external">
 <div class="listing-date">
 Feb 4, 2019
 </div>
@@ -825,19 +863,19 @@ Art Steinmetz
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="15" data-categories="web scraping,education,maps" data-listing-date-sort="1543467600000" data-listing-file-modified-sort="1686512681431" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20">
+<div class="quarto-post image-right" data-index="16" data-categories="web scraping,education,maps" data-listing-date-sort="1543467600000" data-listing-file-modified-sort="1686512681431" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20" data-listing-word-count-sort="3960">
 <div class="thumbnail">
-<p><a href="./posts/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich.html"> <img src="./posts/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich/img/unnamed-chunk-23-1.png" class="thumbnail-image"> </a></p>
+<p><a href="./posts/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich.html" class="no-external"></a></p><a href="./posts/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich.html" class="no-external">
+<p><img src="./posts/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich/img/unnamed-chunk-23-1.png" class="thumbnail-image"></p>
+</a><p><a href="./posts/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich.html">
 <h3 class="no-anchor listing-title">
-Is Free Pre-K in NYC Favoring the Rich?
+<a href="./posts/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich.html" class="no-external">Is Free Pre-K in NYC Favoring the Rich?</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('web scraping'); return false;">
 web scraping
@@ -849,15 +887,13 @@ education
 maps
 </div>
 </div>
-<a href="./posts/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich.html">
 <div class="listing-description">
-
-A hallmark of mayoral administration of NYC Mayor Bill DeBlasio has been free pre-K for all New York families. When the program was initially rolled out there were complaints in some quarters that upper-income neighborhoods were…
+<a href="./posts/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich.html" class="no-external">
+A hallmark of mayoral administration of NYC Mayor Bill DeBlasio has been free pre-K for all New York families. When the program was initially rolled out there were complaint…</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich.html">
+<a href="./posts/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich.html" class="no-external">
 <div class="listing-date">
 Nov 29, 2018
 </div>
@@ -867,19 +903,19 @@ Art Steinmetz
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="16" data-categories="web scraping,sports" data-listing-date-sort="1519621200000" data-listing-file-modified-sort="1686512681431" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8">
+<div class="quarto-post image-right" data-index="17" data-categories="web scraping,sports" data-listing-date-sort="1519621200000" data-listing-file-modified-sort="1686512681431" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1426">
 <div class="thumbnail">
-<p><a href="./posts/2018-02-26-new-winter-sports-for-new-countries/2018-02-26-new-winter-sports-for-new-countries.html"> <p class="card-img-top"><img src="posts\2018-02-26-new-winter-sports-for-new-countries\img\unnamed-chunk-6-1.png"  class="thumbnail-image card-img"/></p> </a></p>
+<p><a href="./posts/2018-02-26-new-winter-sports-for-new-countries/2018-02-26-new-winter-sports-for-new-countries.html" class="no-external"></a></p><a href="./posts/2018-02-26-new-winter-sports-for-new-countries/2018-02-26-new-winter-sports-for-new-countries.html" class="no-external">
+<p class="card-img-top"><img src="posts\2018-02-26-new-winter-sports-for-new-countries\img\unnamed-chunk-6-1.png"  class="thumbnail-image card-img"/></p>
+</a><p><a href="./posts/2018-02-26-new-winter-sports-for-new-countries/2018-02-26-new-winter-sports-for-new-countries.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2018-02-26-new-winter-sports-for-new-countries/2018-02-26-new-winter-sports-for-new-countries.html">
 <h3 class="no-anchor listing-title">
-New Winter Sports for New Countries
+<a href="./posts/2018-02-26-new-winter-sports-for-new-countries/2018-02-26-new-winter-sports-for-new-countries.html" class="no-external">New Winter Sports for New Countries</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2018-02-26-new-winter-sports-for-new-countries/2018-02-26-new-winter-sports-for-new-countries.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('web scraping'); return false;">
 web scraping
@@ -888,15 +924,13 @@ web scraping
 sports
 </div>
 </div>
-<a href="./posts/2018-02-26-new-winter-sports-for-new-countries/2018-02-26-new-winter-sports-for-new-countries.html">
 <div class="listing-description">
-
-Norway is a tiny country that punches way above its weight in the Winter Olympic medal count. We are not surprised as those folks are practically born on skis. At the same…
+<a href="./posts/2018-02-26-new-winter-sports-for-new-countries/2018-02-26-new-winter-sports-for-new-countries.html" class="no-external">
+Norway is a tiny country that punches way above its weight in the Winter Olympic medal count. We are not surprised as those folks are practically born on skis. At the same…</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2018-02-26-new-winter-sports-for-new-countries/2018-02-26-new-winter-sports-for-new-countries.html">
+<a href="./posts/2018-02-26-new-winter-sports-for-new-countries/2018-02-26-new-winter-sports-for-new-countries.html" class="no-external">
 <div class="listing-date">
 Feb 26, 2018
 </div>
@@ -906,19 +940,19 @@ Art Steinmetz
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="17" data-categories="music,web scraping,health,gapminder" data-listing-date-sort="1518325200000" data-listing-file-modified-sort="1686512681416" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="28">
+<div class="quarto-post image-right" data-index="18" data-categories="music,web scraping,health,gapminder" data-listing-date-sort="1518325200000" data-listing-file-modified-sort="1686512681416" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="28" data-listing-word-count-sort="5435">
 <div class="thumbnail">
-<p><a href="./posts/2018-02-11-live-fast-die-young-stay-pretty/2018-02-11-live-fast-die-young-stay-pretty.html"> <p class="card-img-top"><img src="posts\2018-02-11-live-fast-die-young-stay-pretty\img\unnamed-chunk-8-1.png"  class="thumbnail-image card-img"/></p> </a></p>
+<p><a href="./posts/2018-02-11-live-fast-die-young-stay-pretty/2018-02-11-live-fast-die-young-stay-pretty.html" class="no-external"></a></p><a href="./posts/2018-02-11-live-fast-die-young-stay-pretty/2018-02-11-live-fast-die-young-stay-pretty.html" class="no-external">
+<p class="card-img-top"><img src="posts\2018-02-11-live-fast-die-young-stay-pretty\img\unnamed-chunk-8-1.png"  class="thumbnail-image card-img"/></p>
+</a><p><a href="./posts/2018-02-11-live-fast-die-young-stay-pretty/2018-02-11-live-fast-die-young-stay-pretty.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2018-02-11-live-fast-die-young-stay-pretty/2018-02-11-live-fast-die-young-stay-pretty.html">
 <h3 class="no-anchor listing-title">
-Live Fast, Die Young, Stay Pretty?
+<a href="./posts/2018-02-11-live-fast-die-young-stay-pretty/2018-02-11-live-fast-die-young-stay-pretty.html" class="no-external">Live Fast, Die Young, Stay Pretty?</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2018-02-11-live-fast-die-young-stay-pretty/2018-02-11-live-fast-die-young-stay-pretty.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('music'); return false;">
 music
@@ -933,15 +967,13 @@ health
 gapminder
 </div>
 </div>
-<a href="./posts/2018-02-11-live-fast-die-young-stay-pretty/2018-02-11-live-fast-die-young-stay-pretty.html">
 <div class="listing-description">
-
-Live fast, die young, stay pretty? That’s the stereotype for rockers, or it was. We only need to look at Keith Richards, over 70 and going strong, to find a major…
+<a href="./posts/2018-02-11-live-fast-die-young-stay-pretty/2018-02-11-live-fast-die-young-stay-pretty.html" class="no-external">
+Live fast, die young, stay pretty? That’s the stereotype for rockers, or it was. We only need to look at Keith Richards, over 70 and going strong, to find a major…</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2018-02-11-live-fast-die-young-stay-pretty/2018-02-11-live-fast-die-young-stay-pretty.html">
+<a href="./posts/2018-02-11-live-fast-die-young-stay-pretty/2018-02-11-live-fast-die-young-stay-pretty.html" class="no-external">
 <div class="listing-date">
 Feb 11, 2018
 </div>
@@ -951,19 +983,19 @@ Art Steinmetz
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="18" data-categories="text mining,facebook" data-listing-date-sort="1511586000000" data-listing-file-modified-sort="1686512681400" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="25">
+<div class="quarto-post image-right" data-index="19" data-categories="text mining,facebook" data-listing-date-sort="1511586000000" data-listing-file-modified-sort="1686512681400" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="25" data-listing-word-count-sort="4838">
 <div class="thumbnail">
-<p><a href="./posts/2017-11-25-summary-analysis-of-my-facebook-existence/2017-11-25-summary-analysis-of-my-facebook-existence.html"> <p class="card-img-top"><img src="posts\2017-11-25-summary-analysis-of-my-facebook-existence\img\moods.gif"  class="thumbnail-image card-img"/></p> </a></p>
+<p><a href="./posts/2017-11-25-summary-analysis-of-my-facebook-existence/2017-11-25-summary-analysis-of-my-facebook-existence.html" class="no-external"></a></p><a href="./posts/2017-11-25-summary-analysis-of-my-facebook-existence/2017-11-25-summary-analysis-of-my-facebook-existence.html" class="no-external">
+<p class="card-img-top"><img src="posts\2017-11-25-summary-analysis-of-my-facebook-existence\img\moods.gif"  class="thumbnail-image card-img"/></p>
+</a><p><a href="./posts/2017-11-25-summary-analysis-of-my-facebook-existence/2017-11-25-summary-analysis-of-my-facebook-existence.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2017-11-25-summary-analysis-of-my-facebook-existence/2017-11-25-summary-analysis-of-my-facebook-existence.html">
 <h3 class="no-anchor listing-title">
-Plumbing the Depths of My Soul (in Facebook)
+<a href="./posts/2017-11-25-summary-analysis-of-my-facebook-existence/2017-11-25-summary-analysis-of-my-facebook-existence.html" class="no-external">Plumbing the Depths of My Soul (in Facebook)</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2017-11-25-summary-analysis-of-my-facebook-existence/2017-11-25-summary-analysis-of-my-facebook-existence.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('text mining'); return false;">
 text mining
@@ -972,14 +1004,12 @@ text mining
 facebook
 </div>
 </div>
-<a href="./posts/2017-11-25-summary-analysis-of-my-facebook-existence/2017-11-25-summary-analysis-of-my-facebook-existence.html">
 <div class="listing-description">
-First post! Let’s start out nice and easy. No big…
+<a href="./posts/2017-11-25-summary-analysis-of-my-facebook-existence/2017-11-25-summary-analysis-of-my-facebook-existence.html" class="no-external">First post! Let’s start out nice and easy. No big data machine learning or heavy stats. This post will merely explore the depths of my soul through a meta-analysis of every…</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2017-11-25-summary-analysis-of-my-facebook-existence/2017-11-25-summary-analysis-of-my-facebook-existence.html">
+<a href="./posts/2017-11-25-summary-analysis-of-my-facebook-existence/2017-11-25-summary-analysis-of-my-facebook-existence.html" class="no-external">
 <div class="listing-date">
 Nov 25, 2017
 </div>
@@ -1035,6 +1065,33 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       } else {
         el.classList.add('notransition');
       }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
     }
   }
   const toggleColorMode = (alternate) => {
@@ -1103,13 +1160,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return localAlternateSentinel;
     }
   }
-  let localAlternateSentinel = 'alternate';
+  const darkModeDefault = true;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
   // Dark / light mode switch
   window.quartoToggleColorScheme = () => {
     // Read the current dark / light value 
     let toAlternate = !hasAlternateSentinel();
     toggleColorMode(toAlternate);
     setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
   };
   // Ensure there is a toggle, if there isn't float one in the top right
   if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
@@ -1188,10 +1247,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-  function tippyHover(el, contentFn) {
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1201,8 +1259,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1215,6 +1282,125 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1258,6 +1444,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1283,6 +1470,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1343,6 +1556,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+
 
 
 
