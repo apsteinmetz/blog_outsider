@@ -108,7 +108,7 @@ In this experiment we will address three questions.
 
 1.  How much faster (if at all) are the "alt-database" packages than the Tidyverse **dplyr** package. We use the native data frame format throughout the pipeline.
 2.  How much of a performance hit do we take if we use the Tidyverse wrappers to analyze alt-database data sets, still using the native format.
-3.  Suppose we want to work with Tidyverse R data frames (e.g. **tibbles**). Do the all-database engines still give us a speed benefit if we include the time to convert **tibble**s into an alt-database format before doing typical manipulations.
+3.  Suppose we want to work with Tidyverse R data frames (e.g. **tibbles**). Do the alt-database engines still give us a speed benefit if we include the time to convert **tibble**s into an alt-database format before doing typical manipulations.
 
 The inspiration for this project came from the "Billion Row Challenge," [proposed by Gunnar Morling](https://www.morling.dev/blog/one-billion-row-challenge/), to see how fast a Java program can aggregate one billion rows of data. Here, we are not interested in absolute speed, but relative speed among different approaches. 100 million rows should be reasonable for a typical laptop setup. This works out to be a 1.5 GB dataset. We will handle the dataset as one object. If we were optimizing for speed, chopping the data into chunks for parallel processing would be something to try (but see the discussion of **polars**, below).
 
