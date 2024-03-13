@@ -6,15 +6,15 @@
       version="2.0">
 <channel>
 <title>Outsider Data Science</title>
-<link>outsiderdata.netlify.app/</link>
-<atom:link href="outsiderdata.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
+<link>https://outsiderdata.netlify.app/</link>
+<atom:link href="https://outsiderdata.netlify.app/index.xml" rel="self" type="application/rss+xml"/>
 <description>Putting what&#39;s in there, out there. With R!</description>
 <generator>quarto-1.4.549</generator>
 <lastBuildDate>Sun, 10 Mar 2024 05:00:00 GMT</lastBuildDate>
 <item>
   <title>The Truth About Tidy Wrappers</title>
   <dc:creator>Art Steinmetz</dc:creator>
-  <link>outsiderdata.netlify.app/posts/2024-03-10-the-truth-about-tidy-wrappers/</link>
+  <link>https://outsiderdata.netlify.app/posts/2024-03-10-the-truth-about-tidy-wrappers/</link>
   <description><![CDATA[ 
 
 
@@ -3770,7 +3770,7 @@ font-style: inherit;">10</span>))</span></code></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="outsiderdata.netlify.app/posts/2024-03-10-the-truth-about-tidy-wrappers/index_files/figure-html/bm_comparison-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://outsiderdata.netlify.app/posts/2024-03-10-the-truth-about-tidy-wrappers/index_files/figure-html/bm_comparison-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -3919,7 +3919,7 @@ font-style: inherit;">10</span>))</span></code></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="outsiderdata.netlify.app/posts/2024-03-10-the-truth-about-tidy-wrappers/index_files/figure-html/bm_comparison_tidy-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://outsiderdata.netlify.app/posts/2024-03-10-the-truth-about-tidy-wrappers/index_files/figure-html/bm_comparison_tidy-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -4215,7 +4215,7 @@ font-style: inherit;">10</span>))</span></code></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="outsiderdata.netlify.app/posts/2024-03-10-the-truth-about-tidy-wrappers/index_files/figure-html/polars_vs_dplyr_small-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://outsiderdata.netlify.app/posts/2024-03-10-the-truth-about-tidy-wrappers/index_files/figure-html/polars_vs_dplyr_small-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -4339,7 +4339,7 @@ font-style: inherit;">10</span>))</span></code></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="outsiderdata.netlify.app/posts/2024-03-10-the-truth-about-tidy-wrappers/index_files/figure-html/polars_vs_dplyr_small_plot_2-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="https://outsiderdata.netlify.app/posts/2024-03-10-the-truth-about-tidy-wrappers/index_files/figure-html/polars_vs_dplyr_small_plot_2-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -4914,7 +4914,7 @@ font-style: inherit;">2</span>)</span></code></pre></div>
 </section>
 
  ]]></description>
-  <guid>outsiderdata.netlify.app/posts/2024-03-10-the-truth-about-tidy-wrappers/</guid>
+  <guid>https://outsiderdata.netlify.app/posts/2024-03-10-the-truth-about-tidy-wrappers/</guid>
   <pubDate>Sun, 10 Mar 2024 05:00:00 GMT</pubDate>
 </item>
 </channel>
