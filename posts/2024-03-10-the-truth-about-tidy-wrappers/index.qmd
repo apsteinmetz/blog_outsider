@@ -100,7 +100,7 @@ Future code snippets in this article are hidden by default. Click on the "Code" 
 
 When looking at these alt-databases you may be tempted to simply ask "which is fastest?" This is not a simple question. The answer will depend on the size of the dataset, the nature of the manipulations, and the hardware you are using. You can get a sense of the relative speeds by looking at [these comprehensive benchmarks](https://duckdblabs.github.io/db-benchmark/).
 
-If you want to continue to use the **tidyverse** vernacular, the question changes. **It's not "which is fastest," but "which is fastest using the dplyr syntax?"**  The answer, as it turns out, is very different for the second question.
+If you want to continue to use the **tidyverse** vernacular, the question changes. **It's not "which is fastest," but "which is fastest using the dplyr syntax?"** The answer, as it turns out, is very different for the second question.
 
 The **dplyr** wrappers are not a free lunch. There are two sources of overhead that mean the **dplyr** code should be slightly slower than using the native interface. First, the dataset, which might start out as a typical R data frame, must be converted into the target database format. Second, some time must be taken to convert the **dplyr** code to the target database code. Obviously, if your dataset is already in the file format of the database package, the first issue goes away.
 
@@ -183,9 +183,9 @@ microbenchmark(do_base(tidy_df[1:1e7,]),do_dplyr(tidy_df[1:1e7,]),times = 3,unit
 
 ## data.table
 
-First up is the venerable **data.table** and the Tidyverse companion **dtplyr**. This has been around a long time and is the R community's first choice when speed is needed. The key to **data.table**'s speed is adding a `key` to the data set. This makes grouping and rowwise lookups more efficient. The **dtplyr** package wraps it with **dplyr** syntax.  If we are working with **data.table** objects throughout our workflow we an also see the performance effect of code translation when using **dplyr** verbs.
+First up is the venerable **data.table** and the Tidyverse companion **dtplyr**. This has been around a long time and is the R community's first choice when speed is needed. The key to **data.table**'s speed is adding a `key` to the data set. This makes grouping and rowwise lookups more efficient. The **dtplyr** package wraps it with **dplyr** syntax. If we are working with **data.table** objects throughout our workflow we an also see the performance effect of code translation when using **dplyr** verbs.
 
-In the benchmark timings, the first row includes the time taken to convert a **tibble** to a **data.table** and then using the **dplyr** verbs from **dtplyr**. The second row is the time taken to process a **data.table**  natively. The third row is the time taken to run the **dtplyr** code on a native **data.table**.  Finally, as a control, we see the time taken to run the **dplyr** code on a **tibble** in the fourth row.
+In the benchmark timings, the first row includes the time taken to convert a **tibble** to a **data.table** and then using the **dplyr** verbs from **dtplyr**. The second row is the time taken to process a **data.table** natively. The third row is the time taken to run the **dtplyr** code on a native **data.table**. Finally, as a control, we see the time taken to run the **dplyr** code on a **tibble** in the fourth row.
 
 Note we are using "lazy" evalutation, which is another differentiator for **data.table**. We accumulate all the query operations and run them only when `collect()` is called.
 
@@ -273,9 +273,7 @@ We see a nice speedup over the previous methods although only when we start out 
 
 ## Polars
 
-Moving on to a database that's made a real splash in the Python community, **polars**. There is an R version, although it's not on CRAN so you have to install it from [here](). The **arrow** companion is [here](https://tidypolars.etiennebacher.com/). This is pretty new so it's a work in progress. This package is a tremendous work but coverage of **dplyr** verbs is not 100%. The syntax of the native version in R is "pythonic," so it prefers object methods over functions. It will be familiar to Python folks but R-only users can be very grateful for **arrow**. Once again the main time drag is converting to a **polars** data frame.
-
-There is a great Polars cookbook by Damien Dotta for R users [here](https://ddotta.github.io/cookbook-rpolars/) which shows many side-by-side comparisons of **dplyr** and **polars** syntax. I urge you to refer to it for help with translating your code into native **polars** if you choose to go that route.
+Moving on to a database that's made a real splash in the Python community, **polars**. There is an R version, although it's not on CRAN so you have to install it from [here](). The **arrow** companion is [here](https://tidypolars.etiennebacher.com/).
 
 Polars uses the same columnar format as Arrow, but Polars has a secret weapon in that it does parallel processing by default. This is a big advantage when working with large data sets. Setup time for multi-threading is non-trivial so it really only shines on large data sets. Don't worry. It all happens in the background. You don't have to lift a finger.
 
@@ -334,6 +332,30 @@ qbench(bm_polars) |> gt()
 Pretty speedy! We've halved the time shown by **arrow**. Not only that, the performance of the **tidypolars** wrapper is great! We take only a tiny performance hit. Again, the overhead in converting an R data frame to polars is considerable. We are much better off if we start out with a **polars** data frame or stay in that format after converting once. If you want to use **polars** end-to-end, the file format that matches the in-memory structure of a **polars** data frame is the Apache **parquet** format also contained in the **arrow** package. There are no read/write functions in **tidypolars** so to read and write **parquet** files with **polars**, use the `pl_read_parquet()` function and `<data frame>$write_parquet` method from the **polars** package.
 
 Note the use inclusion of a 'lazy' data frame in the test. Delaying query execution until all operations have been planned speeds things up a wee bit.
+
+::: callout-tip
+Polars for R is pretty new so both the native package and `tidypolars` are works in progress. Coverage of **dplyr** verbs is not 100%. In particular, if you do a anything beyond basic functions in `mutate()` you will have to "roll your own" Polars function. The syntax of the native version in R is "pythonic," so it prefers object methods over functions.
+
+As an example, there are several `lubridate` functions in `tidypolars` but the `yearqtr` type is not supported. Suppose we want to convert a date column to a year and quarter. We can create our own function that returns valid Polars code that can be used in a `tidypolars::mutate()` call.
+
+```{r polars function}
+pl_to_yrqtr <- function(x){
+  q <- x$dt$quarter()$cast(pl$String)
+  y <- x$dt$year()$cast(pl$String)
+  pl$concat_str(y,q,separator = "Q")
+}
+
+
+df = pl$DataFrame(
+  "date" = as.Date(c("2022-1-1", "2022-5-2", "2022-12-3"))
+)
+df %>% 
+  mutate(yrqtr = pl_to_yrqtr(date)) %>%
+  as_tibble()
+```
+
+There is a great Polars cookbook by Damien Dotta for R users [here](https://ddotta.github.io/cookbook-rpolars/) which shows many side-by-side comparisons of **dplyr** and **polars** syntax. I urge you to refer to it for help with translating your code into native **polars** if you choose to go that route.
+:::
 
 ## duckDB
 
