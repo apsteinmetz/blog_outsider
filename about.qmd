@@ -28,6 +28,10 @@ I am not a data scientist. Others have coined good terms like "Data Nerd" and "C
 I play around with R for fun. I enjoy thinking up ways to present complex information in a simple, compelling way. I attended an R conference where an axiom was presented by [Dave Robinson](http://varianceexplained.org/about/) that the value of information "still" on your computer is approximately zero and the value of information out in the world is infinitely more. Even if it is small that's infinitely more than zero, right? That emboldened me to put stuff "out there." Perhaps someone else might find it interesting. At a minimum this blog forces more rigor in my own thinking.
 
 ::: column-margin
+![](img/blackrock.png){width="210"}
+:::
+
+::: column-margin
 ![](img/momath.png){width="210"}
 :::
 
@@ -39,19 +43,26 @@ This is a personal side project in no way associated with any organization I am 
 ![](img/rtsws.png){width="210"}
 :::
 
-I used to work at OppenheimerFunds Inc. before it was acquired by [Invesco](https://invesco.com), first as a portfolio manager of global macro fixed income and ultimately as CEO. I am the former board chair at the National Museum of Mathematics, [MoMath.org](https://momath.org), where I rubbed shoulders (though not in creepy way) with people who are really, really smart. Visit the museum when you are in NYC. We are making math cool!
+I used to work at OppenheimerFunds Inc. before it was acquired by [Invesco](https://invesco.com), first as a portfolio manager of global macro fixed income and ultimately as CEO.
+
+Currently, I serve on the boards of directors of the Blackrock Fixed Income mutual funds.
 
 I am also on the board of ["Rock the Street, Wall Street"](https://rockthestreetwallstreet.com/) which brings financial literacy programs into high school classrooms to encourage girls to become interested in finance. We need more diversity in finance.
 
 ::: column-margin
 ![](img/denison.png){width="210"}
 :::
+
 I am a trustee of my alma mater, Denison University. Quite coincidentally, my passion for data science has grown along with Denison's. The college already had strong computer science and applied mathematics programs. A few years ago they launched a Data Analytics major and it has been one of fastest growing disciplines in the school's history. Data science skills in a liberal arts context give kids a powerful tool set that set them up well for career success. [Check it out](https://denison.edu/academics/data-analytics)!
+
+I am the former board chair at the National Museum of Mathematics, [MoMath.org](https://momath.org), where I rubbed shoulders (though not in creepy way) with people who are really, really smart. Visit the museum when you are in NYC. We are making math cool!
 
 Finally, I support [WFMU](https://wfmu.org/). Freeform, listener-supported, radio. Music to code by...sometimes. Want to support the station?
 
 ::: column-margin
-<iframe src="https://pledge.wfmu.org/pledge-widget?program=CM&r=http%3A%2F%2Fwfmu.org%2Fplaylists%2Fshows%2F125865" frameborder="0"></iframe>
+<iframe src="https://pledge.wfmu.org/pledge-widget?program=CM&amp;r=http%3A%2F%2Fwfmu.org%2Fplaylists%2Fshows%2F125865" frameborder="0">
+
+</iframe>
 :::
 
 -   Art Steinmetz
