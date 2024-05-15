@@ -1,0 +1,23 @@
+---
+title: "App Demos"
+---
+
+Built with Shiny for R from [posit.co](https://posit.co)
+
+### New York Harbor Water Quality
+
+<iframe src="https://viztoy.shinyapps.io/NY_Harbor_WQ/" width="1200" height="1000" frameborder="0" allowfullscreen="allowfullscreen">
+
+</iframe>
+
+### Spirograph (TM) Toy
+
+<iframe src="https://viztoy.shinyapps.io/ShinySpiro2/" width="800" height="800" frameborder="0" allowfullscreen="allowfullscreen">
+
+</iframe>
+
+### WFMU Playlist Analyzer
+
+This is a big app so give it a few seconds to load after clicking on the image below.
+
+[![](img/wfmu_app.png)](http://wfmu.artsteinmetz.com)

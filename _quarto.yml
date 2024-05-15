@@ -24,6 +24,9 @@ website:
         href: index.xml
       - text: "{{< fa blog >}}"
         file: blogroll.qmd
+      - text: App Demos
+        file: demos.qmd
+
 
 format:
   html:
