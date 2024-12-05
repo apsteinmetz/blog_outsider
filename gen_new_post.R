@@ -3,7 +3,7 @@ library(fs)
 library(cli)
 new_post <- function(
     title,
-    file = "index.qmd",
+    file = "oyster.qmd",
     description = "",
     author = "Art Steinmetz",
     date = Sys.Date(),
