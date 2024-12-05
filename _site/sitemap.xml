@@ -1,15 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://outsiderdata.netlify.app/posts/2024-04-10-the-truth-about-tidy-wrappers/benchmark_wrappers.html</loc>
-    <lastmod>2024-04-10T23:54:35.594Z</lastmod>
+    <loc>https://outsiderdata.netlify.app/posts/2024-12-05-predicting-water-quality-in-new-york-harbor/oyster.html</loc>
+    <lastmod>2024-12-05T23:00:24.659Z</lastmod>
   </url>
   <url>
-    <loc>https://outsiderdata.netlify.app/posts/2023-05-03-animating-a-heatmap-with-rayshader/index.html</loc>
-    <lastmod>2023-06-11T19:44:41.592Z</lastmod>
+    <loc>https://outsiderdata.netlify.app/posts/2023-06-09-kakhovka-dam/index.html</loc>
+    <lastmod>2023-06-16T21:38:25.868Z</lastmod>
   </url>
   <url>
-    <loc>https://outsiderdata.netlify.app/posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index.html</loc>
+    <loc>https://outsiderdata.netlify.app/posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/index.html</loc>
+    <lastmod>2023-06-11T19:44:41.483Z</lastmod>
+  </url>
+  <url>
+    <loc>https://outsiderdata.netlify.app/posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index.html</loc>
+    <lastmod>2023-06-11T19:44:41.468Z</lastmod>
+  </url>
+  <url>
+    <loc>https://outsiderdata.netlify.app/posts/2023-01-24_Switching-to-Quarto/2023-1-24_switching-to-quarto.html</loc>
+    <lastmod>2023-06-11T19:44:41.468Z</lastmod>
+  </url>
+  <url>
+    <loc>https://outsiderdata.netlify.app/posts/2020-01-15-what-do-the-ramones-want/2020-01-15-what-do-the-ramones-want.html</loc>
+    <lastmod>2023-06-11T19:44:41.466Z</lastmod>
+  </url>
+  <url>
+    <loc>https://outsiderdata.netlify.app/posts/2019-07-16-gender-diversity-in-r-and-python-package-contributors/2019-07-16-gender-diversity-in-r-and-python-package-contributors.html</loc>
+    <lastmod>2023-06-11T19:44:41.462Z</lastmod>
+  </url>
+  <url>
+    <loc>https://outsiderdata.netlify.app/posts/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times.html</loc>
+    <lastmod>2023-06-11T19:44:41.458Z</lastmod>
+  </url>
+  <url>
+    <loc>https://outsiderdata.netlify.app/posts/2019-02-04-rick-and-morty-palettes/2019-02-04-rick-and-morty-palettes.html</loc>
+    <lastmod>2023-06-11T19:44:41.431Z</lastmod>
+  </url>
+  <url>
+    <loc>https://outsiderdata.netlify.app/posts/2018-02-26-new-winter-sports-for-new-countries/2018-02-26-new-winter-sports-for-new-countries.html</loc>
+    <lastmod>2023-06-11T19:44:41.431Z</lastmod>
+  </url>
+  <url>
+    <loc>https://outsiderdata.netlify.app/posts/2017-11-25-summary-analysis-of-my-facebook-existence/2017-11-25-summary-analysis-of-my-facebook-existence.html</loc>
+    <lastmod>2023-06-11T19:44:41.400Z</lastmod>
+  </url>
+  <url>
+    <loc>https://outsiderdata.netlify.app/demos.html</loc>
+    <lastmod>2024-05-15T20:52:25.124Z</lastmod>
+  </url>
+  <url>
+    <loc>https://outsiderdata.netlify.app/about.html</loc>
+    <lastmod>2024-03-20T14:26:25.034Z</lastmod>
+  </url>
+  <url>
+    <loc>https://outsiderdata.netlify.app/blogroll.html</loc>
+    <lastmod>2023-06-11T19:44:41.400Z</lastmod>
+  </url>
+  <url>
+    <loc>https://outsiderdata.netlify.app/index.html</loc>
+    <lastmod>2023-07-02T22:20:30.643Z</lastmod>
+  </url>
+  <url>
+    <loc>https://outsiderdata.netlify.app/posts/2018-02-11-live-fast-die-young-stay-pretty/2018-02-11-live-fast-die-young-stay-pretty.html</loc>
+    <lastmod>2023-06-11T19:44:41.416Z</lastmod>
+  </url>
+  <url>
+    <loc>https://outsiderdata.netlify.app/posts/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich.html</loc>
+    <lastmod>2023-06-11T19:44:41.431Z</lastmod>
+  </url>
+  <url>
+    <loc>https://outsiderdata.netlify.app/posts/2019-02-07-where-are-the-libertarians/2019-02-07-where-are-the-libertarians.html</loc>
+    <lastmod>2023-06-11T19:44:41.453Z</lastmod>
+  </url>
+  <url>
+    <loc>https://outsiderdata.netlify.app/posts/2019-06-12-why-i-migrated-from-excel-to-r/2019-06-12-why-i-migrated-from-excel-to-r.html</loc>
+    <lastmod>2023-06-11T19:44:41.460Z</lastmod>
+  </url>
+  <url>
+    <loc>https://outsiderdata.netlify.app/posts/2019-12-08-state-taxes-it-s-not-just-about-income/2019-12-08-state-taxes-it-s-not-just-about-income.html</loc>
+    <lastmod>2023-06-11T19:44:41.464Z</lastmod>
+  </url>
+  <url>
+    <loc>https://outsiderdata.netlify.app/posts/2020-12-06-covid-cases-vs-deaths/2020-12-06-covid-cases-vs-deaths.html</loc>
     <lastmod>2023-06-11T19:44:41.468Z</lastmod>
   </url>
   <url>
@@ -17,83 +89,15 @@
     <lastmod>2023-06-11T19:44:41.468Z</lastmod>
   </url>
   <url>
-    <loc>https://outsiderdata.netlify.app/posts/2020-12-06-covid-cases-vs-deaths/2020-12-06-covid-cases-vs-deaths.html</loc>
+    <loc>https://outsiderdata.netlify.app/posts/2023-04-22-sentiment-analysis-using-google-translate-pt-3/index.html</loc>
     <lastmod>2023-06-11T19:44:41.468Z</lastmod>
   </url>
   <url>
-    <loc>https://outsiderdata.netlify.app/posts/2019-12-08-state-taxes-it-s-not-just-about-income/2019-12-08-state-taxes-it-s-not-just-about-income.html</loc>
-    <lastmod>2023-06-11T19:44:41.464Z</lastmod>
+    <loc>https://outsiderdata.netlify.app/posts/2023-05-03-animating-a-heatmap-with-rayshader/index.html</loc>
+    <lastmod>2023-06-11T19:44:41.592Z</lastmod>
   </url>
   <url>
-    <loc>https://outsiderdata.netlify.app/posts/2019-06-12-why-i-migrated-from-excel-to-r/2019-06-12-why-i-migrated-from-excel-to-r.html</loc>
-    <lastmod>2023-06-11T19:44:41.460Z</lastmod>
-  </url>
-  <url>
-    <loc>https://outsiderdata.netlify.app/posts/2019-02-07-where-are-the-libertarians/2019-02-07-where-are-the-libertarians.html</loc>
-    <lastmod>2023-06-11T19:44:41.453Z</lastmod>
-  </url>
-  <url>
-    <loc>https://outsiderdata.netlify.app/posts/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich/2018-11-29-is-free-pre-k-in-nyc-favoring-the-rich.html</loc>
-    <lastmod>2023-06-11T19:44:41.431Z</lastmod>
-  </url>
-  <url>
-    <loc>https://outsiderdata.netlify.app/posts/2018-02-11-live-fast-die-young-stay-pretty/2018-02-11-live-fast-die-young-stay-pretty.html</loc>
-    <lastmod>2023-06-11T19:44:41.416Z</lastmod>
-  </url>
-  <url>
-    <loc>https://outsiderdata.netlify.app/index.html</loc>
-    <lastmod>2023-07-02T22:20:30.643Z</lastmod>
-  </url>
-  <url>
-    <loc>https://outsiderdata.netlify.app/blogroll.html</loc>
-    <lastmod>2023-06-11T19:44:41.400Z</lastmod>
-  </url>
-  <url>
-    <loc>https://outsiderdata.netlify.app/about.html</loc>
-    <lastmod>2024-03-20T14:26:25.034Z</lastmod>
-  </url>
-  <url>
-    <loc>https://outsiderdata.netlify.app/demos.html</loc>
-    <lastmod>2024-05-15T20:52:25.124Z</lastmod>
-  </url>
-  <url>
-    <loc>https://outsiderdata.netlify.app/posts/2017-11-25-summary-analysis-of-my-facebook-existence/2017-11-25-summary-analysis-of-my-facebook-existence.html</loc>
-    <lastmod>2023-06-11T19:44:41.400Z</lastmod>
-  </url>
-  <url>
-    <loc>https://outsiderdata.netlify.app/posts/2018-02-26-new-winter-sports-for-new-countries/2018-02-26-new-winter-sports-for-new-countries.html</loc>
-    <lastmod>2023-06-11T19:44:41.431Z</lastmod>
-  </url>
-  <url>
-    <loc>https://outsiderdata.netlify.app/posts/2019-02-04-rick-and-morty-palettes/2019-02-04-rick-and-morty-palettes.html</loc>
-    <lastmod>2023-06-11T19:44:41.431Z</lastmod>
-  </url>
-  <url>
-    <loc>https://outsiderdata.netlify.app/posts/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times/2019-04-16-solving-the-letterboxed-puzzle-in-the-new-york-times.html</loc>
-    <lastmod>2023-06-11T19:44:41.458Z</lastmod>
-  </url>
-  <url>
-    <loc>https://outsiderdata.netlify.app/posts/2019-07-16-gender-diversity-in-r-and-python-package-contributors/2019-07-16-gender-diversity-in-r-and-python-package-contributors.html</loc>
-    <lastmod>2023-06-11T19:44:41.462Z</lastmod>
-  </url>
-  <url>
-    <loc>https://outsiderdata.netlify.app/posts/2020-01-15-what-do-the-ramones-want/2020-01-15-what-do-the-ramones-want.html</loc>
-    <lastmod>2023-06-11T19:44:41.466Z</lastmod>
-  </url>
-  <url>
-    <loc>https://outsiderdata.netlify.app/posts/2023-01-24_Switching-to-Quarto/2023-1-24_switching-to-quarto.html</loc>
-    <lastmod>2023-06-11T19:44:41.468Z</lastmod>
-  </url>
-  <url>
-    <loc>https://outsiderdata.netlify.app/posts/2023-04-16-analyze-tweets-with-google-translate-pt-2/index.html</loc>
-    <lastmod>2023-06-11T19:44:41.468Z</lastmod>
-  </url>
-  <url>
-    <loc>https://outsiderdata.netlify.app/posts/2023-04-30-sentiment-analysis-using-google-translate-pt-4--a-painful-sight/index.html</loc>
-    <lastmod>2023-06-11T19:44:41.483Z</lastmod>
-  </url>
-  <url>
-    <loc>https://outsiderdata.netlify.app/posts/2023-06-09-kakhovka-dam/index.html</loc>
-    <lastmod>2023-06-16T21:38:25.868Z</lastmod>
+    <loc>https://outsiderdata.netlify.app/posts/2024-04-10-the-truth-about-tidy-wrappers/benchmark_wrappers.html</loc>
+    <lastmod>2024-04-10T23:54:35.594Z</lastmod>
   </url>
 </urlset>

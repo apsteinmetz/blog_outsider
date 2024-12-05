@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/2024-12-05-predicting-water-quality-in-new-york-harbor/oyster.html",
       "/posts/2024-04-10-the-truth-about-tidy-wrappers/benchmark_wrappers.html",
       "/posts/2023-06-09-kakhovka-dam/index.html",
       "/posts/2023-05-03-animating-a-heatmap-with-rayshader/index.html",
