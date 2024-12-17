@@ -11,6 +11,10 @@ format:
     code-fold: true
 execute:
   warning: false
+comments: 
+  utterances:
+    repo: apsteinmetz/blog_outsider
+    label: oyster
 
 ---
 ## Motivation
