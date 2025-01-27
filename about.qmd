@@ -8,9 +8,9 @@ about:
     - text: LinkedIn
       icon: linkedin
       url: "https://www.linkedin.com/in/asteinmetz/"
-    - text: Twitter
-      icon: twitter
-      url: "https://twitter.com/adababbage"
+    - text: Bluesky
+      icon:  bluesky
+      url: "https://bsky.app/profile/apsteinmetz.bsky.social"
     - text: Mastodon
       icon: mastodon
       url: "https://fosstodon.org/@adababbage"
