@@ -12,9 +12,11 @@ website:
         file: index.qmd
       - text: About
         file: about.qmd
+      - icon: house-fill
+        url: "https://artsteinmetz.com"
       - icon: linkedin
         href: "https://www.linkedin.com/in/asteinmetz/"
-      - text: "BlueSky"
+      - text: "{{< fa brands bluesky >}}"
         href: "https://bsky.app/profile/apsteinmetz.bsky.social"
       - icon: mastodon
         href: "https://fosstodon.org/@adababbage"

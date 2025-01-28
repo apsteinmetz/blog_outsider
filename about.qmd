@@ -5,11 +5,14 @@ about:
   image: "img/headshot.jpg"
   image-width: "150px"
   links:
+    - text: Home
+      icon: house-fill
+      url: "https://artsteinmetz.com"
     - text: LinkedIn
       icon: linkedin
       url: "https://www.linkedin.com/in/asteinmetz/"
-    - text: Bluesky
-      icon:  bluesky
+    - text: "Bluesky {{< fa brands bluesky >}}"
+      icon:  brands-bluesky
       url: "https://bsky.app/profile/apsteinmetz.bsky.social"
     - text: Mastodon
       icon: mastodon
@@ -18,6 +21,7 @@ about:
       icon: github
       url: "https://github.com/apsteinmetz"
     - text: Email
+      icon: envelope
       url: "mailto:apsteinmetz@yahoo.com"
 ---
 
